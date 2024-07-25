@@ -51,15 +51,13 @@ options:
 
 このツールをメインネットで実行する際は自己責任でやってください。
 また、私は無能なのでこれらのドキュメントを参考にし作りました。ノードの同期に時間がかかっているからまだ動作は未確認です。
-https://github.com/demining/Vector76-Attack
-https://www.fsa.go.jp/policy/bgin/ResearchPaper_ISID_ja.pdf
+
+- https://github.com/demining/Vector76-Attack
+- https://www.fsa.go.jp/policy/bgin/ResearchPaper_ISID_ja.pdf
 
 もしあなたがメインネットを潰そうとしている場合でこのツールを使い、万が一バグ・取引所やウォレットの口座が凍結されるなどして資産が消えても知りません。
 それは自業自得 :D
 
 Happy Hacking!
-
-
-
 
 上条当麻 > そのブロックチェーンをぶち殺す!!  👊  💥 

@@ -51,18 +51,13 @@ options:
 
 在主網上執行此工具的風險由您自行承擔。
 另外，由於我能力不足，所以我參考了這些文件。該操作尚未確認，因為同步節點需要時間。
-https://github.com/demining/Vector76-Attack
-https://www.fsa.go.jp/policy/bgin/ResearchPaper_ISID_ja.pdf
+- https://github.com/demining/Vector76-Attack
+- https://www.fsa.go.jp/policy/bgin/ResearchPaper_ISID_ja.pdf
 
 如果您試圖破壞主網並使用此工具，您將不知道您的資產是否因錯誤、交易所或錢包帳戶被凍結等原因而消失。
 那是我的錯 :D
 
 
 Happy Hacking!
-
-
-
-
-
 
 上條鬥真 > 殺死那個區塊鏈！ 👊  💥 

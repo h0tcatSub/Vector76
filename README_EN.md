@@ -52,8 +52,8 @@ If you run this tool on mainnet, you do so at your own risk.
 
 Also, since I am incompetent, I made this using these documents as reference. The operation is not yet confirmed as it takes time to synchronize the nodes.
 
-https://github.com/demining/Vector76-Attack
-https://www.fsa.go.jp/policy/bgin/ResearchPaper_ISID_ja.pdf
+- https://github.com/demining/Vector76-Attack
+- https://www.fsa.go.jp/policy/bgin/ResearchPaper_ISID_ja.pdf
 
 If you are trying to destroy the mainnet and use this tool, you will not know if your assets disappear due to a bug, exchange or wallet account being frozen, etc.
 suffering the consequences. :D
