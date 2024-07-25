@@ -58,6 +58,10 @@ attacker_address = args.attacker_address
 amount_BTC = args.amount_of_coins#float(sys.argv[9])
 prev_txid  = args.prev_deposit_TXID
 network = args.network
+
+if (network != "mainnet") or (network != "tesnet"):
+    network = "testnet"
+
 print(f"[+] {network} Mode.")
 #node_url = "https://bitcoin-mainnet.node.coinapi.io"
 #node_api_key = sys.argv[6]
