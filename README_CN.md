@@ -3,8 +3,8 @@
 粗略地說，這是一種利用區塊鏈問題，透過假裝少量批准（1個或2個批准？）的交易沒有發生來允許雙重支付的攻擊方法。
 受影響的包括零售商店、郵購商店和賭博網站。
 
-有價值的資料：https://github.com/demining/Vector76-Attack
-Fork（內容相同）：https://github.com/h0tcatSub/Vector76-Attack
+- 有價值的資料：https://github.com/demining/Vector76-Attack
+- Fork（內容相同）：https://github.com/h0tcatSub/Vector76-Attack
 
 該專案的目標是：
 

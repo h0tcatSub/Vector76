@@ -3,8 +3,8 @@
 Roughly speaking, it is an attack method that takes advantage of blockchain issues and allows double payments by pretending that transactions with a small number of approvals (up to 1 or 2 Confirmations?) have not occurred.
 Retail stores, mail order stores, etc. are affected.
 
-Valuable materials (Head family): https://github.com/demining/Vector76-Attack
-Forked Repository  (The content is the same.): https://github.com/h0tcatSub/Vector76-Attack
+- Valuable materials (Head family): https://github.com/demining/Vector76-Attack
+- Forked Repository  (The content is the same.): https://github.com/h0tcatSub/Vector76-Attack
 
 
 
