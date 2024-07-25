@@ -7,3 +7,6 @@ plyvel
 matplotlib
 numpy
 ujson
+bitcoin
+bitcoinaddress
+bitcoincli
