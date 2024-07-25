@@ -10,6 +10,6 @@ try:
     clip.stop()
 except:
     # Termux Only
-    imagine_breaker_cmd = f"cvlc --play-and-exit {sound_name}"
+    imagine_breaker_cmd = ["cvlc", "--play-and-exit", sound_name]
     subprocess.run(imagine_breaker_cmd)
 print("Done.")
