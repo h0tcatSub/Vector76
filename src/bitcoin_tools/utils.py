@@ -1,5 +1,5 @@
-from urllib2 import urlopen, Request
 from json import loads
+from urllib.request import Request, urlopen
 
 
 def change_endianness(x):

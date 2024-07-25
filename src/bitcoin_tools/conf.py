@@ -3,7 +3,7 @@
 # is home_dir + /Library/Application Support/Bitcoin/
 
 # General parameters
-home_dir = None  # Home dir (e.g: "/home/your_user_name/").
+home_dir = "~/" # Home dir (e.g: "/home/your_user_name/").
 bitcoin_tools_dir = home_dir + 'bitcoin_tools/'  # Bitcoin_tools data dir.
 address_vault = bitcoin_tools_dir + "bitcoin_addresses/"  # Address vault .
 
