@@ -4,7 +4,6 @@ import time
 import bitcoin
 import argparse
 import subprocess
-import bitcoin.tests
 import bitcoin.transaction
 
 from bitcoincli import Bitcoin
