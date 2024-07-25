@@ -10,3 +10,4 @@ ujson
 bitcoin
 bitcoinaddress
 bitcoincli
+playsound
