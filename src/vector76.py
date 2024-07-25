@@ -59,7 +59,7 @@ amount_BTC = args.amount_of_coins#float(sys.argv[9])
 prev_txid  = args.prev_deposit_TXID
 network = args.network
 
-if (network != "mainnet") or (network != "tesnet"):
+if (network != "mainnet") and (network != "testnet"):
     network = "testnet"
 
 print(f"[+] {network} Mode.")
