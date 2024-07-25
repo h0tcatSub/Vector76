@@ -63,13 +63,6 @@ if (network != "mainnet") and (network != "testnet"):
     network = "testnet"
 
 print(f"[+] {network} Mode.")
-#node_url = "https://bitcoin-mainnet.node.coinapi.io"
-#node_api_key = sys.argv[6]
-#headers = {
-#  'x-coinapi-key': node_api_key,
-#  'Content-Type': 'application/json',
-#  'accept': 'application/json'
-#}
 print("Connecting Node...")
 rpc_node = Bitcoin(username, password, rpc_host, rpc_port)
 
