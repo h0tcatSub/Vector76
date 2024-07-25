@@ -1,3 +1,7 @@
-import playsound 
+import time
+import mp3play
 
-playsound.playsound("ImagineBreaker.mp3")
+clip = mp3play.load("ImagineBreaker.mp3")
+clip.play()
+time.sleep(min(5, clip.seconds()))
+clip.stop()

