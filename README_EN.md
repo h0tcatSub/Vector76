@@ -10,8 +10,8 @@ Forked Repository  (The content is the same.): https://github.com/h0tcatSub/Vect
 
 The objectives of this project are:
 
-- There are several demo videos on YouTube of tools that attack Bitcoin, and most of them seem to be paid and are trying to scam you out of a lot of money. Therefore, the purpose is to crush Bitcoin hack scams. (Fraud Breaker)
- (Fraud Breaker)
+- There are several demo videos of tools that attack Bitcoin on YouTube and elsewhere, and most of them seem to be paid and are trying to scam large sums of money. Therefore, the purpose is to destroy Bitcoin crack tool (sales) scammers. (Fraud Breaker)
+ (Fraud Breaker) **If you really can do that, I'd like you to openly show me the source code.**
 - To destroy a gambling site (bookmaker) with a fragile payment system (Boss Breaker)
 - For educational purposes.
 
