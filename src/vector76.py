@@ -6,12 +6,12 @@ import bitcoin
 import playsound
 import bitcoin.tests
 import bitcoin.transaction
+import subprocess
 
 from bitcoin_tools.core.transaction import TX
 from bitcoinaddress import Wallet
 from bitcoincli import Bitcoin
 
-clip = mp3play.load("ImagineBreaker.mp3")
 #attacker_temp_wallet = Wallet()
 #sk, pk = load_keys(sys.argv[1])
 rpc_host = sys.argv[1]
@@ -92,7 +92,15 @@ print(result)
 print()#おまけ
 print(f"Kamijou Touma >> Kill that blockchain transaction!!")
 print()
-clip.play()
-time.sleep(min(5, clip.seconds()))
-clip.stop()
+
+sound_name = "ImagineBreaker.mp3"
+try:
+    clip = mp3play.load(sound_name)
+    clip.play()
+    time.sleep(min(5, clip.seconds()))
+    clip.stop()
+except:
+    # Termux Only
+    imagine_breaker_cmd = f"cvlc --play-and-exit {sound_name}"
+    subprocess.run(imagine_breaker_cmd)
 print("Done.")
