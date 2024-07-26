@@ -72,7 +72,7 @@ print("--------------------")
 amount_satoshi = to_satoshi(amount_BTC)
 print(amount_satoshi)
 fee_satoshi = 1500
-
+exit()
 bitcoin.SelectParams(network)
 print("Create T1 rawtx And sign")
 tx_victim = TX.build_from_io(prev_txid, 0, amount_satoshi - fee_satoshi, victim_address).hex
