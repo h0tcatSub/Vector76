@@ -148,7 +148,6 @@ prev_txid  = args.prev_deposit_TXID
 
 print("Connecting Node...")
 rpc_node = Bitcoin(username, password, rpc_host, rpc_port)
-
 print("--------------------")
 print(f"Send Amount (BTC)     : {amount_BTC}")
 print(f"Victim   Address      : {victim_address}")
