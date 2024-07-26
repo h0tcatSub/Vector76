@@ -60,4 +60,6 @@ If you are trying to destroy the mainnet and use this tool, you will not know if
 suffering the consequences. :D
 
 Happy Hacking!
+
+
 Kamijou Touma > Kill that blockchain!!  👊  💥 
