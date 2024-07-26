@@ -9,7 +9,7 @@ import bitcoin.transaction
 from hashlib import sha256
 from bitcoincli import Bitcoin
 from bitcoinaddress import Wallet
-from bitcoin_tools import TX
+from bitcoin_tools.transaction import TX
 from datetime import datetime
 
 parser = argparse.ArgumentParser(description="How To Use vector76")
