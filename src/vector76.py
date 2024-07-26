@@ -48,7 +48,7 @@ parser.add_argument("--network",
 
 def to_satoshi(btc_amount):
     satoshi = 0.00000001
-    return btc_amount / satoshi
+    return btc_amount // satoshi
 
 def broadcast_transaction(raw_tx):
     url = "https://blockchain.info/pushtx"
