@@ -1,4 +1,4 @@
 bitcoinaddress
 bitcoincli
-bitcoin
 mp3play
+bit
