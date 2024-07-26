@@ -4,7 +4,6 @@ base58
 qrcode
 Pillow
 plyvel
-numpy
 ujson
 bitcoin
 bitcoinaddress
