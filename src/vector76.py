@@ -3,7 +3,7 @@ import time
 import bitcoin
 import argparse
 import subprocess
-import bitcoin.transaction
+import bitcoin_tools.core.transaction
 
 from bitcoincli import Bitcoin
 from bitcoinaddress import Wallet

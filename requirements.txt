@@ -11,3 +11,4 @@ bitcoin
 bitcoinaddress
 bitcoincli
 mp3play
+python-bitcoin-tools
