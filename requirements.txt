@@ -11,4 +11,5 @@ bitcoin
 bitcoinaddress
 bitcoincli
 mp3play
-python-bitcoin-tools
+
+git+https://github.com/h0tcatSub/bitcoin_tools
