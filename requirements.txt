@@ -1,13 +1,6 @@
-ecdsa
-python-bitcoinlib
-base58
-qrcode
-Pillow
-plyvel
-ujson
-bitcoin
 bitcoinaddress
 bitcoincli
+bitcoin
 mp3play
 
 git+https://github.com/h0tcatSub/bitcoin_tools
