@@ -148,7 +148,7 @@ prev_txid  = args.prev_deposit_TXID
 #if network == "mainnet":
 
 print("Connecting Node...")
-rpc_node = bitcoin.rpc.Proxy(service_url=f"http://{username}:{password}@{rpc_host}", service_port=rpc_port)#(rpcuser=username, rpcpasswd=password, rpchost=rpc_host, rpcport=rpc_port)
+rpc_node = bitcoin.rpc.Proxy(f"http://{username}:{password}@{rpc_host}:{rpc_port}")#(rpcuser=username, rpcpasswd=password, rpchost=rpc_host, rpcport=rpc_port)
 info = rpc_node.getinfo()
 print(info)
 print("--------------------")
