@@ -1,16 +1,16 @@
 import time
-import bitcoin
 import argparse
 import bitcoin.blocks
 import requests
 import subprocess
+import bitcoin.rpc
 
-from hashlib import sha256
-from bitcoincli import Bitcoin
-from bitcoinaddress import Wallet
-from bit import Key
-#from bitcoin_tools.core.transaction import TX
 from datetime import datetime
+from hashlib import sha256
+#from bitcoincli import Bitcoin
+#from bitcoinaddress import Wallet
+#from bit import Key
+#from bitcoin_tools.core.transaction import TX
 
 parser = argparse.ArgumentParser(description="How To Use vector76")
 parser.add_argument("node_host",
@@ -148,8 +148,8 @@ prev_txid  = args.prev_deposit_TXID
 #if network == "mainnet":
 
 print("Connecting Node...")
-rpc_node = Bitcoin(rpcuser=username, rpcpasswd=password, rpchost=rpc_host, rpcport=rpc_port)
-info = rpc_node.submitblock("0")
+rpc_node = bitcoin.rpc.Proxy(f"{username}:{password}@{rpc_host}:{rpc_port}")#(rpcuser=username, rpcpasswd=password, rpchost=rpc_host, rpcport=rpc_port)
+info = rpc_node.getinfo()
 print(info)
 print("--------------------")
 print(f"Send Amount (BTC)     : {amount_BTC}")
