@@ -4,7 +4,6 @@ base58
 qrcode
 Pillow
 plyvel
-matplotlib
 numpy
 ujson
 bitcoin
