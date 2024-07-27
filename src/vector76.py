@@ -27,8 +27,6 @@ parser.add_argument("--network",
                     help="mainnet or testnet. (Default = test3)",
                     type=str,
                     default="test3")
-tx_victim   = input("Send to victim rawtx   (V1) : ")
-tx_attacker = input("Send to attacker rawtx (V2) : ")
 def to_satoshi(btc_amount):
     satoshi = 0.00000001
     return btc_amount // satoshi
@@ -182,7 +180,8 @@ rpc_node = AuthServiceProxy(f"http://{username}:{password}@{rpc_host}:{rpc_port}
 print(rpc_node.getrawtransaction(prev_txid))
 print()
 fee_satoshi = 1500
-print("sign T2")
+tx_victim   = input("Send to victim rawtx   (V1) : ")
+tx_attacker = input("Send to attacker rawtx (V2) : ")
 print("--------------------")
 print(f"V1 RawTx               : {tx_victim}")
 print(f"V2 RawTx               : {tx_attacker}")
