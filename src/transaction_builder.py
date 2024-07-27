@@ -91,3 +91,7 @@ parser.add_argument("attacker_address",
 parser.add_argument("amount_of_coins",
                     help="Amount of coins sent. (Enter in BTC units)",
                     type=float)
+parser.add_argument("prev_deposit_TXID",
+                    help="Last deposit TXID of first attacker address",
+                    type=str)
+

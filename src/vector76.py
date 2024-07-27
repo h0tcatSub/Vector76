@@ -27,6 +27,7 @@ parser.add_argument("--network",
                     help="mainnet or testnet. (Default = test3)",
                     type=str,
                     default="test3")
+
 def to_satoshi(btc_amount):
     satoshi = 0.00000001
     return btc_amount // satoshi
@@ -177,7 +178,7 @@ print(f"[+] {network} Mode.")
 
 print("Connecting Node...")
 rpc_node = AuthServiceProxy(f"http://{username}:{password}@{rpc_host}:{rpc_port}")#(rpcuser=username, rpcpasswd=password, rpchost=rpc_host, rpcport=rpc_port)
-print(rpc_node.getrawtransaction(prev_txid))
+print(rpc_node.getblockchaininfo())
 print()
 fee_satoshi = 1500
 tx_victim   = input("Send to victim rawtx   (V1) : ")
