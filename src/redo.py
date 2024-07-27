@@ -31,6 +31,6 @@ rawtx   = args.attacker_address
 
 rpc_node_priv = AuthServiceProxy(f"http://{username_priv}:{password_priv}@{rpc_host_priv}:{rpc_port_priv}")#(rpcuser=username, rpcpasswd=password, rpchost=rpc_host, rpcport=rpc_port)
 print("Generating Block")
-block = rpc_node_priv.generateblock(f"{address} '[{rawtx}]'")
+block = rpc_node_priv.generateblock(f"{address} '[\"{rawtx}\"]' false")
 print()
 print(block)
