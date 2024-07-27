@@ -21,9 +21,6 @@ parser.add_argument("username",
 parser.add_argument("password",
                     help="Node password",
                     type=str)
-parser.add_argument("prev_deposit_TXID",
-                    help="Last deposit TXID of first attacker address",
-                    type=str)
 parser.add_argument("attacker_signkey",
                     help="The attacker has the WIF format private key of the first address (this is used to sign the transaction)",
                     type=str)
