@@ -9,7 +9,6 @@ from datetime import datetime
 from hashlib import sha256
 #from bitcoincli import Bitcoin
 #from bitcoinaddress import Wallet
-from bit import Key
 from bitcoin_tools.core.transactions import TX
 from bitcoin_tools.core.keys import load_keys
 
