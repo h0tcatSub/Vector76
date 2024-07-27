@@ -39,10 +39,6 @@ parser.add_argument("amount_of_coins",
 parser.add_argument("prev_deposit_TXID",
                     help="Last deposit TXID of first attacker address",
                     type=str)
-parser.add_argument("--network",
-                    help="mainnet or testnet. (Default = test3)",
-                    type=str,
-                    default="test3")
 
 def to_satoshi(btc_amount):
     satoshi = 0.00000001
@@ -188,12 +184,6 @@ victim_address   = args.victim_address
 attacker_address = args.attacker_address
 prev_txid  = args.prev_deposit_TXID
 amount_btc = args.amount_of_coins
-network    = args.network
-
-if (network != "main") and (network != "test3"):
-    network = "test3"
-
-print(f"[+] {network} Mode.")
 
 print("Connecting Node...")
 rpc_node = AuthServiceProxy(f"http://{username}:{password}@{rpc_host}:{rpc_port}")#(rpcuser=username, rpcpasswd=password, rpchost=rpc_host, rpcport=rpc_port)

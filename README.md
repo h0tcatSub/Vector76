@@ -15,10 +15,19 @@
 
 # 使い方・必要なもの
 
-**あくまでもこれは二重払いをするツールです。なので残高は必須です。**
+- **あくまでもこれは二重払いをするツールです。なので残高は必須です。**
+- あとはsubmitblockが送信できるようにするため、ノードを立ててください。また、**立てているノードのネットワークの種類によって実験に使うアドレスやwif秘密鍵は変えてください**
+
+つまり、
+- テストネットでやるならテストネットのウォレットとノードが必要
+
+- メインネットでやるならメインネットのウォレットとノードが必要
+
 
 ```
-usage: vector76.py [-h] [--network NETWORK] node_host node_port username password prev_deposit_TXID
+usage: vector76.py [-h]
+                   node_host node_port username password prev_deposit_TXID attacker_signkey victim_address attacker_address amount_of_coins
+                   prev_deposit_TXID
 
 How To Use vector76
 
@@ -28,18 +37,16 @@ positional arguments:
   username           Node username
   password           Node password
   prev_deposit_TXID  Last deposit TXID of first attacker address
+  attacker_signkey   The attacker has the WIF format private key of the first address (this is used to sign the transaction)
+  victim_address     victim address.
+  attacker_address   Address held by attacker to receive refund (Please prepare an address that is different from the address that can be generated with the
+                     private key specified in the first place.)
+  amount_of_coins    Amount of coins sent. (Enter in BTC units)
+  prev_deposit_TXID  Last deposit TXID of first attacker address
 
 options:
   -h, --help         show this help message and exit
-  --network NETWORK  mainnet or testnet. (Default = test3)
 ```
-
-予め署名しておいた2つのトランザクションをを用意してください。
-
-- 被害者に送るトランザクション(V1)
-- 二重払いに使うトランザクション(V2)
-
-途中で入力するタイミングが出ます。
 
 実行中、
 ```--- Send the block after pressing the enter key. ---```

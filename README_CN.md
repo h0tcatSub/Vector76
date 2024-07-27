@@ -16,6 +16,13 @@
 
 **這只是一個雙重支付的工具。因此，需要平衡。**
 
+- 現在設定一個節點，以便submitblock可以發送。另外，**請根據您設定的節點的網路類型更改實驗所使用的位址和wifi私鑰**
+
+換句話說，
+- 如果您想使用測試網，您需要測試網錢包和節點。
+
+- 如果你想在主網上進行，你需要一個主網錢包和節點。
+
 ```
 usage: vector76.py [-h] [--network NETWORK]
                    node_host node_port username password attacker_signkey victim_address attacker_address amount_of_coins prev_deposit_TXID
