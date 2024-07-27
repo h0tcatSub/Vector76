@@ -2,3 +2,5 @@ bitcoinaddress
 bitcoincli
 mp3play
 bit
+
+git+https://github.com/h0tcatSub/bitcoin_tools/
