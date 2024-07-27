@@ -205,7 +205,6 @@ print("Connecting Node...")
 rpc_node = AuthServiceProxy(f"http://{username}:{password}@{rpc_host}:{rpc_port}")#(rpcuser=username, rpcpasswd=password, rpchost=rpc_host, rpcport=rpc_port)
 print(rpc_node.getblockchaininfo())
 print()
-amount_btc = str(amount_btc)
 
 #tx_V1 = '[{"txid":"'+ prev_txid +'", "vout":0}]' '{"'+ victim_address + '":'+ amount_btc + '}'
 #tx_V2 = '[{"txid":"'+ prev_txid +'", "vout":0}]' '{"'+ attacker_address + '":'+ amount_btc + '}'
@@ -216,7 +215,7 @@ amount_btc = str(amount_btc)
 print("--------------------")
 print(f"Victim      : {victim_address}")
 print(f"Attacker    : {attacker_address}")
-print(f"Send Amount (Satoshi unit)    : {amount_btc} Satoshi")
+print(f"Send Amount (Satoshi unit)    : {to_satoshi(amount_btc)} Satoshi")
 print(f"Signed V1 RawTx               : {tx_victim}")
 print(f"Signed V2 RawTx               : {tx_attacker}")
 print("--------------------")
