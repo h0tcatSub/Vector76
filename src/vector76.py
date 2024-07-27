@@ -152,7 +152,7 @@ prev_txid  = args.prev_deposit_TXID
 print("Connecting Node...")
 rpc_node = bitcoin.rpc.Proxy(service_url=f"http://{username}:{password}@{rpc_host}", service_port=rpc_port)#(rpcuser=username, rpcpasswd=password, rpchost=rpc_host, rpcport=rpc_port)
 
-print(rpc_node.getrawtransaction(prev_txid))
+print(rpc_node.getrawtransaction(prev_txid.encode()))
 print()
 fee_satoshi = 1500
 print("sign T1")
