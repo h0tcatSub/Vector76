@@ -11,24 +11,12 @@ from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
 from bitcoinaddress import Wallet
 
 parser = argparse.ArgumentParser(description="How To Use vector76")
-parser.add_argument("node_host_priv",
-                    help="private network Node Host",
-                    type=str)
-parser.add_argument("node_port_priv",
-                    help="private network Node Port",
-                    type=int)
 parser.add_argument("node_host",
                     help="Blockchain Node Host",
                     type=str)
 parser.add_argument("node_port",
                     help="Blockchain Node Port",
                     type=int)
-parser.add_argument("username_priv",
-                    help="private network node username",
-                    type=str)
-parser.add_argument("password_priv",
-                    help="private network node password",
-                    type=str)
 parser.add_argument("username",
                     help="public node username",
                     type=str)
@@ -192,10 +180,6 @@ def get_block_header_by_txid(txid, network):
     return block_header
 
 args = parser.parse_args()
-rpc_host_priv = args.node_host_priv
-rpc_port_priv = args.node_port_priv
-username_priv = args.username_priv
-password_priv = args.password_priv
 rpc_host = args.node_host
 rpc_port = args.node_port
 username = args.username
@@ -209,13 +193,10 @@ amount_btc = args.amount_of_coins
 testnet    = args.testnet
 
 transaction_util = Bitcoin(testnet=testnet)
-print("Connecting Private Node...")
-rpc_node_priv = AuthServiceProxy(f"http://{username_priv}:{password_priv}@{rpc_host_priv}:{rpc_port_priv}")#(rpcuser=username, rpcpasswd=password, rpchost=rpc_host, rpcport=rpc_port)
-print(rpc_node_priv.getblockchaininfo())
-print("OK")
 print("Connecting Public Node...")
 rpc_node = AuthServiceProxy(f"http://{username}:{password}@{rpc_host}:{rpc_port}")#(rpcuser=username, rpcpasswd=password, rpchost=rpc_host, rpcport=rpc_port)
 print(rpc_node.getblockchaininfo())
+print("OK")
 print()
 #key   = transaction_util.encode_privkey(key, "wif")
 inputs = transaction_util.unspent(transaction_util.wiftoaddr(key))
