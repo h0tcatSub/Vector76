@@ -19,10 +19,17 @@ The objectives of this project are:
 
 **This is just a tool to make double payments. Therefore, the attacker needs to prepare Bitcoin.**
 
+- Now set up a node so that submitblock can send. Also, **Please change the address and wifi private key used for the experiment depending on the type of network of the node you are setting**
+
+In other words,
+- If you want to use testnet, you need a testnet wallet and node.
+
+- If you want to do it on the mainnet, you need a mainnet wallet and node.
+
+
 ```
-usage: vector76.py [-h]
-                   node_host node_port username password prev_deposit_TXID attacker_signkey victim_address attacker_address amount_of_coins
-                   prev_deposit_TXID
+usage: vector76.py [-h] [--testnet TESTNET]
+                   node_host node_port username password attacker_signkey victim_address attacker_address amount_of_coins prev_deposit_TXID
 
 How To Use vector76
 
@@ -31,7 +38,6 @@ positional arguments:
   node_port          Blockchain Node Port
   username           Node username
   password           Node password
-  prev_deposit_TXID  Last deposit TXID of first attacker address
   attacker_signkey   The attacker has the WIF format private key of the first address (this is used to sign the transaction)
   victim_address     victim address.
   attacker_address   Address held by attacker to receive refund (Please prepare an address that is different from the address that can be generated with the
@@ -41,6 +47,7 @@ positional arguments:
 
 options:
   -h, --help         show this help message and exit
+  --testnet TESTNET  Bitcoin Network (true or false) Default = True
 ```
 
 During the attack,

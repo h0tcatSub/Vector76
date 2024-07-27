@@ -24,7 +24,7 @@
 - 如果你想在主網上進行，你需要一個主網錢包和節點。
 
 ```
-usage: vector76.py [-h] [--network NETWORK]
+usage: vector76.py [-h] [--testnet TESTNET]
                    node_host node_port username password attacker_signkey victim_address attacker_address amount_of_coins prev_deposit_TXID
 
 How To Use vector76
@@ -43,7 +43,7 @@ positional arguments:
 
 options:
   -h, --help         show this help message and exit
-  --network NETWORK  mainnet or testnet. (Default = testnet)
+  --testnet TESTNET  Bitcoin Network (true or false) Default = True
 ```
 
 
