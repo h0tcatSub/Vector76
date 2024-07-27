@@ -1,5 +1,5 @@
+python-requests-bitcoinrpc
 bitcoinaddress
-bitcoincli
 mp3play
 bit
 
