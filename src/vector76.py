@@ -92,7 +92,7 @@ if send_amount < fee:
     exit()
 
 change_address = transaction_util.wiftoaddr(key)
-balance = rpc_node.getbalance(change_address)
+balance = rpc_node.getreceivedbyaddress(change_address)
 change_btc_amt = (balance - (send_amount - fee)) #おつり
 tx_victim = [{"address": victim_address, "value": send_amount}, {"address": change_address, "value": change_btc_amt}]
 tx_victim = transaction_util.mktx(inputs, tx_victim)
