@@ -125,7 +125,7 @@ print()
 print("[+] READY...")
 print()
 
-input(" --- Press enter after submitting the fake transaction rawtx.... --- ")
+input(" --- Press enter key... --- ")
 print()
 print("OK")
 print("Send fake TX...")
