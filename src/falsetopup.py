@@ -10,7 +10,7 @@ import uuid
 from bitcoinaddress import Wallet
 from bs4 import BeautifulSoup
 
-parser = argparse.ArgumentParser(description="How To Use vector76")
+parser = argparse.ArgumentParser(description="How To Use falsetopup")
 parser.add_argument("send_from_wifkey",
                     help="Fake send btc from wif key.",
                     type=str)
