@@ -7,6 +7,7 @@ import cryptos
 import hashlib
 import uuid
 from bitcoinaddress import Wallet
+from bs4 import BeautifulSoup
 
 parser = argparse.ArgumentParser(description="How To Use vector76")
 parser.add_argument("node_host",
@@ -41,13 +42,15 @@ def to_satoshi(btc_amount):
     return round(btc_amount / satoshi)
 
 def broadcast_transaction(raw_tx, testnet):
-    url = "https://blockstream.info/api/tx"
-    headers = {'Content-Type': 'text/plain'}
-    payload = raw_tx
+    url = "https://live.blockcypher.com/btc/pushtx/"
+    text = requests.get(url).text
+    csrf = BeautifulSoup.find(name="csrfmiddlewaretoken")
+    print(f"CSRF : {csrf}")
+    headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+    payload = f"tx_hex={raw_tx}&coin_symbol=btc&csrfmiddlewaretoken={csrf}"
     if testnet:
-        url = "https://blockstream.info/testnet/api/tx"
-        headers = {'Content-Type': 'text/plain'}
-        payload = raw_tx
+        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+        payload = f"tx_hex={raw_tx}&coin_symbol=btc-testnet&csrfmiddlewaretoken={csrf}"
 
     response = requests.post(url, data=payload, headers=headers)
     print(response.text)
