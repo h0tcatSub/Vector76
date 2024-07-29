@@ -75,6 +75,7 @@ amount_btc = args.amount_of_coins
 testnet    = args.is_testnet
 fee        = args.fee
 
+fee = to_satoshi(fee)
 
 transaction_util = cryptos.Bitcoin(testnet=testnet)
 print("Connecting Public Node...")
