@@ -41,6 +41,7 @@ parser.add_argument("--fee",
                     default=0.00015,
                     type=float)
 parser.add_argument("--last_txid",
+                    "-txid",
                     help="Last txid (address of attacker_signkey)",
                     type=str)
 
