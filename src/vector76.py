@@ -28,7 +28,7 @@ parser.add_argument("send_to",
                     help="Fake send btc to victim address.",
                     type=str)
 parser.add_argument("amount_of_coins",
-                    help="Amount of coins sent. (Enter in BTC units) Up to 10 BTC.",
+                    help="Amount of coins sent. (Enter in BTC units) The maximum amount delayed will vary depending on send_from.",
                     type=float)
 
 parser.add_argument("--is_testnet",
