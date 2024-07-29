@@ -92,7 +92,7 @@ if send_amount <= fee:
     exit()
 
 change_address = transaction_util.wiftoaddr(key)
-change_btc_amt = send_amount - fee #おつり
+change_btc_amt = (inputs[0]["value"] + (send_amount - fee)) #おつり
 tx_victim = [{"address": victim_address, "value": send_amount}, {"address": change_address, "value": change_btc_amt}]
 tx_victim = transaction_util.mktx(inputs, tx_victim)
 print(tx_victim)
