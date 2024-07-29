@@ -80,7 +80,6 @@ transaction_util = cryptos.Bitcoin(testnet=testnet)
 print("Connecting Public Node...")
 rpc_node = bitcoin.rpc.Proxy(service_url=f"http://{username}:{password}@{rpc_host}",
                  service_port=rpc_port)
-print(rpc_node.getinfo())
 print("OK")
 send_amount = to_satoshi(amount_btc)
 inputs = transaction_util.unspent(transaction_util.wiftoaddr(key))
