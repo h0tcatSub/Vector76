@@ -33,18 +33,17 @@ def to_satoshi(btc_amount):
 
 def broadcast_transaction(raw_tx, testnet):
 
-    url = "https://live.blockcypher.com/btc/push"
+    url = "https://live.blockcypher.com/btc/pushtx"
     res = requests.get(url).text
-    soup = BeautifulSoup(res, 'html.parser')
-    tag = soup.find_all(attrs={"name": "csrfmiddlewaretoken"})
-    csrf = tag.get("value")
-
+    bs = BeautifulSoup(res, 'html.parser')
+    csrf_token = bs.find(attrs={'name':'csrfmiddlewaretoken'}).get('value')
+    print(csrf_token)
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
-    payload = f"tx_hex={raw_tx}&coin_symbol=btc&csrfmiddlewaretoken={csrf}"
+    payload = f"tx_hex={raw_tx}&coin_symbol=btc&csrfmiddlewaretoken={csrf_token}"
     if testnet:
-        headers = {'Content-Type': 'text/plain'}
+        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
         payload = raw_tx
-        payload = f"tx_hex={raw_tx}&coin_symbol=btc-testnet&csrfmiddlewaretoken={csrf}"
+        payload = f"tx_hex={raw_tx}&coin_symbol=btc-testnet&csrfmiddlewaretoken={csrf_token}"
 
     response = requests.post(url, data=payload, headers=headers)
     print(response.text)
