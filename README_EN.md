@@ -39,8 +39,8 @@ How To Use vector76
 positional arguments:
   node_host             Blockchain Node Host
   node_port             Blockchain Node Port
-  username              Public node username
-  password              Public node password
+  username              Your BTC node username
+  password              Your BTC node password
   attacker_signkey      The attacker has the WIF format private key of the first address (this is used to sign the transaction)
   victim_address        Victim address.
   attacker_address      Address held by attacker to receive refund (Please prepare an address that is different from the address that can be generated
@@ -52,7 +52,7 @@ options:
   --is_testnet IS_TESTNET
                         testnet flag (Default=True)
   --fee FEE             BTC send fee. (Default=0.00015)
-  --last_txid LAST_TXID
+  --last_txid LAST_TXID, -txid LAST_TXID
                         Last txid (address of attacker_signkey)
 ```
 
