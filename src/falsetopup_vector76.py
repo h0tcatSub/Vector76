@@ -16,10 +16,10 @@ parser.add_argument("node_port",
                     help="Blockchain Node Port",
                     type=int)
 parser.add_argument("username",
-                    help="Public node username",
+                    help="Your node username",
                     type=str)
 parser.add_argument("password",
-                    help="Public node password",
+                    help="Your node password",
                     type=str)
 parser.add_argument("send_from_wifkey",
                     help="Fake send btc from wif key.",
@@ -99,7 +99,7 @@ if loop_count <= 0:
     loop_count = 1
 
 transaction_util = cryptos.Bitcoin(testnet=testnet)
-print("Connecting Public Node...")
+print("Connecting Node...")
 rpc_node = bitcoin.rpc.Proxy(service_url=f"http://{username}:{password}@{rpc_host}:{rpc_port}",
                  service_port=rpc_port)
 print("OK")
@@ -128,11 +128,11 @@ for i  in range(loop_count):
 
     print(f"Fake Transaction {i}...")
     if testnet:
-        tx_victim = [{"address": victim_address, "value": send_amount}, {"address": transaction_util.wiftoaddr(fake_send_from), "value": change_btc_amt}]
+        tx_victim = [{"address": victim_address, "value": send_amount}]#, {"address": transaction_util.wiftoaddr(fake_send_from), "value": change_btc_amt}]
     else:
-        tx_victim = [{"address": victim_address, "value": send_amount}, {"address": transaction_util.wiftoaddr(fake_send_from), "value": change_btc_amt}]
+        tx_victim = [{"address": victim_address, "value": send_amount}]#, {"address": transaction_util.wiftoaddr(fake_send_from), "value": change_btc_amt}]
 
-    tx_victim = transaction_util.mktx(inputs, tx_victim)
+    tx_victim = transaction_util.mktx_with_change(inputs, tx_victim, change_addr=transaction_util.wiftoaddr(fake_send_from), fee=0)
     if testnet:
         tx_victim = cryptos.serialize(transaction_util.sign(tx_victim, 0, fake_send_from))
     else:
@@ -154,7 +154,7 @@ for i  in range(loop_count):
     print("Sending rawtx      Your node...")
     result = rpc_node.sendrawtransaction(tx=tx_victim)
     print("Mining rawtx block Your node...")
-    rpc_node.call("generateblock", transaction_util.wiftoaddr(fake_send_from), [tx_victim])
+    rpc_node.call("generateblock", transaction_util.wiftoaddr(fake_send_from), [tx_victim], False)
     print()
     input(" --- If you really want to continue, press enter. --- ") #テスト
     print("Index > 強固なブロックチェーンに対して強制干渉を開始...")
