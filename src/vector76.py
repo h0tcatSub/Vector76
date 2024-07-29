@@ -86,19 +86,20 @@ print("Connecting Public Node...")
 rpc_node = bitcoin.rpc.Proxy(service_url=f"http://{username}:{password}@{rpc_host}",
                  service_port=rpc_port)
 print("OK")
-send_amount = to_satoshi(amount_btc)
 inputs = transaction_util.unspent(transaction_util.wiftoaddr(key))
 print(inputs)
 print()
 
-if send_amount < fee:
+if amount_btc < fee:
     print("[!] The fees exceed the amount sent. Please review the amount of fees and amount of BTC.")
     exit()
 
 change_address = transaction_util.wiftoaddr(key)
 balance = transaction_util.get_balance(change_address)["confirmed"]
-print(f"Balance : {balance}")
+print(f"Balance (satoshi unit): {type(balance)}")
 
+send_amount = to_satoshi(amount_btc)
+fee = to_satoshi(fee)
 change_btc_amt = (balance - (send_amount - fee)) #おつり
 tx_victim = [{"address": victim_address, "value": send_amount}, {"address": change_address, "value": change_btc_amt}]
 tx_victim = transaction_util.mktx(inputs, tx_victim)
