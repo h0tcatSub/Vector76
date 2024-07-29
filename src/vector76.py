@@ -145,7 +145,7 @@ broadcast_transaction(tx_victim, testnet)
 
 input("--- Send the block after pressing the enter key. --- ")
 print("既に送ったトランザクションに対して強制干渉を開始...")
-print("C  V E C T O R 7 6 B L  (Vector76ブロックへ変更)")
+print("C  V E C T O R B L  (Vector76ブロックへ変更)")
 result = rpc_node.submitblock(tx_vector76)
 print(result)
 print()
