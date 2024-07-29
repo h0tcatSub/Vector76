@@ -32,9 +32,6 @@ parser.add_argument("attacker_address",
 parser.add_argument("amount_of_coins",
                     help="Amount of coins sent. (Enter in BTC units)",
                     type=float)
-parser.add_argument("last_UXTO",
-                    help="Last UXTO of first attacker address",
-                    type=str)
 parser.add_argument("--is_testnet",
                     help="testnet flag (Default=True)",
                     default=True,
@@ -70,7 +67,6 @@ password = args.password
 key = args.attacker_signkey
 victim_address   = args.victim_address
 attacker_address = args.attacker_address
-last_txid  = args.last_UXTO
 amount_btc = args.amount_of_coins
 testnet    = args.is_testnet
 
