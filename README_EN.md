@@ -31,26 +31,27 @@ In other words,
 
 
 ```
-usage: vector76.py [-h] [--testnet TESTNET]
-                   node_host node_port username password attacker_signkey victim_address attacker_address amount_of_coins prev_deposit_TXID
+usage: vector76.py [-h] [--is_testnet IS_TESTNET] [--fee FEE]
+                   node_host node_port username password attacker_signkey victim_address attacker_address amount_of_coins
 
 How To Use vector76
 
 positional arguments:
-  node_host          Blockchain Node Host
-  node_port          Blockchain Node Port
-  username           Node username
-  password           Node password
-  attacker_signkey   The attacker has the WIF format private key of the first address (this is used to sign the transaction)
-  victim_address     victim address.
-  attacker_address   Address held by attacker to receive refund (Please prepare an address that is different from the address that can be generated with the
-                     private key specified in the first place.)
-  amount_of_coins    Amount of coins sent. (Enter in BTC units)
-  prev_deposit_TXID  Last deposit TXID of first attacker address
+  node_host             Blockchain Node Host
+  node_port             Blockchain Node Port
+  username              Public node username
+  password              Public node password
+  attacker_signkey      The attacker has the WIF format private key of the first address (this is used to sign the transaction)
+  victim_address        Victim address.
+  attacker_address      Address held by attacker to receive refund (Please prepare an address that is different from the address that can be generated
+                        with the private key specified in the first place.)
+  amount_of_coins       Amount of coins sent. (Enter in BTC units)
 
 options:
-  -h, --help         show this help message and exit
-  --testnet TESTNET  Bitcoin Network (true or false) Default = True
+  -h, --help            show this help message and exit
+  --is_testnet IS_TESTNET
+                        testnet flag (Default=True)
+  --fee FEE             BTC send fee. (Default=0.00015)
 ```
 
 During the attack,
