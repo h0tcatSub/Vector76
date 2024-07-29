@@ -96,7 +96,7 @@ if send_amount < fee:
     exit()
 
 change_address = transaction_util.wiftoaddr(key)
-balance = transaction_util.get_balance(change_address)
+balance = transaction_util.get_balance(change_address)[0]["value"]
 print(f"Balance : {balance}")
 
 change_btc_amt = (balance - (send_amount - fee)) #おつり
