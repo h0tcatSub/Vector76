@@ -147,8 +147,10 @@ broadcast_transaction(tx_victim, testnet)
 
 input("--- Send the block after pressing the enter key. --- ")
 print("Index > 既に送ったトランザクションに対して強制干渉を開始...")
-print("C  V T W O  (V2トランサクションに変更)")
+print()
 result = rpc_node.submitblock(tx_vector76)
+print()
+print("C  V T W O  (V2トランサクションに変更)")
 print(result)
 print()
 #ゴリ押し
