@@ -93,6 +93,7 @@ if send_amount < fee:
 
 try:
     rpc_node.call("loadwallet", "ImagineBreaker")
+    rpc_node.call("importprivkey", key)
 except:
     rpc_node.call("createwallet", "ImagineBreaker") # おまけ まずは... そのブロックチェーン取引をぶち殺す!! 
     rpc_node.call("loadwallet", "ImagineBreaker")
