@@ -91,6 +91,12 @@ if send_amount < fee:
     print("[!] The fees exceed the amount sent. Please review the amount of fees and amount of BTC.")
     exit()
 
+try:
+    rpc_node.call("loadwallet", "ImagineBreaker")
+except:
+    rpc_node.call("createwallet", "ImagineBreaker") # おまけ まずは... そのブロックチェーン取引をぶち殺す!! 
+    rpc_node.call("loadwallet", "ImagineBreaker")
+
 change_address = transaction_util.wiftoaddr(key)
 balance = rpc_node.getreceivedbyaddress(change_address)
 change_btc_amt = (balance - (send_amount - fee)) #おつり
