@@ -21,6 +21,7 @@ parser.add_argument("amount_of_coins",
                     help="Amount of coins sent. (Enter in BTC units) The maximum amount delayed will vary depending on send_from.",
                     type=float)
 parser.add_argument("--is_testnet",
+                    "-test",
                     help="Testnet flag (Default=True)",
                     default=True,
                     type=bool)
