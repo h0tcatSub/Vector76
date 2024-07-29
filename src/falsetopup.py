@@ -5,6 +5,9 @@ import subprocess
 import cryptos
 import hashlib
 import uuid
+
+import bitcoin.rpc
+
 from bs4 import BeautifulSoup
 
 parser = argparse.ArgumentParser(description="How To Use falsetopup")
@@ -39,14 +42,17 @@ def broadcast_transaction(raw_tx, testnet):
     csrf_token = bs.find(attrs={'name':'csrfmiddlewaretoken'}).get('value')
     print(csrf_token)
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
-    payload = f"tx_hex={raw_tx}&coin_symbol=btc&csrfmiddlewaretoken={csrf_token}"
+    payload = {"tx_hex": raw_tx,
+               "coin_symbol": "btc",
+               "csrfmiddlewaretoken": csrf_token}
     if testnet:
         headers = {'Content-Type': 'application/x-www-form-urlencoded'}
         payload = raw_tx
-        payload = f"tx_hex={raw_tx}&coin_symbol=btc-testnet&csrfmiddlewaretoken={csrf_token}"
+        payload = {"tx_hex": raw_tx,
+               "coin_symbol": "btc-testnet",
+               "csrfmiddlewaretoken": csrf_token}
 
     response = requests.post(url, data=payload, headers=headers)
-    print(response.text)
     if response.status_code == 200:
         print("Transaction successfully broadcasted!")
     else:
@@ -81,7 +87,8 @@ if balance < send_amount:
     print(f"[!] insufficient funds. ")
     exit()
 
-change_btc_amt = (balance - send_amount) #おつり
+fee = 1
+change_btc_amt = (balance - send_amount) - fee#おつり
 
 input(" --- If you really want to continue, press enter. --- ")
 
