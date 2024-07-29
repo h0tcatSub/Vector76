@@ -36,27 +36,40 @@ def to_satoshi(btc_amount):
 
 def broadcast_transaction(raw_tx, testnet):
 
-    url = "https://live.blockcypher.com/btc/pushtx"
-    res = requests.get(url).text
-    bs = BeautifulSoup(res, 'html.parser')
-    csrf_token = bs.find(attrs={'name':'csrfmiddlewaretoken'}).get('value')
-    print(csrf_token)
-    headers = {'Content-Type': 'application/x-www-form-urlencoded'}
-    payload = {"tx_hex": raw_tx,
-               "coin_symbol": "btc",
-               "csrfmiddlewaretoken": csrf_token}
-    if testnet:
-        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+    if not testnet:
+        url = "https://blockstream.info/api/tx"
+        headers = {'Content-Type': 'text/plain'}
         payload = raw_tx
-        payload = {"tx_hex": raw_tx,
-               "coin_symbol": "btc-testnet",
-               "csrfmiddlewaretoken": csrf_token}
+        response = requests.post(url, data=payload, headers=headers)
+        print(response.text)
+        if response.status_code == 200:
+            print("Transaction successfully broadcasted!")
+        else:
+            print(f"Failed to broadcast transaction. Status code: {response.status_code}")
+    if testnet:
+        url = "https://blockstream.info/testnet/api/tx"
+        headers = {'Content-Type': 'text/plain'}
+        payload = raw_tx
 
-    response = requests.post(url, data=payload, headers=headers)
-    if response.status_code == 200:
-        print("Transaction successfully broadcasted!")
-    else:
-        print(f"Failed to broadcast transaction. Status code: {response.status_code}")
+        response = requests.post(url, data=payload, headers=headers)
+        print(response.text)
+        if response.status_code == 200:
+            print("Transaction successfully broadcasted!")
+        else:
+            print(f"Failed to broadcast transaction. Status code: {response.status_code}")
+
+    #if testnet:
+    #    headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+    #    payload = raw_tx
+    #    payload = {"tx_hex": raw_tx,
+    #           "coin_symbol": "btc-testnet",
+    #           "csrfmiddlewaretoken": csrf_token}
+
+    #    response = requests.post(url, data=payload, headers=headers)
+    #    if response.status_code == 200:
+    #        print("Transaction successfully broadcasted!")
+    #    else:
+    #        print(f"Failed to broadcast transaction. Status code: {response.status_code}")
 
 
 
