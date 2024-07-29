@@ -14,10 +14,10 @@ parser.add_argument("node_port",
                     help="Blockchain Node Port",
                     type=int)
 parser.add_argument("username",
-                    help="Public node username",
+                    help="Your BTC node username",
                     type=str)
 parser.add_argument("password",
-                    help="Public node password",
+                    help="Your BTC node password",
                     type=str)
 
 parser.add_argument("attacker_signkey",
