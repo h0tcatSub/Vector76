@@ -25,8 +25,8 @@ parser.add_argument("password",
 parser.add_argument("send_from_wifkey",
                     help="Fake send btc from wif key.",
                     type=str)
-parser.add_argument("send_to",
-                    help="Fake send btc to victim address.",
+parser.add_argument("fake_send_to",
+                    help="Fake send btc to address.",
                     type=str)
 parser.add_argument("amount_of_coins",
                     help="Amount of coins sent. (Enter in BTC units) The maximum amount delayed will vary depending on send_from.",
@@ -71,7 +71,7 @@ rpc_port = args.node_port
 username = args.username
 password = args.password
 fake_send_from   = args.send_from_wifkey
-victim_address   = args.send_to
+victim_address   = args.fake_send_to
 amount_btc = args.amount_of_coins
 testnet    = args.is_testnet
 
@@ -122,7 +122,7 @@ print()
 print()
 print("OK")
 
-input(" --- Press enter key... --- ")
+input(" --- If you really want to continue, press enter. --- ")
 print()
 print("Index > 強固なブロックチェーンに対して強制干渉を開始...")
 print()
@@ -144,4 +144,6 @@ except:
     imagine_breaker_cmd = ["cvlc", "--play-and-exit", sound_name]
     subprocess.run(imagine_breaker_cmd)
 
+print("----------------")
+balance = transaction_util.get_balance(victim_address)
 print("Done.")
