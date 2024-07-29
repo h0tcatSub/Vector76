@@ -2,12 +2,9 @@ import argparse
 import time
 import requests
 import subprocess
-import bitcoin.rpc
-import bitcoin.core
 import cryptos
 import hashlib
 import uuid
-from bitcoinaddress import Wallet
 from bs4 import BeautifulSoup
 
 parser = argparse.ArgumentParser(description="How To Use falsetopup")
