@@ -11,18 +11,6 @@ from bitcoinaddress import Wallet
 from bs4 import BeautifulSoup
 
 parser = argparse.ArgumentParser(description="How To Use vector76")
-parser.add_argument("node_host",
-                    help="Blockchain Node Host",
-                    type=str)
-parser.add_argument("node_port",
-                    help="Blockchain Node Port",
-                    type=int)
-parser.add_argument("username",
-                    help="Your BTC node username",
-                    type=str)
-parser.add_argument("password",
-                    help="Your BTC node password",
-                    type=str)
 parser.add_argument("send_from_wifkey",
                     help="Fake send btc from wif key.",
                     type=str)
@@ -84,11 +72,6 @@ if loop_count <= 0:
     loop_count = 1
 
 transaction_util = cryptos.Bitcoin(testnet=testnet)
-print("Connecting Public Node...")
-rpc_node = bitcoin.rpc.Proxy(service_url=f"http://{username}:{password}@{rpc_host}",
-                 service_port=rpc_port)
-print("OK")
-print()
 balance = transaction_util.get_balance(transaction_util.wiftoaddr(fake_send_from))
 inputs  = transaction_util.unspent(transaction_util.wiftoaddr(fake_send_from))
     #balance = transaction_util.get_balance(send_from)
