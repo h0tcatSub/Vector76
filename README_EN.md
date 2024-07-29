@@ -1,6 +1,6 @@
 # What is Vector76 Attack?
 
-Roughly speaking, it is an attack method that takes advantage of blockchain issues and allows double payments by pretending that transactions with a small number of approvals (up to 1 or 2 Confirmations?) have not occurred.
+Roughly speaking, it is an attack method that takes advantage of blockchain issues and allows double spending by pretending that transactions with a small number of approvals (up to 1 or 2 Confirmations?) have not occurred.
 Retail stores, mail order stores, etc. are affected.
 
 - Valuable materials (Head family): https://github.com/demining/Vector76-Attack
@@ -17,7 +17,10 @@ The objectives of this project are:
 
 # How to use a this tool, Things necessary
 
-**This is just a tool to make double payments. Therefore, the attacker needs to prepare Bitcoin.**
+- Bitcoin nodes that only you are connected to
+  - This is configurable in bitcoin.conf with connect=127.0.0.1
+
+**This is just a tool to make double spending. Therefore, the attacker needs to prepare Bitcoin.**
 
 - Now set up a node so that submitblock can send. Also, **Please change the address and wifi private key used for the experiment depending on the type of network of the node you are setting**
 

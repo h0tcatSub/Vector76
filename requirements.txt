@@ -1,7 +1,5 @@
-python-requests-bitcoinrpc
+python-bitcoinlib
 bitcoinaddress
 pybitcointools
-bitcoincli
-mp3play
-
-git+https://github.com/primal100/pybitcointools
+soundplay
+bitcoin
