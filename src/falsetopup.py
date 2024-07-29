@@ -56,10 +56,6 @@ def broadcast_transaction(raw_tx, testnet):
 
 
 args = parser.parse_args()
-rpc_host = args.node_host
-rpc_port = args.node_port
-username = args.username
-password = args.password
 fake_send_from   = args.send_from_wifkey
 victim_address   = args.fake_send_to
 amount_btc = args.amount_of_coins
