@@ -87,7 +87,7 @@ inputs = transaction_util.unspent(transaction_util.wiftoaddr(key))
 print(inputs)
 print()
 
-if send_amount <= fee:
+if send_amount < fee:
     print("[!] The fees exceed the amount sent. Please review the amount of fees and amount of BTC.")
     exit()
 
