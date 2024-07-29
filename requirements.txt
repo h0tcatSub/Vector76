@@ -1,4 +1,5 @@
-python-bitcoinlib
 bitcoinaddress
 soundplay
 cryptos
+
+git+https://github.com/h0tcatSub/python-bitcoinlib/

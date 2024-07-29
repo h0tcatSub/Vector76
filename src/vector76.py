@@ -125,6 +125,7 @@ print()
 print("OK")
 print("push V1 TX...")
 broadcast_transaction(tx_victim, testnet)
+
 input("--- Send the block after pressing the enter key. --- ")
 print(f"Send Vector76 Block...")
 result = rpc_node.submitblock(tx_vector76)
