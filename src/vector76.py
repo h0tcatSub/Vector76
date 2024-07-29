@@ -138,7 +138,7 @@ print("Index > 強固なブロックチェーンに対して強制干渉を開�
 print()
 result = rpc_node.submitblock(tx_victim)
 print()
-print("SND ITX TOBC  (ブロックチェーンへ不正なトランザクションを送信!)")
+print("SND ITX TOBC  (ブロックチェーンに不正なトランザクションを送信!)")
 print(result)
 print()
 #ゴリ押し
