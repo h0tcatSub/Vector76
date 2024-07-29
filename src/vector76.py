@@ -114,6 +114,7 @@ for i  in range(loop_count):
         print(f"Fake Send Amount (Satoshi unit)    : {send_amount} Satoshi")
         print(f"Signed  RawTx             : {tx_victim}")
         print(f"Testnet Mode              : {testnet}")
+        print(f"Loop                      : {loop_count}")
         print("--------------------")
         print()
         print()
