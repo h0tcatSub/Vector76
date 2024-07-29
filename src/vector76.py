@@ -36,7 +36,6 @@ parser.add_argument("--is_testnet",
                     help="testnet flag (Default=True)",
                     default=True,
                     type=bool)
-
 parser.add_argument("--fee",
                     help="BTC send fee. (Default=0.00015)",
                     default=0.00015,
