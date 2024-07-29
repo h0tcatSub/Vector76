@@ -96,8 +96,9 @@ if send_amount < fee:
     exit()
 
 change_address = transaction_util.wiftoaddr(key)
-balance = transaction_util.get_balance(change_address)[0]["value"]
+balance = transaction_util.get_balance(change_address)
 print(f"Balance : {balance}")
+balance = balance[0]["value"]
 
 change_btc_amt = (balance - (send_amount - fee)) #おつり
 tx_victim = [{"address": victim_address, "value": send_amount}, {"address": change_address, "value": change_btc_amt}]
