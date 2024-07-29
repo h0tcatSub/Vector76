@@ -78,12 +78,6 @@ print("Connecting Public Node...")
 rpc_node = bitcoin.rpc.Proxy(service_url=f"http://{username}:{password}@{rpc_host}",
                  service_port=rpc_port)
 print("OK")
-try:
-    rpc_node.call("importprivkey", key)
-except bitcoin.rpc.JSONRPCError:
-    print("create wallet")
-    rpc_node.call("createwallet", "ImagineBreaker")
-    rpc_node.call("importprivkey", key)
 send_amount = to_satoshi(amount_btc)
 inputs = transaction_util.unspent(transaction_util.wiftoaddr(key))
 print(inputs)
