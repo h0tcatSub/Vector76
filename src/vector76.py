@@ -1,5 +1,4 @@
 import argparse
-import binascii
 import requests
 import subprocess
 import bitcoin.rpc
@@ -88,7 +87,7 @@ inputs = transaction_util.unspent(transaction_util.wiftoaddr(key))
 print(inputs)
 
 if send_amount < fee:
-    print("[!] おつり料金が送金量を上回っています。お釣りの設定を見直してください。")
+    print("[!] The fees exceed the amount sent. Please review the amount of fees and amount of BTC.")
     exit()
 
 change_address = transaction_util.wiftoaddr(key)
