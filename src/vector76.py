@@ -77,7 +77,13 @@ print()
 fake_from = Wallet()
 
 inputs = transaction_util.unspent(send_from)
-balance = transaction_util.get_balance(send_from)["confirmed"]
+balance = transaction_util.get_balance(send_from)
+
+if balance["confirmed"] <= 0:
+    balance = balance["unconfirmed"]
+else:
+    balance = balance["confirmed"]
+
 fake_hash = hashlib.sha256(str(uuid.uuid4()).encode()).hexdigest()
 #if testnet:
 #    fake_inputs[0]["address"] = fake_from.address.testnet.pubaddr1
