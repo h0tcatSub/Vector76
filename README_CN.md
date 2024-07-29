@@ -27,7 +27,7 @@
 - 如果你想在主網上進行，你需要一個主網錢包和節點。
 
 ```
-usage: vector76.py [-h] [--is_testnet IS_TESTNET] [--fee FEE]
+usage: vector76.py [-h] [--is_testnet IS_TESTNET] [--fee FEE] [--last_txid LAST_TXID]
                    node_host node_port username password attacker_signkey victim_address attacker_address amount_of_coins
 
 How To Use vector76
@@ -48,6 +48,8 @@ options:
   --is_testnet IS_TESTNET
                         testnet flag (Default=True)
   --fee FEE             BTC send fee. (Default=0.00015)
+  --last_txid LAST_TXID
+                        Last txid (address of attacker_signkey)
 ```
 
 
