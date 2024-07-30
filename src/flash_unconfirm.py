@@ -80,7 +80,8 @@ if balance < send_amount:
     print(f"[!] insufficient funds. ")
     exit()
 
-fee = 0
+fee = 1 # ここはマインングできないくらい著しく小さな値にすることが重要。
+
 change_btc_amt = (balance - send_amount)#おつり
 
 if testnet:
