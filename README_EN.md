@@ -1,7 +1,7 @@
 # Find out the true identity of the mysterious tool Fake Sender Flasher
 
 I often see videos on Youtube of sending non-existing Bitcoin transactions to exchanges and extracting the balance.
-Such videos are scams that steal Bitcoin, Trojan horses, and even if they are genuine, they are often too expensive.
+Such videos are scams that steal Bitcoin, Trojan Malware, and even if they are genuine, they are often too expensive.
 
 By chance, when I created a specially crafted transaction so that the mining fee would be 0 and sent it, an unauthorized balance was temporarily reflected.
 Of course, since it is not mined, the transaction remains unconfirmed. You can temporarily send your balance to the other party.
