@@ -50,7 +50,6 @@ def broadcast_transaction(raw_tx, testnet):
                              data=payload,
                              headers=headers)
     print(f"response url : {response.url}")
-    print(response.text)
     if response.status_code == 200:
         print("Transaction successfully broadcasted!")
     else:
