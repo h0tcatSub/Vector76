@@ -10,7 +10,6 @@ After a while, the transaction was canceled and the sent coins were returned.
 Those affected are retail stores, mail order stores, gambling sites, etc. that are managed solely by balances.
 Exchanges and retail stores should be wary of unauthorized transactions.
 
-
 **The following conditions are required to execute flash.**
 - Address private key of coins with balance (The amount that can be flushed depends on how many coins you have prepared.)
 - Broadcasts with 0 mining fees are temporarily accepted.
@@ -42,6 +41,7 @@ options:
                         Testnet flag (Default=True)
 ```
 
+Also, if it's just a flash, it might be more efficient to double-spend using a vector76 attack, which has a high possibility of canceling one authorization.
 
 # What is Vector76 Attack?
 

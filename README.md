@@ -24,6 +24,7 @@
 **本気でメインネットでやりたいなら口座やアドレスが凍結される覚悟がある人がやってください。**
 詳しくは免責事項をご確認ください。
 
+また、flashするくらいだったら1承認を打ち消せる可能性が高いvector76攻撃を使って二重払いしたほうが効率が逆にいいかもしれません。
 
 ```
 usage: flash_unconfirm.py [-h] [--is_testnet IS_TESTNET] send_from_wifkey fake_send_to amount_of_coins

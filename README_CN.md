@@ -41,6 +41,7 @@ options:
                         Testnet flag (Default=True)
 ```
 
+另外，如果只是一閃而過，使用 vector76 攻擊進行雙花可能會更有效，這種攻擊很有可能取消一次授權。
 
 # 什麼是 Vector76 攻擊？
 
