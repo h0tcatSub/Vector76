@@ -96,7 +96,7 @@ if loop_count <= 0:
 
 transaction_util = cryptos.Bitcoin(testnet=testnet)
 print("Connecting node.")
-rpc_node = bitcoin.rpc.Proxy(f"http://{node_user}:{node_password}@{node_host}:{node_port}",
+rpc_node = bitcoin.rpc.Proxy(f"http://{node_user}:{node_password}@{node_host}",
                              service_port=node_port)
 
 print(rpc_node.getinfo())
