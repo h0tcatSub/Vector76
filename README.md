@@ -1,3 +1,47 @@
+# 謎ツールFake Sender Flasherの正体を探る
+
+よくYoutubeにBitcoinの存在しないトランザクションを取引所に送りつけて残高を抜き取る動画を見かける。
+そういった動画はビットコインを奪う詐欺であったり、トロイの木馬、本物だとしても高額すぎるコンテンツばかり。
+
+たまたまマイニング手数料が0になるように細工したトランザクションを作って仮に送信したところ一時的に未承認の残高が反映されていた。
+もちろんマイニングはされないためその取引は未承認のまま。一時的に残高を相手に送ることが可能。
+しばらく時間が経つと、その取引は抹消され送ったコインは返されていた。
+
+被害を受けるのは残高だけで管理をしている小売店、通販、ギャンブルサイトなどです。
+取引所や小売店は未承認のトランザクションに要注意。
+
+**フラッシュを実行するには下記の条件は必須。**
+- 残高があるコインのアドレス秘密鍵 (フラッシュできる量はどれだけコインを用意したかに依存します。)
+- マイニング手数料0のブロードキャストが一時的に受け入れられること
+
+秘密鍵なしにできるツールがどうしてFlashできるかというと次の可能性が考えられます。
+- 開発者が事前に何らかの方法でコインが入っているアドレスの秘密鍵を厳重に管理し、通信でアプリに秘密鍵を送りそれで署名している説。
+
+あとは、Flasherを乱用している人たちや開発者は公に知らされてないもっと高度な技術を使っている可能性もある。
+
+実際に試してみたい人は、```flash_unconfirm.py```で試すことができます。
+テストネットでは何度か試していますが、メインネットでは未確認です。
+**本気でメインネットでやりたいなら口座やアドレスが凍結される覚悟がある人がやってください。**
+詳しくは免責事項をご確認ください。
+
+
+```
+usage: flash_unconfirm.py [-h] [--is_testnet IS_TESTNET] send_from_wifkey fake_send_to amount_of_coins
+
+How To Use flash_unconfirm
+
+positional arguments:
+  send_from_wifkey      Fake send btc from wif key.
+  fake_send_to          Fake send btc to address.
+  amount_of_coins       Amount of coins sent. (Enter in BTC units) The maximum amount delayed will vary depending on send_from.
+
+options:
+  -h, --help            show this help message and exit
+  --is_testnet IS_TESTNET, -test IS_TESTNET
+                        Testnet flag (Default=True)
+```
+
+
 # Vector76攻撃とは?
 
 ざっくり言うとブロックチェーン上の問題をついて少ない承認数(1~2承認まで?)のトランザクションを無かったことにして二重払いを可能にする攻撃手法。

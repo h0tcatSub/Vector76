@@ -1,3 +1,47 @@
+# 找出神秘工具Fake Sender Flasher的真實身份
+
+我經常在 YouTube 上看到將不存在的比特幣交易發送到交易所並提取餘額的影片。
+這類影片都是盜取比特幣、特洛伊木馬的騙局，即使是正版，也往往價格過高。
+
+一次偶然的機會，當我創建了一筆特製交易，使挖礦費用為0並發送時，暫時反映了未經授權的餘額。
+當然，由於它沒有被開採，交易仍未得到確認。您可以暫時將餘額發送給對方。
+過了一會兒，交易被取消，發送的幣被退回。
+
+受影響的是僅透過餘額管理的零售商店、郵購商店、賭博網站等。
+交易所和零售商店應警惕未經授權的交易。
+
+**執行快閃記憶體需要以下條件。**
+- 餘額的幣私鑰地址（可沖的金額取決於您準備的幣數）
+- 暫時接受0挖礦費的廣播。
+
+為什麼不需要私鑰的工具可以運行Flash，可以考慮以下可能性。
+- 原理是開發者嚴格管理預先存幣地址的私鑰，並透過通訊將私鑰發送到應用程式並與之簽署。
+
+濫用 Flasher 的人和開發人員也可能使用不為公眾所知的更複雜的技術。
+
+想嘗試的可以用```flash_unconfirm.py```來嘗試。
+我在測試網上嘗試了幾次，但在主網上還沒有得到證實。
+**如果您真的想在主網上執行此操作，請僅在您準備好凍結您的帳戶或地址的情況下執行此操作。 **
+請參閱我們的免責聲明以了解更多詳情。
+
+
+```
+usage: flash_unconfirm.py [-h] [--is_testnet IS_TESTNET] send_from_wifkey fake_send_to amount_of_coins
+
+How To Use flash_unconfirm
+
+positional arguments:
+  send_from_wifkey      Fake send btc from wif key.
+  fake_send_to          Fake send btc to address.
+  amount_of_coins       Amount of coins sent. (Enter in BTC units) The maximum amount delayed will vary depending on send_from.
+
+options:
+  -h, --help            show this help message and exit
+  --is_testnet IS_TESTNET, -test IS_TESTNET
+                        Testnet flag (Default=True)
+```
+
+
 # 什麼是 Vector76 攻擊？
 
 粗略地說，這是一種利用區塊鏈問題，透過假裝少量批准（1個或2個批准？）的交易沒有發生來允許雙重支付的攻擊方法。

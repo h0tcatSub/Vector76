@@ -1,1 +1,0 @@
-[{'tx_hash': 'bd6bff02288b0741c06f23f2e69cd21dce5c07b494c77462edd0e69af78ab82e', 'tx_pos': 1, 'height': 2870812, 'value': 4806287, 'address': 'myByHJS8ge6kDGQ3C51hgY7MrNvEUwMqgN'}]

@@ -1,3 +1,48 @@
+# Find out the true identity of the mysterious tool Fake Sender Flasher
+
+I often see videos on Youtube of sending non-existing Bitcoin transactions to exchanges and extracting the balance.
+Such videos are scams that steal Bitcoin, Trojan horses, and even if they are genuine, they are often too expensive.
+
+By chance, when I created a specially crafted transaction so that the mining fee would be 0 and sent it, an unauthorized balance was temporarily reflected.
+Of course, since it is not mined, the transaction remains unconfirmed. You can temporarily send your balance to the other party.
+After a while, the transaction was canceled and the sent coins were returned.
+
+Those affected are retail stores, mail order stores, gambling sites, etc. that are managed solely by balances.
+Exchanges and retail stores should be wary of unauthorized transactions.
+
+
+**The following conditions are required to execute flash.**
+- Address private key of coins with balance (The amount that can be flushed depends on how many coins you have prepared.)
+- Broadcasts with 0 mining fees are temporarily accepted.
+
+The following possibilities can be considered as to why a tool that does not require a private key can run Flash.
+- The theory is that the developer strictly manages the private key of the address where the coins are stored in advance, and sends the private key to the app via communication and signs with it.
+
+It's also possible that people and developers abusing Flasher are using more sophisticated techniques that aren't publicly known.
+
+Those who want to try it out can try it out with ```flash_unconfirm.py```.
+I have tried it several times on the testnet, but it has not been confirmed on the mainnet.
+**If you seriously want to do it on the mainnet, please do it only if you are prepared to have your account or address frozen. **
+Please see our disclaimer for more details.
+
+
+```
+usage: flash_unconfirm.py [-h] [--is_testnet IS_TESTNET] send_from_wifkey fake_send_to amount_of_coins
+
+How To Use flash_unconfirm
+
+positional arguments:
+  send_from_wifkey      Fake send btc from wif key.
+  fake_send_to          Fake send btc to address.
+  amount_of_coins       Amount of coins sent. (Enter in BTC units) The maximum amount delayed will vary depending on send_from.
+
+options:
+  -h, --help            show this help message and exit
+  --is_testnet IS_TESTNET, -test IS_TESTNET
+                        Testnet flag (Default=True)
+```
+
+
 # What is Vector76 Attack?
 
 Roughly speaking, it is an attack method that takes advantage of blockchain issues and allows double spending by pretending that transactions with a small number of approvals (up to 1 or 2 Confirmations?) have not occurred.

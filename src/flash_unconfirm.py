@@ -3,9 +3,6 @@ import time
 import requests
 import subprocess
 import cryptos
-import hashlib
-import uuid
-import bitcoin.rpc
 
 from bs4 import BeautifulSoup
 
@@ -71,7 +68,7 @@ transaction_util = cryptos.Bitcoin(testnet=testnet)
 print("OK")
 balance = transaction_util.get_balance(transaction_util.wiftoaddr(fake_send_from))
 inputs  = transaction_util.unspent(transaction_util.wiftoaddr(fake_send_from))
-    #balance = transaction_util.get_balance(send_from)
+balance = transaction_util.get_balance(transaction_util.wiftoaddr(fake_send_from))
 if balance["confirmed"] <= 0:
     balance = balance["unconfirmed"]
 else:
@@ -79,9 +76,9 @@ else:
 
 send_amount = to_satoshi(amount_btc)
 
-#if balance < send_amount:
-#    print(f"[!] insufficient funds. ")
-#    exit()
+if balance < send_amount:
+    print(f"[!] insufficient funds. ")
+    exit()
 
 fee = 0
 change_btc_amt = (balance - send_amount)#おつり
@@ -142,12 +139,11 @@ try:
     soundplay.playsound(sound_name)
 except:
     try:
-        # Termux Only
         imagine_breaker_cmd = ["cvlc", "--play-and-exit", sound_name]
         subprocess.run(imagine_breaker_cmd)
     except:
         pass
-time.sleep(1) #休ませる
+time.sleep(1)
 balance = transaction_util.get_balance(transaction_util.wiftoaddr(fake_send_from))
 inputs  = transaction_util.unspent(transaction_util.wiftoaddr(fake_send_from))
 
