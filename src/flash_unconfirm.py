@@ -89,7 +89,7 @@ if testnet:
 else:
     tx_victim = [{"address": victim_address, "value": send_amount}, {"address": transaction_util.wiftoaddr(fake_send_from), "value": change_btc_amt}]
 
-tx_victim = transaction_util.mktx(inputs, tx_victim)
+tx_victim = transaction_util.mktx_with_change(inputs, tx_victim, fee=0)
 if testnet:
     tx_victim = cryptos.serialize(transaction_util.sign(tx_victim, 0, fake_send_from))
 else:
