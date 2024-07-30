@@ -129,7 +129,7 @@ for i  in range(loop_count):
     print()
     print("Index > 強固なブロックチェーン技術に対して強制干渉を開始...")
     print()
-    print("GEN ITX (不正なトランザクションを生成、送信!)")
+    print("GEN SND PRNT ITX (不正なトランザクションを生成、送信 表示!)")
     if testnet:
         broadcast_transaction(tx_victim, testnet)
     else:
