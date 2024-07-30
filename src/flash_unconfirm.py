@@ -156,6 +156,4 @@ for i  in range(loop_count):
     time.sleep(1) #休ませる
 
 print("----------------")
-balance = transaction_util.get_balance(victim_address)
-print(f"fake send to address Balance (satoshi unit) :{balance}")
 print("Done.")
