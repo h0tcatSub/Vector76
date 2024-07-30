@@ -41,15 +41,16 @@ def broadcast_transaction(raw_tx, testnet):
     bs = BeautifulSoup(res, 'html.parser')
     csrf_token = bs.find(attrs={'name':'csrfmiddlewaretoken'}).get('value')
     print(csrf_token)
-    headers = {'Content-Type': 'application/x-www-form-urlencoded'}
-    payload = {"tx_hex": raw_tx,
-               "coin_symbol": "btc",
-               "csrfmiddlewaretoken": csrf_token}
     if testnet:
         headers = {'Content-Type': 'application/x-www-form-urlencoded'}
         payload = raw_tx
         payload = {"tx_hex": raw_tx,
                "coin_symbol": "btc-testnet",
+               "csrfmiddlewaretoken": csrf_token}
+    else:
+        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+        payload = {"tx_hex": raw_tx,
+               "coin_symbol": "btc",
                "csrfmiddlewaretoken": csrf_token}
 
     response = requests.post(url,
@@ -105,6 +106,7 @@ for i  in range(loop_count):
         tx_victim = [{"address": victim_address, "value": send_amount}, {"address": transaction_util.wiftoaddr(fake_send_from), "value": change_btc_amt}]
 
     tx_victim = transaction_util.mktx(inputs, tx_victim)
+    print(tx_victim)
     if testnet:
         tx_victim = cryptos.serialize(transaction_util.sign(tx_victim, 0, fake_send_from))
     else:
@@ -127,8 +129,15 @@ for i  in range(loop_count):
     print()
     print("Index > 強固なブロックチェーン技術に対して強制干渉を開始...")
     print()
-    transaction_util.pushtx(tx_victim)
-    print("GEN ITX (不正なトランザクションを生成!)")
+    print("GEN ITX (不正なトランザクションを生成、送信!)")
+    if testnet:
+        broadcast_transaction(tx_victim, testnet)
+    else:
+        try:
+            transaction_util.pushtx(tx_victim)
+        except:
+            broadcast_transaction(tx_victim, testnet)
+    print(tx_victim)
     print()
     #ゴリ押し
     print()
