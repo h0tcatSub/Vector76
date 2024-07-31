@@ -38,13 +38,6 @@ def to_satoshi(btc_amount):
     satoshi = 0.00000001
     return round(btc_amount / satoshi)
 
-def run_btc_cli_command(command):
-    try:
-        return result.stdout
-    except subprocess.CalledProcessError as e:
-        print(f'Error: {e.stderr}')
-        return None
-
 def generate_block(address, block, submit=False):
     subprocess.run(['bitcoin-cli', "generateblock", address, f"['{block}']", str(submit).lower()],
                              capture_output=True, 
