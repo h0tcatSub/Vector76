@@ -7,7 +7,7 @@ import subprocess
 
 from bs4 import BeautifulSoup
 
-parser = argparse.ArgumentParser(description="How To Use vector76")
+parser = argparse.ArgumentParser(description="How To use vector76")
 
 parser.add_argument("from_wifkey",
                     help="Fake send btc from wif key.",
