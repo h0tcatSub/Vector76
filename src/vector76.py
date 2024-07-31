@@ -32,7 +32,7 @@ def to_satoshi(btc_amount):
     return round(btc_amount / satoshi)
 
 def generate_block(address, block, submit=False):
-    subprocess.run(f'bitcoin-cli generateblock {address} ["{block}"] {str(submit).lower()}',
+    subprocess.run(f'bitcoin-cli generateblock "{address}" \'["{block}"]\' {str(submit).lower()}',
                              shell=True,
                              capture_output=True,
                              text=True,
