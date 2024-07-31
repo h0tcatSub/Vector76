@@ -13,9 +13,6 @@ parser = argparse.ArgumentParser(description="How To Use vector76")
 parser.add_argument("send_to",
                     help="Fake send btc to address.",
                     type=str)
-parser.add_argument("attacker_address",
-                    help="Address held by attacker to receive refund (Please prepare an address that is different from the address that can be generated",
-                    type=str)
 parser.add_argument("amount_of_coins",
                     help="Amount of coins sent. (Max 10 BTC)",
                     type=float)
