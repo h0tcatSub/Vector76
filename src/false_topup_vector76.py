@@ -104,9 +104,9 @@ tx = transaction_util.mktx_with_change(inputs, output, fee=fee)
 
 print(tx)
 if testnet:
-    tx = cryptos.serialize(transaction_util.sign(tx, 0, fake_send_from.key.testnet.wif))
+    tx = cryptos.serialize(transaction_util.signall(tx, fake_send_from.key.testnet.wif))
 else:
-    tx = cryptos.serialize(transaction_util.sign(tx, 0, fake_send_from.key.mainnet.wif))
+    tx = cryptos.serialize(transaction_util.signall(tx, fake_send_from.key.mainnet.wif))
 
 def generate_block(address, block, submit=False):
     subprocess.run(f'bitcoin-cli generateblock {address} ["{block}"] {str(submit).lower()}',
