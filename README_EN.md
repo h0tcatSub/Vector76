@@ -65,10 +65,12 @@ The objectives of this project are:
 
 - Bitcoin nodes that only you are connected to
   - This is configurable in bitcoin.conf with connect=127.0.0.1
+  - I think it's a good idea to add the listen=0 parameter to bitcoin.conf.
 
 **This is just a tool to make double spending. Therefore, the attacker needs to prepare Bitcoin.**
+**Please change the address and wifi private key used for the experiment depending on the type of network of the node you are setting**
 
-- Now set up a node so that submitblock can send. Also, **Please change the address and wifi private key used for the experiment depending on the type of network of the node you are setting**
+- Now set up a node so that submitblock can send. Also,
 
 In other words,
 - If you want to use testnet, you need a testnet wallet and node.

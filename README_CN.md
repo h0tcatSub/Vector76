@@ -61,15 +61,18 @@ options:
 
 - 只有您連接的比特幣節點
   - 這可以在 bitcoin.conf 中使用 connect=127.0.0.1 進行配置
+  - 我認為將listen=0參數新增至bitcoin.conf是個好主意。
 
 **這只是一個雙重支付的工具。因此，需要平衡。**
+**請根據您設定的節點的網路類型更改實驗所使用的位址和wifi私鑰**
 
-- 現在設定一個節點，以便submitblock可以發送。另外，**請根據您設定的節點的網路類型更改實驗所使用的位址和wifi私鑰**
+- 現在設定一個節點，以便submitblock可以發送。另外，
 
 換句話說，
 - 如果您想使用測試網，您需要測試網錢包和節點。
-
 - 如果你想在主網上進行，你需要一個主網錢包和節點。
+
+另外，為了使用子程序呼叫指令，請將「bitcoin-cli」放在與 src 目錄相同的位置或將其包含在 PATH 中。
 
 ```
 usage: vector76.py [-h] [--is_testnet IS_TESTNET] [--fee FEE] [--last_txid LAST_TXID]
