@@ -174,7 +174,6 @@ print()
 #おまけ
 print("Kamijou Touma >> Kill that blockchain transaction!! 👊 💥 ")
 print()
-#print("What if you send the generated transaction using https://live.blockcypher.com/btc/pushtx/??")
 sound_name = "ImagineBreaker.mp3"
 try:
     import soundplay
