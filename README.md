@@ -43,7 +43,7 @@ options:
 ```
 
 
-# Vector76攻撃とは?
+# Vector76攻撃とは? (実験中)
 
 ざっくり言うとブロックチェーン上の問題をついて少ない承認数(1~2承認まで?)のトランザクションを無かったことにして二重払いを可能にする攻撃手法。
 被害を受けるのは小売店、通販、ギャンブルサイトなどです。
@@ -62,40 +62,33 @@ options:
 
 - 自身だけが接続しているBitcoinノード
   - 例えばテストネットの場合、bitcoin.confでconnect=127.0.0.1:18332で設定可能です 。ポート番号を設定している場合はconnectの設定をうまくやってください。
+  - listen=0 のパラメータをbitcoin.confに追加しておくのもいいと思います。
 
 - **あくまでもこれは二重払いをするツールです。なので残高は必須です。**
 - **立てているノードのネットワークの種類によって実験に使うアドレスやwif秘密鍵は変えてください**
 
 つまり、
-- テストネットでやるならテストネットのウォレットとノードが必要
 
+- テストネットでやるならテストネットのウォレットとノードが必要
 - メインネットでやるならメインネットのウォレットとノードが必要
 
+あと、subprocessを使ってコマンドを呼び出すため```bitcoin-cli```はsrcディレクトリと同じ場所に置くかPATHを通しておいてください。
 
 ```
-usage: vector76.py [-h] [--is_testnet IS_TESTNET] [--fee FEE] [--last_txid LAST_TXID]
-                   node_host node_port username password attacker_signkey victim_address attacker_address amount_of_coins
+usage: vector76.py [-h] [--is_testnet IS_TESTNET] from_wifkey send_to attacker_address amount_of_coins
 
-How To Use vector76
+How To use vector76
 
 positional arguments:
-  node_host             Blockchain Node Host
-  node_port             Blockchain Node Port
-  username              Your BTC node username
-  password              Your BTC node password
-  attacker_signkey      The attacker has the WIF format private key of the first address (this is used to sign the transaction)
-  victim_address        Victim address.
+  from_wifkey           Fake send btc from wif key.
+  send_to               Fake send btc to address.
   attacker_address      Address held by attacker to receive refund (Please prepare an address that is different from the address that can be generated
-                        with the private key specified in the first place.)
-  amount_of_coins       Amount of coins sent. (Enter in BTC units)
+  amount_of_coins       Amount of coins sent. (Enter in BTC units) The maximum amount delayed will vary depending on send_from.
 
 options:
   -h, --help            show this help message and exit
-  --is_testnet IS_TESTNET
-                        testnet flag (Default=True)
-  --fee FEE             BTC send fee. (Default=0.00015)
-  --last_txid LAST_TXID, -txid LAST_TXID
-                        Last txid (address of attacker_signkey)
+  --is_testnet IS_TESTNET, -test IS_TESTNET
+                        Testnet flag (Default=True)
 ```
 
 実行中、

@@ -25,6 +25,9 @@ I have tried it several times on the testnet, but it has not been confirmed on t
 Please see our disclaimer for more details.
 
 
+Also, if it's just a flash, it might be more efficient to double-spend using a vector76 attack, which has a high possibility of canceling one authorization.
+
+
 ```
 usage: flash_unconfirm.py [-h] [--is_testnet IS_TESTNET] send_from_wifkey fake_send_to amount_of_coins
 
@@ -41,9 +44,7 @@ options:
                         Testnet flag (Default=True)
 ```
 
-Also, if it's just a flash, it might be more efficient to double-spend using a vector76 attack, which has a high possibility of canceling one authorization.
-
-# What is Vector76 Attack?
+# What is Vector76 Attack? (Still experimenting...)
 
 Roughly speaking, it is an attack method that takes advantage of blockchain issues and allows double spending by pretending that transactions with a small number of approvals (up to 1 or 2 Confirmations?) have not occurred.
 Retail stores, mail order stores, etc. are affected.
@@ -74,31 +75,24 @@ In other words,
 
 - If you want to do it on the mainnet, you need a mainnet wallet and node.
 
+Also, in order to call the command using subprocess, please put ``bitcoin-cli`` in the same location as the src directory or include it in the PATH.
+
 
 ```
-usage: vector76.py [-h] [--is_testnet IS_TESTNET] [--fee FEE] [--last_txid LAST_TXID]
-                   node_host node_port username password attacker_signkey victim_address attacker_address amount_of_coins
+usage: vector76.py [-h] [--is_testnet IS_TESTNET] from_wifkey send_to attacker_address amount_of_coins
 
-How To Use vector76
+How To use vector76
 
 positional arguments:
-  node_host             Blockchain Node Host
-  node_port             Blockchain Node Port
-  username              Your BTC node username
-  password              Your BTC node password
-  attacker_signkey      The attacker has the WIF format private key of the first address (this is used to sign the transaction)
-  victim_address        Victim address.
+  from_wifkey           Fake send btc from wif key.
+  send_to               Fake send btc to address.
   attacker_address      Address held by attacker to receive refund (Please prepare an address that is different from the address that can be generated
-                        with the private key specified in the first place.)
-  amount_of_coins       Amount of coins sent. (Enter in BTC units)
+  amount_of_coins       Amount of coins sent. (Enter in BTC units) The maximum amount delayed will vary depending on send_from.
 
 options:
   -h, --help            show this help message and exit
-  --is_testnet IS_TESTNET
-                        testnet flag (Default=True)
-  --fee FEE             BTC send fee. (Default=0.00015)
-  --last_txid LAST_TXID, -txid LAST_TXID
-                        Last txid (address of attacker_signkey)
+  --is_testnet IS_TESTNET, -test IS_TESTNET
+                        Testnet flag (Default=True)
 ```
 
 During the attack,
