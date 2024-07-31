@@ -32,13 +32,15 @@ def to_satoshi(btc_amount):
     return round(btc_amount / satoshi)
 
 def generate_block(address, block, submit=False):
-    subprocess.run(['bitcoin-cli', "generateblock", address, f"['{block}']", str(submit).lower()],
+    subprocess.run(f'bitcoin-cli generateblock {address} ["{block}"] {str(submit).lower()}',
+                             shell=True,
                              capture_output=True, 
                              text=True,
                              check=True)
 
 def send_rawtransaction(hextx):
-    result = subprocess.run(['bitcoin-cli', "sendrawtransaction", hextx],
+    result = subprocess.run(f'bitcoin-cli sendrawtransaction {hextx}',
+                             shell=True,
                              capture_output=True, 
                              text=True,
                              check=True)
