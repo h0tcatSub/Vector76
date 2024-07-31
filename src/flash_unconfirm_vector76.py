@@ -125,7 +125,7 @@ time.sleep(2)
 print(f"Generating Vector76 Block")
 for i in range(6):
     print(f" {i + 1} / 6   ...")
-    generate_block(victim_address, tx_victim)
+    print(generate_block(victim_address, tx_victim, True))
 
 try:
     transaction_util.pushtx(tx_victim)
