@@ -117,9 +117,7 @@ print(f"Testnet Mode              : {testnet}")
 print("--------------------")
 print()
 print()
-
 print()
-
 print()
 print("Index > 強固なブロックチェーン技術に対して強制干渉を開始...")
 print()
