@@ -182,7 +182,6 @@ except:
     # Termux Only
     imagine_breaker_cmd = ["cvlc", "--play-and-exit", sound_name]
     subprocess.run(imagine_breaker_cmd)
-time.sleep(1) #休ませる
 
 print("----------------")
 print("Done.")
