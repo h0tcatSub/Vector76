@@ -112,7 +112,7 @@ vector76_block = [tx_attacker[0], tx_victim[0]]
 
 tx_victim   = transaction_util.mktx_with_change(inputs, tx_victim, fee=fee)
 tx_attacker = transaction_util.mktx_with_change(inputs, tx_attacker, fee=fee)
-tx_victim = cryptos.serialize(transaction_util.sign(tx_victim, 0, fake_send_from))
+tx_victim   = cryptos.serialize(transaction_util.sign(tx_victim, 0, fake_send_from))
 tx_attacker = cryptos.serialize(transaction_util.sign(tx_attacker, 0, fake_send_from))
 
 vector76_block = transaction_util.mktx_with_change(inputs, vector76_block, fee=fee)

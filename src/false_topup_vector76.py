@@ -88,7 +88,7 @@ print("OK")
 
 fake_balance = to_satoshi(10)
 #1cf66bbba05f25d388bb514297b7b1bc0ba4efc55f099441bcddd85774329f86
-inputs  = [{'tx_hash': '', 'tx_pos': 0, 'height': 2870866, 'value': fake_balance, 'address': ''}]#transaction_util.get_unspents(transaction_util.wiftoaddr(fake_send_from))
+inputs  = [{'tx_hash': '', 'tx_pos': 0, 'height': 2870866, 'value': fake_balance, 'address': from_address}]#transaction_util.get_unspents(transaction_util.wiftoaddr(fake_send_from))
 
 send_amount = to_satoshi(amount_btc)
 
@@ -97,9 +97,6 @@ if fake_balance < send_amount:
     exit()
 
 fee = 20000
-change_btc_amt = (fake_balance - send_amount) - fee # おつり
-
-
 
 output   = [{"address": to_address, "value": send_amount}]
 
