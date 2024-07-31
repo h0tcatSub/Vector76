@@ -101,6 +101,8 @@ fee = 20000
 output   = [{"address": to_address, "value": send_amount}]
 
 tx = transaction_util.mktx_with_change(inputs, output, fee=fee)
+
+print(tx)
 if testnet:
     tx = cryptos.serialize(transaction_util.sign(tx, 0, fake_send_from.key.testnet.wif))
 else:
