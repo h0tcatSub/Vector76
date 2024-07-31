@@ -81,10 +81,6 @@ victim_address   = args.send_to
 attacker_address = args.attacker_address
 amount_btc = args.amount_of_coins
 testnet    = args.is_testnet
-loop_count = args.loop_count
-
-if loop_count <= 0:
-    loop_count = 1
 
 transaction_util = cryptos.Bitcoin(testnet=testnet)
 print("OK")
