@@ -76,7 +76,7 @@ def broadcast_transaction(raw_tx, testnet):
 
 
 args = parser.parse_args()
-fake_send_from   = args.send_from_wifkey
+fake_send_from   = args.from_wifkey
 victim_address   = args.send_to
 attacker_address = args.attacker_address
 amount_btc = args.amount_of_coins
