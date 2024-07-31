@@ -127,8 +127,9 @@ time.sleep(3) #詠唱中...  -u-
 
 print("SND TMP ITX TOBC  (ブロックチェーンに一時的な不正なトランザクションを送信!)")
 
+
+#transaction_util.pushtx(tx_victim)
 broadcast_transaction(tx_victim, testnet)
-#broadcast_transaction(tx_victim, testnet)
 print()
 #ゴリ押し
 print()
