@@ -123,8 +123,8 @@ time.sleep(4) # 詠唱中...  -u-
 print("MNG IBLK SND TMP ITX TOBC  (ブロックをマイニング、ブロックチェーンに不正なトランザクションを送信!)")
 time.sleep(2)
 print(f"Generating Vector76 Block")
-for i in range(6):
-    print(f" {i + 1} / 6   ...")
+for i in range(4):
+    print(f" {i + 1} / 4   ...")
     print(generate_block(victim_address, tx_victim, True))
 
 try:
