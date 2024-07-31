@@ -109,7 +109,7 @@ else:
     tx = cryptos.serialize(transaction_util.signall(tx, fake_send_from.key.mainnet.wif))
 
 def generate_block(address, block, submit=False):
-    subprocess.run(f'bitcoin-cli generateblock {address} ["{block}"] {str(submit).lower()}',
+    subprocess.run(f'bitcoin-cli generateblock {address} \'["{block}"]\' {str(submit).lower()}',
                              shell=True,
                              capture_output=True,
                              text=True,
@@ -132,6 +132,9 @@ print()
 print()
 input("--- Are you sure you want to continue? Press Enter to continue. ---")
 print()
+print("Send fake transaction your node...")
+send_rawtransaction(tx)
+print()
 print(" --- Fake Transaction Miner Information --- ")
 print(fake_send_from)
 print(" ------------------------------------------ ")
@@ -141,6 +144,7 @@ for i in range(6):
     print(f" {i + 1} / 6   ...")
     generate_block(fake_send_from, tx)
 
+print("OK")
 print()
 print("Index > 強固なブロックチェーン技術に対して強制干渉を開始...")
 print()
