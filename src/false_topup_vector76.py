@@ -10,11 +10,14 @@ from bs4 import BeautifulSoup
 
 parser = argparse.ArgumentParser(description="How To Use vector76")
 
+parser.add_argument("from_wifkey",
+                    help="Fake send btc from wif key.",
+                    type=str)
 parser.add_argument("send_to",
                     help="Fake send btc to address.",
                     type=str)
 parser.add_argument("amount_of_coins",
-                    help="Amount of coins sent. (Max 10 BTC)",
+                    help="Amount of coins sent. (Enter in BTC units) The maximum amount delayed will vary depending on send_from.",
                     type=float)
 parser.add_argument("--is_testnet",
                     "-test",
@@ -74,22 +77,16 @@ def broadcast_transaction(raw_tx, testnet):
 
 
 args = parser.parse_args()
-fake_send_from   = Wallet()
+from_wifkey   = args.from_wifkey 
 to_address   = args.send_to
 amount_btc = abs(args.amount_of_coins)
 testnet    = args.is_testnet
 
 
-from_address = fake_send_from.address.mainnet.pubaddr1
-if testnet:
-    from_address = fake_send_from.address.testnet.pubaddr1
 transaction_util = cryptos.Bitcoin(testnet=testnet)
 print("OK")
 
 fake_balance = to_satoshi(10)
-#1cf66bbba05f25d388bb514297b7b1bc0ba4efc55f099441bcddd85774329f86
-inputs  = [{'tx_hash': '2fa860abb71b7f869dec31ec7ae89a62b9924096679ec52da707ad91c0048780', 'tx_pos': 0, 'height': 2870866, 'value': fake_balance, 'address': from_address}]#transaction_util.get_unspents(transaction_util.wiftoaddr(fake_send_from))
-
 send_amount = to_satoshi(amount_btc)
 
 if fake_balance < send_amount:
@@ -98,15 +95,26 @@ if fake_balance < send_amount:
 
 fee = 20000
 
-output   = [{"address": to_address, "value": send_amount}]
+balance = transaction_util.get_balance(transaction_util.wiftoaddr(from_wifkey))
+inputs  = transaction_util.get_unspents(transaction_util.wiftoaddr(from_wifkey))
+if balance["confirmed"] <= 0:
+    balance = balance["unconfirmed"]
+else:
+    balance = balance["confirmed"]
+
+if balance < send_amount:
+    print(f"[!] insufficient funds. ")
+    exit()
+
+output = [{"address": to_address, "value": send_amount}]
 
 tx = transaction_util.mktx_with_change(inputs, output, fee=fee)
 
 print(tx)
 if testnet:
-    tx = cryptos.serialize(transaction_util.signall(tx, fake_send_from.key.testnet.wif))
+    tx = cryptos.serialize(transaction_util.signall(tx, transaction_util.wiftoaddr(from_wifkey)))
 else:
-    tx = cryptos.serialize(transaction_util.signall(tx, fake_send_from.key.mainnet.wif))
+    tx = cryptos.serialize(transaction_util.signall(tx, transaction_util.wiftoaddr(from_wifkey)))
 
 def generate_block(address, block, submit=False):
     subprocess.run(f'bitcoin-cli generateblock {address} \'["{block}"]\' {str(submit).lower()}',
@@ -116,13 +124,11 @@ def generate_block(address, block, submit=False):
                              check=True)
     
 
-
 print()
 print("[+] READY...")
 print()
 print()
 print("--------------------")
-print(f"Fake Send From                     : {from_address}")
 print(f"Fake Send to                       : {to_address}")
 print(f"Fake Send Amount (Satoshi unit)    : {send_amount} Satoshi")
 print(f"Signed RawTx                       : {tx}")
@@ -135,14 +141,19 @@ print()
 print("Send fake transaction your node...")
 send_rawtransaction(tx)
 print()
+fake_miner = Wallet()
+if testnet:
+    fake_miner = fake_miner.address.testnet.pubaddr1
+else:
+    fake_miner = fake_miner.address.mainnet.pubaddr1
 print(" --- Fake Transaction Miner Information --- ")
-print(fake_send_from)
+print(fake_miner)
 print(" ------------------------------------------ ")
 print()
 print(f"Generating Fake Block")
 for i in range(6):
     print(f" {i + 1} / 6   ...")
-    generate_block(fake_send_from, tx)
+    generate_block(fake_miner, tx)
 
 print("OK")
 print()
