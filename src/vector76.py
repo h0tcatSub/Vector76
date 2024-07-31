@@ -160,7 +160,7 @@ print("Index > 強固なブロックチェーン技術に対して強制干渉�
 print()
 time.sleep(1) #..... -u-
 
-print("IBLK SND TOBC  (不正なブロックを、ブロックチェーンに送信!)")
+print("SND IBLK TOBC  (不正なブロックを、ブロックチェーンに送信!)")
 print()
 transaction_util.pushtx(vector76_block)
 print()
