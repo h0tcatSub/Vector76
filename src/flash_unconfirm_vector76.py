@@ -132,7 +132,8 @@ try:
 except:
     pass
 
-broadcast_transaction(tx_victim, testnet)
+
+#broadcast_transaction(tx_victim, testnet)
 print()
 #おまけ
 print("Kamijou Touma >> Kill that blockchain transaction!! 👊 💥 ")
