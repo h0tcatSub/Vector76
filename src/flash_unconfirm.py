@@ -157,6 +157,7 @@ time.sleep(1)
 
 print("----------------")
 balance = blockcypher.get_total_balance(victim_address)
+print(f"victim : {victim_address}")
 print(f"fake send to address Balance (satoshi unit) :{balance}")
 print()
 print("Tips : If you are unable to send from the program side, why not try sending manually using the service at the following URL?: https://live.blockcypher.com/pushtx")
