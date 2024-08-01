@@ -158,7 +158,6 @@ generate_block(transaction_util.wiftoaddr(fake_send_from), vector76_block, True)
 print("Sending V2 Transaction ...")
 print()
 #txid2 = transaction_util.pushtx(tx_attacker)
-print(txid2)
 print("OK")
 
 print()
