@@ -17,17 +17,13 @@ parser.add_argument("fake_send_to",
 parser.add_argument("blockcypher_token",
                     help="blockcypher_apikey  It might be possible to do it successfully with BTC.",
                     type=str)
+parser.add_argument("currency",
+                    help="Coin currency.  btc, ltc (Default=btc)",
+                    type=str,
+                    default="btc")
 parser.add_argument("amount_of_coins",
                     help="Amount of coins sent. The maximum amount delayed will vary depending on send_from.",
                     type=float)
-parser.add_argument("--coin_symbol",
-                    help="Coin symbol.  btc, ltc (Default=btc)",
-                    type=str,
-                    default="btc")
-parser.add_argument("--is_testnet",
-                    help="Testnet flag (Default = True)",
-                    type=bool,
-                    default=True)
 def to_satoshi(btc_amount):
     satoshi = 0.00000001
     return round(btc_amount / satoshi)
@@ -70,7 +66,7 @@ amount_btc  = args.amount_of_coins
 testnet     = args.is_testnet
 token       = args.blockcypher_token
 coin_symbol = args.coin_symbol
-testnet     = args.is_testnet
+testnet     = True
 
 print(testnet)
 transaction_util = cryptos.Bitcoin(testnet=testnet)
