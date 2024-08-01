@@ -21,12 +21,10 @@ parser.add_argument("amount_of_coins",
                     help="Amount of coins sent. The maximum amount delayed will vary depending on send_from.",
                     type=float)
 parser.add_argument("--coin_symbol",
-                    "-coin",
                     help="Coin symbol.  btc, ltc (Default=btc)",
                     type=str,
                     default="btc")
 parser.add_argument("--is_testnet",
-                    "-testnet",
                     help="Testnet flag (Default = True)",
                     type=bool,
                     default=True)
@@ -74,6 +72,7 @@ token       = args.blockcypher_token
 coin_symbol = args.coin_symbol
 testnet     = args.is_testnet
 
+print(testnet)
 transaction_util = cryptos.Bitcoin(testnet=testnet)
 if "ltc" in coin_symbol:
     print("litecoin")
