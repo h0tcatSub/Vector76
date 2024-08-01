@@ -2,4 +2,10 @@ bitcoinaddress
 soundplay
 cryptos
 beautifulsoup4
+blockcypher
+bitcoin-cli
+bitcoin
+python-litecoinlib
+litecoin-utils
+
 git+https://github.com/h0tcatSub/python-bitcoinlib/
