@@ -152,11 +152,9 @@ except:
     except:
         pass
 time.sleep(1)
-balance = transaction_util.get_balance(transaction_util.wiftoaddr(fake_send_from))
-inputs  = transaction_util.unspent(transaction_util.wiftoaddr(fake_send_from))
 
 print("----------------")
-balance = transaction_util.get_balance(victim_address)
+balance = blockcypher.get_total_balance(victim_address)
 print(f"fake send to address Balance (satoshi unit) :{balance}")
 print()
 print("Tips : If you are unable to send from the program side, why not try sending manually using the service at the following URL?: https://live.blockcypher.com/pushtx")
