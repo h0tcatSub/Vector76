@@ -14,14 +14,13 @@ parser.add_argument("send_from_wifkey",
 parser.add_argument("fake_send_to",
                     help="Fake send btc to address.",
                     type=str)
+parser.add_argument("blockcypher_token",
+                    help="blockcypher_apikey  It might be possible to do it successfully with BTC.",
+                    type=str)
 parser.add_argument("amount_of_coins",
                     help="Amount of coins sent. The maximum amount delayed will vary depending on send_from.",
                     type=float)
-parser.add_argument("--blockcypher_token",
-                    "-token",
-                    help="blockcypher_apikey  It might be possible to do it successfully with BTC.",
-                    type=str)
-parser.add_argument("--coin-symbol",
+parser.add_argument("--coin_symbol",
                     "-coin",
                     help="Coin symbol.  btc, ltc (Default=btc)",
                     type=str,
@@ -81,6 +80,7 @@ if "ltc" in coin_symbol:
     transaction_util = cryptos.Litecoin(testnet=testnet)
     sender  = transaction_util.privtopub(fake_send_from)
     address = transaction_util.pubtoaddr(sender)
+    print(address)
     balance = transaction_util.get_balance(address)
     inputs  = transaction_util.get_unspents(address)
 else:
@@ -89,6 +89,7 @@ else:
     balance = transaction_util.get_balance(transaction_util.wiftoaddr(fake_send_from))
 
 print("OK")
+print(balance)
 if balance["confirmed"] <= 0:
     balance = balance["unconfirmed"]
 else:
