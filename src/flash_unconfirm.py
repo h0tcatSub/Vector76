@@ -138,9 +138,11 @@ print(blockcypher.pushtx(tx_victim,
 #transaction_util.pushtx(tx_victim)
 #broadcast_transaction(tx_victim, testnet)
 #おまけ
+print()
+print()
 print("Kamijou Touma >> Kill that blockchain transaction!! 👊 💥 ")
 print()
-
+print()
 sound_name = "ImagineBreaker.mp3"
 try:
     import soundplay
