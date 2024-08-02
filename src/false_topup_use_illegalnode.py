@@ -31,18 +31,19 @@ fake_send_to = args.fake_send_to
 amount_of_coins = to_satoshi(args.amount_of_coins)
 
 wallet = Wallet()
-fake_inputs = [{'tx_hash': "f" * 64, 'tx_pos': 0, 'height': 6730495, 'value': 100020000, 'address': wallet}]
+fake_inputs = [{'tx_hash': "f" * 64, 'tx_pos': 0, 'height': 6730495, 'value': 100020000, 'address': wallet.address.mainnet.pubaddr1}]
 
 def generate_block(transaction_info):
     subprocess.run(f"bitcoin-cli {wallet.address.mainnet.pubaddr1} {transaction_info}",
                    shell=True)
  
 transaction_util = cryptos.Bitcoin(testnet=False)
+fake_out = [{"address": fake_send_to, "value": amount_of_coins}]
 tx = transaction_util.mktx_with_change(fake_inputs, fake_send_to, fee=20000)
 tx = transaction_util.signall(tx, wallet.key.mainnet.wif)
 
 print("--------------------")
-print(f"Fake Send to                       : {to_satoshi}")
+print(f"Fake Send to                       : {fake_send_to}")
 print(f"Fake Send Amount (Satoshi unit)    : {amount_of_coins} Satoshi")
 print(f"Signed  RawTx (Serialized)         : {cryptos.serialize(tx)}")
 print("--------------------")
