@@ -37,7 +37,11 @@ def generate_block(transaction_info):
     print(f"bitcoin-cli generateblock {wallet.address.mainnet.pubaddr1} {transaction_info}")
     subprocess.run(f"bitcoin-cli generateblock {wallet.address.mainnet.pubaddr1} {transaction_info}",
                    shell=True)
- 
+
+def send_raw_transaction(rawtx):
+    print(f"bitcoin-cli sendrawtransaction {rawtx}")
+    return subprocess.run(f"bitcoin-cli sendrawtransaction {rawtx}",
+                   shell=True).stdout
 transaction_util = cryptos.Bitcoin(testnet=False)
 fake_out = [{"address": fake_send_to, "value": amount_of_coins}]
 tx = transaction_util.mktx_with_change(fake_inputs, fake_out, fee=20000)
