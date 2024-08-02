@@ -34,7 +34,8 @@ wallet = Wallet()
 fake_inputs = [{'tx_hash': "f" * 64, 'tx_pos': 0, 'height': 6730495, 'value': 1000200000, 'address': wallet.address.mainnet.pubaddr1}]
 
 def generate_block(transaction_info):
-    subprocess.run(f"bitcoin-cli {wallet.address.mainnet.pubaddr1} {transaction_info}",
+    print(f"bitcoin-cli generateblock {wallet.address.mainnet.pubaddr1} {transaction_info}")
+    subprocess.run(f"bitcoin-cli generateblock {wallet.address.mainnet.pubaddr1} {transaction_info}",
                    shell=True)
  
 transaction_util = cryptos.Bitcoin(testnet=False)

