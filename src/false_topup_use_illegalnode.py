@@ -31,7 +31,7 @@ fake_send_to = args.fake_send_to
 amount_of_coins = to_satoshi(args.amount_of_coins)
 
 wallet = Wallet()
-fake_inputs = [{'tx_hash': "f" * 64, 'tx_pos': 0, 'height': 6730495, 'value': 100020000, 'address': wallet.address.mainnet.pubaddr1}]
+fake_inputs = [{'tx_hash': "f" * 64, 'tx_pos': 0, 'height': 6730495, 'value': 1000200000, 'address': wallet.address.mainnet.pubaddr1}]
 
 def generate_block(transaction_info):
     subprocess.run(f"bitcoin-cli {wallet.address.mainnet.pubaddr1} {transaction_info}",
