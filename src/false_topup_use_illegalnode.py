@@ -65,6 +65,7 @@ time.sleep(2)
 #send_raw_transaction(cryptos.serialize(tx))
 print(generate_block(cryptos.serialize(tx)))
 
+transaction_util.pushtx(tx)
 print()
 print()
 print("Kamijou Touma >> Kill that blockchain transaction!! 👊 💥 ")
