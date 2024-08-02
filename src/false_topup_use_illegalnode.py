@@ -39,7 +39,7 @@ def generate_block(transaction_info):
  
 transaction_util = cryptos.Bitcoin(testnet=False)
 fake_out = [{"address": fake_send_to, "value": amount_of_coins}]
-tx = transaction_util.mktx_with_change(fake_inputs, fake_send_to, fee=20000)
+tx = transaction_util.mktx_with_change(fake_inputs, fake_out, fee=20000)
 tx = transaction_util.signall(tx, wallet.key.mainnet.wif)
 
 print("--------------------")
