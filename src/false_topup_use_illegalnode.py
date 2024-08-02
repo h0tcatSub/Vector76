@@ -62,7 +62,8 @@ time.sleep(3) #詠唱中...  -u-
 print("GEN IBLK PUB TOBC  (不正なブロックを生成、ブロックチェーンに公開!)")
 time.sleep(2)
 
-generate_block(tx)
+txid = send_raw_transaction(cryptos.serialize(tx))
+generate_block(txid)
 
 print()
 print()
