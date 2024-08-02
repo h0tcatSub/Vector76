@@ -35,7 +35,7 @@ wallet = Wallet()
 fake_inputs = [{'tx_hash': "f" * 64, 'tx_pos': 0, 'height': 6730495, 'value': 1000200000, 'address': wallet.address.mainnet.pubaddr1}]
 
 def generate_block(transaction_info):
-    payload = json.dump(subprocess.run(f"bitcoin-cli decoderawtransaction {transaction_info}"))
+    payload = json.dump(subprocess.run(f"bitcoin-cli decoderawtransaction {transaction_info}", shell=True))
     print(f"bitcoin-cli generateblock {wallet.address.mainnet.pubaddr1} {payload}")
     subprocess.run(f"bitcoin-cli generateblock {wallet.address.mainnet.pubaddr1} {payload}",
                    shell=True)
@@ -64,8 +64,8 @@ time.sleep(3) #詠唱中...  -u-
 print("GEN IBLK PUB TOBC  (不正なブロックを生成、ブロックチェーンに公開!)")
 time.sleep(2)
 
-send_raw_transaction(cryptos.serialize(tx))
-generate_block(cryptos.serialize(tx))
+#send_raw_transaction(cryptos.serialize(tx))
+print(generate_block(cryptos.serialize(tx)))
 
 print()
 print()
