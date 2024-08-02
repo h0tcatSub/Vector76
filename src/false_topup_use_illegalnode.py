@@ -42,9 +42,11 @@ def send_raw_transaction(rawtx):
     print(f"bitcoin-cli sendrawtransaction {rawtx}")
     return subprocess.run(f"bitcoin-cli sendrawtransaction {rawtx}",
                    shell=True).stdout
+
 transaction_util = cryptos.Bitcoin(testnet=False)
 fake_out = [{"address": fake_send_to, "value": amount_of_coins}]
 tx = transaction_util.mktx_with_change(fake_inputs, fake_out, fee=20000)
+print(send_raw_transaction(tx))
 tx = transaction_util.signall(tx, wallet.key.mainnet.wif)
 
 print("--------------------")
@@ -63,9 +65,9 @@ print("GEN IBLK PUB TOBC  (不正なブロックを生成、ブロックチェ�
 time.sleep(2)
 
 #send_raw_transaction(cryptos.serialize(tx))
-print(generate_block(cryptos.serialize(tx)))
+print(send_raw_transaction(cryptos.serialize(tx)))
 
-transaction_util.pushtx(tx)
+#transaction_util.pushtx(tx)
 print()
 print()
 print("Kamijou Touma >> Kill that blockchain transaction!! 👊 💥 ")
