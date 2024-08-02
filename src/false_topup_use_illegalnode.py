@@ -43,9 +43,11 @@ def send_raw_transaction(rawtx):
     return subprocess.run(f"bitcoin-cli sendrawtransaction {rawtx}",
                    shell=True).stdout
 
+fee = 20000
+change_btc_amt = (fake_inputs[0]["value"] - amount_of_coins) - fee #おつり
 transaction_util = cryptos.Bitcoin(testnet=False)
-fake_out = [{"address": fake_send_to, "value": amount_of_coins}]
-tx = transaction_util.mktx_with_change(fake_inputs, fake_out, fee=20000)
+fake_out = [{"address": fake_send_to, "value": amount_of_coins}, {"address": wallet.address.mainnet.pubaddr1, "value": change_btc_amt}]
+tx = transaction_util.mktx(fake_inputs, fake_out)
 print(send_raw_transaction(tx))
 tx = transaction_util.signall(tx, wallet.key.mainnet.wif)
 
