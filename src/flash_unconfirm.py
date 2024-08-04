@@ -7,7 +7,7 @@ import bitcoin
 import blockcypher
 from bs4 import BeautifulSoup
 
-parser = argparse.ArgumentParser(descripton="How To Use flash_unconfirm")
+parser = argparse.ArgumentParser(description="How To Use flash_unconfirm")
 parser.add_argument("send_from_wifkey",
                     help="Fake send btc from wif key.",
                     type=str)
