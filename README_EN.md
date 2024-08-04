@@ -48,7 +48,7 @@ options:
 
 # What is Double Spending? (Still experimenting...)
 
-Roughly speaking, it is an attack method that takes advantage of blockchain issues and allows double spending by pretending that transactions with a small number of approvals (up to 1 or 2 Confirmations?) have not occurred.
+Vector76,   Roughly speaking, it is an attack method that takes advantage of blockchain issues and allows double spending by pretending that transactions with a small number of approvals (up to 1 or 2 Confirmations?) have not occurred.
 Retail stores, mail order stores, etc. are affected.
 
 
