@@ -32,10 +32,10 @@ fake_send_to = args.fake_send_to
 amount_of_coins = to_satoshi(args.amount_of_coins)
 
 wallet = Wallet()
-fake_inputs = [{'tx_hash': "f" * 64, 'tx_pos': 0, 'height': 6730495, 'value': 1000200000, 'address': wallet.address.mainnet.pubaddr1}]
+fake_inputs = [{'tx_hash': "f" * 64, 'tx_pos': 0, 'height': 6730495, 'value': 1000200000, 'address': wallet.address.testnet.pubaddr1}]
 
 def generate_block(transaction_info):
-    return subprocess.run(f"bitcoin-cli generateblock {wallet.address.mainnet.pubaddr1} ['{transaction_info}'] false",
+    return subprocess.run(f"bitcoin-cli generateblock {wallet.address.testnet.pubaddr1} ['{transaction_info}'] false",
                    shell=True,
                    stdout=subprocess.PIPE).stdout
 
@@ -49,10 +49,10 @@ fee = 20000
 change_btc_amt = (fake_inputs[0]["value"] - amount_of_coins) - fee #おつり
 transaction_util = cryptos.Bitcoin(testnet=False)
 fake_out = [{"address": fake_send_to, "value": amount_of_coins}]
-fake_inputs = transaction_util.mktx_with_change(fake_inputs, fake_out, change_addr=wallet.address.mainnet.pubaddr1, fee=fee)
-tx = transaction_util.signall(fake_inputs, wallet.key.mainnet.wif)
+fake_inputs = transaction_util.mktx_with_change(fake_inputs, fake_out, change_addr=wallet.address.testnet.pubaddr1, fee=fee)
+tx = transaction_util.signall(fake_inputs, wallet.key.testnet.wif)
 #tx = transaction_util.signall(tx, wallet.key.mainnet.wif)
-print(wallet.key.mainnet.wif)
+print(wallet.key.testnet.wif)
 print("--------------------")
 print(f"Fake Send to                       : {fake_send_to}")
 print(f"Fake Send Amount (Satoshi unit)    : {amount_of_coins} Satoshi")
