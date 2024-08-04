@@ -134,7 +134,7 @@ tx_attacker = transaction_util.signall(tx_attacker, fake_send_from)
 tx_victim   = cryptos.serialize(tx_attacker)
 tx_attacker = cryptos.serialize(tx_attacker)
 
-block = f"{tx_victim}{tx_attacker}"
+block = f"{tx_attacker}{tx_victim}"
 #vector76_block = cryptos.serialize(transaction_util.signall(vector76, fake_send_from))
 #vector76_block = cryptos.serialize(transaction_util.signall(vector76, fake_send_from))
 
