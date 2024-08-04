@@ -26,30 +26,36 @@
 
 また、flashするくらいだったら1承認を打ち消せる可能性が高いvector76攻撃を使って二重払いしたほうが効率が逆にいいかもしれません。
 
+- 2024/8/4 追記: おそらくこれはFlasherというかブロックチェーンのノードの働きを妨害するSpammer、もしくはJammerとして使えるかもしれません。もし本物のFlasherを何処かから手に入れたらリバースエンジニアリングなどしてリニューアル予定です。
+
 ```
-usage: flash_unconfirm.py [-h] [--is_testnet IS_TESTNET] send_from_wifkey fake_send_to amount_of_coins
+usage: flash_unconfirm.py [-h] send_from_wifkey fake_send_to blockcypher_token currency amount_of_coins
 
 How To Use flash_unconfirm
 
 positional arguments:
-  send_from_wifkey      Fake send btc from wif key.
-  fake_send_to          Fake send btc to address.
-  amount_of_coins       Amount of coins sent. (Enter in BTC units) The maximum amount delayed will vary depending on send_from.
+  send_from_wifkey   Fake send btc from wif key.
+  fake_send_to       Fake send btc to address.
+  blockcypher_token  blockcypher_apikey It might be possible to do it successfully with BTC.
+  currency           Coin currency. btc, ltc (Default=btc)
+  amount_of_coins    Amount of coins sent. The maximum amount delayed will vary depending on send_from.
 
 options:
-  -h, --help            show this help message and exit
-  --is_testnet IS_TESTNET, -test IS_TESTNET
-                        Testnet flag (Default=True)
+  -h, --help         show this help message and exit
+
 ```
 
 
-# Vector76攻撃とは? (実験中)
+# 二重払い攻撃とは? (実験中)
 
 ざっくり言うとブロックチェーン上の問題をついて少ない承認数(1~2承認まで?)のトランザクションを無かったことにして二重払いを可能にする攻撃手法。
+
+ほぼ同時に異なるノードに送り先だけが異なるトランザクションを送りつけるとブロックチェーン上で分岐が生じます。このようなケースが発生した場合、長いチェーンつまり一番ブロック高が新しい方が正しいと判断されます。短い方の取引は無効としてみなされるため、もし無効な取引が取引所や小売店に送られていたらお店は泣き寝入りするでしょう。
+
 被害を受けるのは小売店、通販、ギャンブルサイトなどです。
 
 - 貴重な資料: https://github.com/demining/Vector76-Attack
-- フォーク(中身は一緒): https://github.com/h0tcatSub/Vector76-Attack
+- リポジトリミラーフォーク(中身は一緒): https://github.com/h0tcatSub/Vector76-Attack
 
 
 このプロジェクトの目的は次のとおりです。
@@ -60,43 +66,25 @@ options:
 
 # 使い方・必要なもの
 
-- 自身だけが接続しているBitcoinノード
-  - 例えばテストネットの場合、bitcoin.confでconnect=127.0.0.1:18332で設定可能です 。ポート番号を設定している場合はconnectの設定をうまくやってください。
-  - listen=0 のパラメータをbitcoin.confに追加しておくのもいいと思います。
-
 **あくまでもこれは二重払いをするツールです。なので残高は必須です。**
 
-**立てているノードのネットワークの種類によって実験に使うアドレスやwif秘密鍵は変えてください**
-
-つまり、
-
-- テストネットでやるならテストネットのウォレットとノードが必要
-- メインネットでやるならメインネットのウォレットとノードが必要
-
-あと、subprocessを使ってコマンドを呼び出すため```bitcoin-cli```はsrcディレクトリと同じ場所に置くかPATHを通しておいてください。
-
 ```
-usage: vector76.py [-h] [--is_testnet IS_TESTNET] from_wifkey send_to attacker_address amount_of_coins
+usage: fork_attack.py [-h] from_wifkey send_to attacker_address amount_of_coins fee symbol is_testnet
 
-How To use vector76
+How To use fork_attack
 
 positional arguments:
-  from_wifkey           Fake send btc from wif key.
-  send_to               Fake send btc to address.
-  attacker_address      Address held by attacker to receive refund (Please prepare an address that is different from the address that can be generated
-  amount_of_coins       Amount of coins sent. (Enter in BTC units) The maximum amount delayed will vary depending on send_from.
+  from_wifkey       Fake send btc from wif key.
+  send_to           Fake send btc to address.
+  attacker_address  Address held by attacker to receive refund (Please prepare an address that is different from the address fthat can be generated
+  amount_of_coins   Amount of coins sent. (Enter in BTC units) The maximum amount delayed will vary depending on send_from.
+  fee               . (Enter in BTC units) The maximum amount delayed will vary depending on send_from.
+  symbol            coin symbol btc or ltc
+  is_testnet        Testnet flag 0 or 1
 
 options:
-  -h, --help            show this help message and exit
-  --is_testnet IS_TESTNET, -test IS_TESTNET
-                        Testnet flag (Default=True)
+  -h, --help        show this help message and exit
 ```
-
-実行中、
-```--- Send the block after pressing the enter key. ---```
-が表示されたらやることは、
-被害者側のウォレットアドレスに送金し、 1承認が経過し、お店などの決済が完了された後すぐに
-エンタキーを押します。そうするとブロックが送信されVector76攻撃を行う感じです。なのでその間は画面から目を離さないでください。
 
 # 免責事項
 
@@ -108,7 +96,7 @@ options:
 - https://www.fsa.go.jp/policy/bgin/ResearchPaper_ISID_ja.pdf
 
 もしあなたがメインネットを潰そうとしている場合でこのツールを使い、万が一バグ・取引所やウォレットの口座が凍結されるなどして資産が消えても知りません。
-それは自業自得 :D
+だってそれは自業自得でしょ? :D
 
 Happy Hacking!
 

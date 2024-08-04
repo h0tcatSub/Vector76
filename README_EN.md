@@ -1,53 +1,58 @@
-# Find out the true identity of the mysterious tool Fake Sender Flasher
+# Investigating the Mystery Tool Fake Sender Flasher
 
-I often see videos on Youtube of sending non-existing Bitcoin transactions to exchanges and extracting the balance.
-Such videos are scams that steal Bitcoin, Trojan Malware, and even if they are genuine, they are often too expensive.
+It's common to see videos on YouTube where non-existent Bitcoin transactions are sent to exchanges to withdraw balances. Such videos are often scams to steal Bitcoin, Trojan Malware, or even if real, excessively expensive content.
 
-By chance, when I created a specially crafted transaction so that the mining fee would be 0 and sent it, an unauthorized balance was temporarily reflected.
-Of course, since it is not mined, the transaction remains unconfirmed. You can temporarily send your balance to the other party.
-After a while, the transaction was canceled and the sent coins were returned.
+By chance, I created a transaction with zero mining fees and sent it as a test. Temporarily, the unconfirmed balance was reflected. Of course, since it wasn't mined, the transaction remained unconfirmed. After some time, the transaction was erased, and the sent coins were returned.
 
-Those affected are retail stores, mail order stores, gambling sites, etc. that are managed solely by balances.
-Exchanges and retail stores should be wary of unauthorized transactions.
+Victims are mainly small retailers, online stores, and gambling sites that only manage balances. Exchanges and retailers should be wary of unconfirmed transactions.
 
-**The following conditions are required to execute flash.**
-- Address private key of coins with balance (The amount that can be flushed depends on how many coins you have prepared.)
-- Broadcasts with 0 mining fees are temporarily accepted.
+**The following conditions are essential to execute the flash:**
 
-The following possibilities can be considered as to why a tool that does not require a private key can run Flash.
-- The theory is that the developer strictly manages the private key of the address where the coins are stored in advance, and sends the private key to the app via communication and signs with it.
+- Private key of the address with coin balance (The amount that can be flashed depends on how much coin is prepared.)
+- Temporary acceptance of broadcasts with zero mining fees
+Why can a tool without a private key perform a flash? Possible explanations include:
+- The developer securely manages the private key of an address with coins in advance and sends the private key to the app via communication to sign the transaction.
 
 It's also possible that people and developers abusing Flasher are using more sophisticated techniques that aren't publicly known.
 
-Those who want to try it out can try it out with ```flash_unconfirm.py```.
-I have tried it several times on the testnet, but it has not been confirmed on the mainnet.
-**If you seriously want to do it on the mainnet, please do it only if you are prepared to have your account or address frozen. **
-Please see our disclaimer for more details.
+Additionally, people who abuse Flasher or developers might be using more advanced technology unknown to the public.
+
+If you want to try it out, you can use flash_unconfirm.py.
+It has been tested several times on the testnet but not confirmed on the mainnet.
+If you seriously want to do this on the mainnet, be prepared for your account or address to be frozen.
+For details, please refer to the disclaimer.
+
+Moreover, instead of flashing, using the more efficient vector76 attack to cancel a single confirmation might be more effective for double-spending.
 
 
-Also, if it's just a flash, it might be more efficient to double-spend using a vector76 attack, which has a high possibility of canceling one authorization.
+- 2024/8/4 Update: This might be used as a Spammer or Jammer to disrupt the operation of blockchain nodes rather than a Flasher. If you obtain a real Flasher from somewhere, reverse engineering and renewal are planned.
 
 
 ```
-usage: flash_unconfirm.py [-h] [--is_testnet IS_TESTNET] send_from_wifkey fake_send_to amount_of_coins
+usage: flash_unconfirm.py [-h] send_from_wifkey fake_send_to blockcypher_token currency amount_of_coins
 
 How To Use flash_unconfirm
 
 positional arguments:
-  send_from_wifkey      Fake send btc from wif key.
-  fake_send_to          Fake send btc to address.
-  amount_of_coins       Amount of coins sent. (Enter in BTC units) The maximum amount delayed will vary depending on send_from.
+  send_from_wifkey   Fake send btc from wif key.
+  fake_send_to       Fake send btc to address.
+  blockcypher_token  blockcypher_apikey It might be possible to do it successfully with BTC.
+  currency           Coin currency. btc, ltc (Default=btc)
+  amount_of_coins    Amount of coins sent. The maximum amount delayed will vary depending on send_from.
 
 options:
-  -h, --help            show this help message and exit
-  --is_testnet IS_TESTNET, -test IS_TESTNET
-                        Testnet flag (Default=True)
+  -h, --help         show this help message and exit
+
 ```
 
-# What is Vector76 Attack? (Still experimenting...)
+
+# What is Double Spending? (Still experimenting...)
 
 Roughly speaking, it is an attack method that takes advantage of blockchain issues and allows double spending by pretending that transactions with a small number of approvals (up to 1 or 2 Confirmations?) have not occurred.
 Retail stores, mail order stores, etc. are affected.
+
+
+When transactions with different destinations are sent to different nodes at almost the same time, a branch occurs on the blockchain. When such a case occurs, the longest chain, that is, the one with the newest block height, is judged to be correct. The shorter transaction is considered invalid, so if an invalid transaction is sent to an exchange or retail store, the store will be at a loss.
 
 - Valuable materials (Head family): https://github.com/demining/Vector76-Attack
 - Forked Repository  (The content is the same.): https://github.com/h0tcatSub/Vector76-Attack
@@ -63,45 +68,26 @@ The objectives of this project are:
 
 # How to use a this tool, Things necessary
 
-- Bitcoin nodes that only you are connected to
-  - This is configurable in bitcoin.conf with connect=127.0.0.1
-  - I think it's a good idea to add the listen=0 parameter to bitcoin.conf.
-
 **This is just a tool to make double spending. Therefore, the attacker needs to prepare Bitcoin.**
-**Please change the address and wifi private key used for the experiment depending on the type of network of the node you are setting**
-
-- Now set up a node so that submitblock can send. Also,
-
-In other words,
-- If you want to use testnet, you need a testnet wallet and node.
-
-- If you want to do it on the mainnet, you need a mainnet wallet and node.
-
-Also, in order to call the command using subprocess, please put ``bitcoin-cli`` in the same location as the src directory or include it in the PATH.
 
 
 ```
-usage: vector76.py [-h] [--is_testnet IS_TESTNET] from_wifkey send_to attacker_address amount_of_coins
+usage: fork_attack.py [-h] from_wifkey send_to attacker_address amount_of_coins fee symbol is_testnet
 
-How To use vector76
+How To use fork_attack
 
 positional arguments:
-  from_wifkey           Fake send btc from wif key.
-  send_to               Fake send btc to address.
-  attacker_address      Address held by attacker to receive refund (Please prepare an address that is different from the address that can be generated
-  amount_of_coins       Amount of coins sent. (Enter in BTC units) The maximum amount delayed will vary depending on send_from.
+  from_wifkey       Fake send btc from wif key.
+  send_to           Fake send btc to address.
+  attacker_address  Address held by attacker to receive refund (Please prepare an address that is different from the address fthat can be generated
+  amount_of_coins   Amount of coins sent. (Enter in BTC units) The maximum amount delayed will vary depending on send_from.
+  fee               . (Enter in BTC units) The maximum amount delayed will vary depending on send_from.
+  symbol            coin symbol btc or ltc
+  is_testnet        Testnet flag 0 or 1
 
 options:
-  -h, --help            show this help message and exit
-  --is_testnet IS_TESTNET, -test IS_TESTNET
-                        Testnet flag (Default=True)
+  -h, --help        show this help message and exit
 ```
-
-During the attack,
-```--- Send the block after pressing the enter key. ---```
-What to do when this appears is
-Immediately after the money is sent to the victim's wallet address, 1 approval has passed, and the payment at the store etc. is completed.
-Press enter. Then a block is sent and a Vector76 attack is performed. So please keep your eyes on the screen during this time.
 
 # Disclaimer
 

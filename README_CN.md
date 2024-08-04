@@ -1,125 +1,95 @@
-# 找出神秘工具Fake Sender Flasher的真實身份
+# 探索神秘工具Fake Sender Flasher的真相
 
-我經常在 YouTube 上看到將不存在的比特幣交易發送到交易所並提取餘額的影片。
-這類影片都是盜取比特幣、特洛伊木馬的騙局，即使是正版，也往往價格過高。
+经常在Youtube上看到有人将不存在的比特币交易发送到交易所以提取余额的视频。这些视频要么是骗取比特币的骗局，要么是特洛伊木马，或者即使是真的，也都是昂贵的内容。
 
-一次偶然的機會，當我創建了一筆特製交易，使挖礦費用為0並發送時，暫時反映了未經授權的餘額。
-當然，由於它沒有被開採，交易仍未得到確認。您可以暫時將餘額發送給對方。
-過了一會兒，交易被取消，發送的幣被退回。
+偶然间，我制作了一笔矿工费用为0的交易并发送，发现未确认的余额暂时反映在账户中。当然，由于没有被矿工确认，该交易一直处于未确认状态。但在一段时间后，这笔交易会被取消，发送的比特币会被退还。
 
-受影響的是僅透過餘額管理的零售商店、郵購商店、賭博網站等。
-交易所和零售商店應警惕未經授權的交易。
+受害者主要是那些只管理余额的小型零售店、网店、赌博网站等。交易所和零售店要警惕未确认的交易。
 
-**執行快閃記憶體需要以下條件。**
-- 餘額的幣私鑰地址（可沖的金額取決於您準備的幣數）
-- 暫時接受0挖礦費的廣播。
+**要执行闪存操作，必须满足以下条件：**
 
-為什麼不需要私鑰的工具可以運行Flash，可以考慮以下可能性。
-- 原理是開發者嚴格管理預先存幣地址的私鑰，並透過通訊將私鑰發送到應用程式並與之簽署。
+- 具有余额的比特币地址的私钥（闪存的金额取决于准备的比特币数量。）
+- 一时能够接受矿工费用为0的广播
 
-濫用 Flasher 的人和開發人員也可能使用不為公眾所知的更複雜的技術。
+没有私钥的工具为什么能闪存？可能的解释是：
 
-想嘗試的可以用```flash_unconfirm.py```來嘗試。
-我在測試網上嘗試了幾次，但在主網上還沒有得到證實。
-**如果您真的想在主網上執行此操作，請僅在您準備好凍結您的帳戶或地址的情況下執行此操作。 **
-請參閱我們的免責聲明以了解更多詳情。
+开发者预先以某种方式严密管理含有比特币的地址的私钥，通过通信将私钥发送到应用程序并进行签名。
+另外，滥用Flasher的人和开发者可能使用了更高级的技术，公众尚未知道。
 
+想亲自尝试的人可以使用```flash_unconfirm.py```进行测试。在测试网进行了多次尝试，但在主网上尚未确认。
 
-另外，如果只是一閃而過，使用 vector76 攻擊進行雙花可能會更有效，這種攻擊很有可能取消一次授權。
+**如果真的想在主网上进行操作，请准备好账户或地址被冻结的觉悟。**
+详情请查看免责条款。
+
+此外，与其进行闪存操作，不如使用可能性更高的vector76攻击来进行双重支付，可能效率更高。
+
+- 2024/8/4 追加：这可能可以作为阻止区块链节点运行的Spammer或Jammer使用。如果从某处获得了真正的Flasher，将进行逆向工程等以进行更新。
+
 
 ```
-usage: flash_unconfirm.py [-h] [--is_testnet IS_TESTNET] send_from_wifkey fake_send_to amount_of_coins
+usage: flash_unconfirm.py [-h] send_from_wifkey fake_send_to blockcypher_token currency amount_of_coins
 
 How To Use flash_unconfirm
 
 positional arguments:
-  send_from_wifkey      Fake send btc from wif key.
-  fake_send_to          Fake send btc to address.
-  amount_of_coins       Amount of coins sent. (Enter in BTC units) The maximum amount delayed will vary depending on send_from.
+  send_from_wifkey   从wif密钥发送伪造的比特币。
+  fake_send_to       发送伪造的比特币到地址。
+  blockcypher_token  blockcypher_apikey 有可能成功与BTC一起使用。
+  currency           货币。btc, ltc (默认=btc)
+  amount_of_coins    发送的比特币数量。延迟的最大金额取决于send_from。
 
 options:
-  -h, --help            show this help message and exit
-  --is_testnet IS_TESTNET, -test IS_TESTNET
-                        Testnet flag (Default=True)
-```
-
-# 什麼是 Vector76 攻擊？ (仍在嘗試)
-
-粗略地說，這是一種利用區塊鏈問題，透過假裝少量批准（1個或2個批准？）的交易沒有發生來允許雙重支付的攻擊方法。
-受影響的包括零售商店、郵購商店和賭博網站。
-
-- 有價值的資料：https://github.com/demining/Vector76-Attack
-- Fork（內容相同）：https://github.com/h0tcatSub/Vector76-Attack
-
-該專案的目標是：
-
-- YouTube 和其他地方有幾個攻擊比特幣的工具演示視頻，其中大多數似乎是付費的，並試圖詐騙大筆資金。因此，目的是摧毀比特幣破解工具（銷售）騙子。 （詐騙殺手）**如果你真的能做到這一點，我希望你公開地向我展示原始碼。**
-- 摧毀支付系統脆弱的賭博網站（賭場荷官迷戀）
-- 用於教育目的。
-
-# 如何使用/您需要什麼
-
-- 只有您連接的比特幣節點
-  - 這可以在 bitcoin.conf 中使用 connect=127.0.0.1 進行配置
-  - 我認為將listen=0參數新增至bitcoin.conf是個好主意。
-
-**這只是一個雙重支付的工具。因此，需要平衡。**
-**請根據您設定的節點的網路類型更改實驗所使用的位址和wifi私鑰**
-
-- 現在設定一個節點，以便submitblock可以發送。另外，
-
-換句話說，
-- 如果您想使用測試網，您需要測試網錢包和節點。
-- 如果你想在主網上進行，你需要一個主網錢包和節點。
-
-另外，為了使用子程序呼叫指令，請將「bitcoin-cli」放在與 src 目錄相同的位置或將其包含在 PATH 中。
+  -h, --help         显示此帮助信息并退出
 
 ```
-usage: vector76.py [-h] [--is_testnet IS_TESTNET] [--fee FEE] [--last_txid LAST_TXID]
-                   node_host node_port username password attacker_signkey victim_address attacker_address amount_of_coins
 
-How To Use vector76
+# 什么是双重支付攻击？（实验中）
+简单来说，这是利用区块链上的问题，将少量确认数（1~2个确认？）的交易变成无效，以实现双重支付的攻击手段。
+
+几乎同时向不同节点发送仅接收地址不同的交易，会在区块链上产生分叉。在这种情况下，长链（即最新区块高度）被视为正确。短链上的交易被视为无效，如果无效交易发送到交易所或零售店，他们将会遭受损失。
+
+受害者主要是小型零售店、网店、赌博网站等。
+
+- 宝贵资料：https://github.com/demining/Vector76-Attack
+- 仓库镜像（内容相同）：https://github.com/h0tcatSub/Vector76-Attack
+
+该项目的目标如下：
+
+- 在Youtube等平台上有一些演示攻击比特币工具的视频，这些工具通常是收费的，试图骗取大量资金。因此，目的是摧毁这些比特币破解工具（销售）骗子。（欺诈杀手） **如果真能做到这些，请公开源代码。**
+- 摧毁支付系统脆弱的赌博网站（庄家杀手）
+- 教育目的。
+
+# 使用方法和必需品
+**这只是一个双重支付工具。因此，余额是必需的。**
+
+```
+usage: fork_attack.py [-h] from_wifkey send_to attacker_address amount_of_coins fee symbol is_testnet
+
+How To use fork_attack
 
 positional arguments:
-  node_host             Blockchain Node Host
-  node_port             Blockchain Node Port
-  username              Your BTC node username
-  password              Your BTC node password
-  attacker_signkey      The attacker has the WIF format private key of the first address (this is used to sign the transaction)
-  victim_address        Victim address.
-  attacker_address      Address held by attacker to receive refund (Please prepare an address that is different from the address that can be generated
-                        with the private key specified in the first place.)
-  amount_of_coins       Amount of coins sent. (Enter in BTC units)
+  from_wifkey       从wif密钥发送伪造的比特币。
+  send_to           发送伪造的比特币到地址。
+  attacker_address  攻击者持有的接收退款的地址（请准备一个不同于生成的地址的地址）
+  amount_of_coins   发送的比特币数量。（以BTC单位输入）延迟的最大金额取决于send_from。
+  fee               手续费。（以BTC单位输入）延迟的最大金额取决于send_from。
+  symbol            货币符号btc或ltc
+  is_testnet        测试网标志0或1
 
 options:
-  -h, --help            show this help message and exit
-  --is_testnet IS_TESTNET
-                        testnet flag (Default=True)
-  --fee FEE             BTC send fee. (Default=0.00015)
-  --last_txid LAST_TXID, -txid LAST_TXID
-                        Last txid (address of attacker_signkey)
+  -h, --help        显示此帮助信息并退出
 ```
 
+# 免责声明
+在主网上执行此工具时，请自行承担风险。此外，由于我能力有限，参考这些文件制作了此工具。节点同步需要时间，尚未确认其运行。
 
-當攻擊期間出現此訊息時，
-```--- Send the block after pressing the enter key. ---```
-該怎麼做：
-錢被送到受害者的錢包地址後，立即通過1個批准，並完成在商店等待的付款。
-按回車鍵。然後發送一個區塊並執行 Vector76 攻擊。所以請大家在這段時間密切注意螢幕。
-
-
-# 免責聲明
-
-在主網上執行此工具的風險由您自行承擔。
-另外，由於我能力不足，所以我參考了這些文件。該操作尚未確認，因為同步節點需要時間。
 - https://github.com/demining/Vector76-Attack
 - https://www.fsa.go.jp/policy/bgin/ResearchPaper_ISID_ja.pdf
 
-如果您試圖破壞主網並使用此工具，您將不知道您的資產是否因錯誤、交易所或錢包帳戶被凍結等原因而消失。
-那是我的錯 :D
 
+如果你打算用此工具摧毁主网，并因此导致账户冻结或资产消失等问题，我概不负责。
+这是自作自受 
 
 Happy Hacking!
 
-
-上條鬥真 > 殺死那個區塊鏈！ 👊  💥 
+上条当麻 > 那个区块链，我要杀了你!! 👊 💥
