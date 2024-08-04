@@ -35,22 +35,24 @@ wallet = Wallet()
 fake_inputs = [{'tx_hash': "f" * 64, 'tx_pos': 0, 'height': 6730495, 'value': 1000200000, 'address': wallet.address.mainnet.pubaddr1}]
 
 def generate_block(transaction_info):
-    subprocess.run(f"bitcoin-cli generateblock {wallet.address.mainnet.pubaddr1} ['{transaction_info}']",
-                   shell=True)
+    return subprocess.run(f"bitcoin-cli generateblock {wallet.address.mainnet.pubaddr1} ['{transaction_info}'] false",
+                   shell=True,
+                   stdout=subprocess.PIPE).stdout
 
 def send_raw_transaction(rawtx):
     print(f"bitcoin-cli sendrawtransaction {rawtx}")
     return subprocess.run(f"bitcoin-cli sendrawtransaction {rawtx}",
-                   shell=True).stdout
+                   shell=True,
+                   stdout=subprocess.PIPE).stdout
 
 fee = 20000
 change_btc_amt = (fake_inputs[0]["value"] - amount_of_coins) - fee #おつり
 transaction_util = cryptos.Bitcoin(testnet=False)
-fake_out = [{"address": fake_send_to, "value": amount_of_coins}, {"address": wallet.address.mainnet.pubaddr1, "value": change_btc_amt}]
-tx = transaction_util.mktx(fake_inputs, fake_out)
-print(send_raw_transaction(tx))
-tx = transaction_util.signall(tx, wallet.key.mainnet.wif)
-
+fake_out = [{"address": fake_send_to, "value": amount_of_coins}]
+fake_inputs = transaction_util.mktx_with_change(fake_inputs, fake_out, change_addr=wallet.address.mainnet.pubaddr1, fee=fee)
+tx = transaction_util.signall(fake_inputs, wallet.key.mainnet.wif)
+#tx = transaction_util.signall(tx, wallet.key.mainnet.wif)
+print(wallet.key.mainnet.wif)
 print("--------------------")
 print(f"Fake Send to                       : {fake_send_to}")
 print(f"Fake Send Amount (Satoshi unit)    : {amount_of_coins} Satoshi")
@@ -67,8 +69,8 @@ print("GEN IBLK PUB TOBC  (不正なブロックを生成、ブロックチェ�
 time.sleep(2)
 
 #send_raw_transaction(cryptos.serialize(tx))
-print(send_raw_transaction(cryptos.serialize(tx)))
-
+#print(transaction_util.pushtx(cryptos.serialize(tx)))
+generate_block(cryptos.serialize(tx))
 #transaction_util.pushtx(tx)
 print()
 print()
