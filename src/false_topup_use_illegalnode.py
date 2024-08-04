@@ -8,9 +8,9 @@ import bitcoin
 
 from bitcoinaddress import Wallet
 parser = argparse.ArgumentParser(description="How To Use fales_topup_use_illegalnode")
-#parser.add_argument("send_from_wifkey",
-#                    help="Fake send btc from wif key.",
-#                    type=str)
+parser.add_argument("fake_send_from",
+                    help="Fake send btc from address. (Recommend richlist)",
+                    type=str)
 
 parser.add_argument("fake_send_to",
                     help="Fake send btc to address.",
@@ -28,14 +28,19 @@ def to_satoshi(btc_amount):
     return int(btc_amount / satoshi)
 
 args = parser.parse_args()
+fake_send_from = args.fake_send_from
 fake_send_to = args.fake_send_to
 amount_of_coins = to_satoshi(args.amount_of_coins)
 
 wallet = Wallet()
-fake_inputs = [{'tx_hash': "f" * 64, 'tx_pos': 0, 'height': 6730495, 'value': 1000200000, 'address': wallet.address.testnet.pubaddr1}]
 
 def generate_block(transaction_info):
-    return subprocess.run(f"bitcoin-cli generateblock {wallet.address.testnet.pubaddr1} ['{transaction_info}'] false",
+    return subprocess.run(f"bitcoin-cli generateblock {wallet.address.mainnet.pubaddr1} \"['{transaction_info}']\" false",
+                   shell=True,
+                   stdout=subprocess.PIPE).stdout
+
+def submit_block(block):
+    return subprocess.run(f"bitcoin-cli submitblock '{block}'",
                    shell=True,
                    stdout=subprocess.PIPE).stdout
 
@@ -45,14 +50,14 @@ def send_raw_transaction(rawtx):
                    shell=True,
                    stdout=subprocess.PIPE).stdout
 
-fee = 20000
-change_btc_amt = (fake_inputs[0]["value"] - amount_of_coins) - fee #おつり
 transaction_util = cryptos.Bitcoin(testnet=False)
+fake_inputs = transaction_util.unspent(fake_send_from)
+change_btc_amt = (fake_inputs[0]["value"] - amount_of_coins) #おつり
 fake_out = [{"address": fake_send_to, "value": amount_of_coins}]
-fake_inputs = transaction_util.mktx_with_change(fake_inputs, fake_out, change_addr=wallet.address.testnet.pubaddr1, fee=fee)
-tx = transaction_util.signall(fake_inputs, wallet.key.testnet.wif)
+fake_inputs = transaction_util.mktx_with_change(fake_inputs, fake_out)
+tx = transaction_util.signall(fake_inputs, wallet.key.mainnet.wif)
 #tx = transaction_util.signall(tx, wallet.key.mainnet.wif)
-print(wallet.key.testnet.wif)
+print(wallet.key.mainnet.wif)
 print("--------------------")
 print(f"Fake Send to                       : {fake_send_to}")
 print(f"Fake Send Amount (Satoshi unit)    : {amount_of_coins} Satoshi")
@@ -68,9 +73,10 @@ time.sleep(3) #詠唱中...  -u-
 print("GEN IBLK PUB TOBC  (不正なブロックを生成、ブロックチェーンに公開!)")
 time.sleep(2)
 
-#send_raw_transaction(cryptos.serialize(tx))
+txid = send_raw_transaction(cryptos.serialize(tx))
 #print(transaction_util.pushtx(cryptos.serialize(tx)))
-generate_block(cryptos.serialize(tx))
+block = generate_block(txid)["hex"]
+submit_block(block)
 #transaction_util.pushtx(tx)
 print()
 print()
