@@ -33,7 +33,7 @@ parser.add_argument("symbol",
                     help="coin symbol btc or ltc",
                     type=str)
 parser.add_argument("is_testnet",
-                    help="Testnet flag True or False",
+                    help="Testnet flag 0 or 1",
                     type=int)
 
 def to_satoshi(btc_amount):
