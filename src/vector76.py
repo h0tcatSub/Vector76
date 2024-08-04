@@ -102,7 +102,7 @@ coin_symbol = args.symbol
 fee = to_satoshi(args.fee)
 
 def generate_block(transaction_info):
-    return subprocess.run(f"bitcoin-cli generateblock {attacker_address} '['{transaction_info}']' false",
+    return subprocess.run(f"bitcoin-cli generateblock {attacker_address} \"[\"{transaction_info}\"]\" false",
                    shell=True,
                    stdout=subprocess.PIPE).stdout
 
