@@ -34,7 +34,7 @@ parser.add_argument("symbol",
                     type=str)
 parser.add_argument("is_testnet",
                     help="Testnet flag True or False",
-                    type=bool)
+                    type=int)
 
 def to_satoshi(btc_amount):
     satoshi = 0.00000001
@@ -97,6 +97,11 @@ victim_address   = args.send_to
 attacker_address = args.attacker_address
 amount_btc = args.amount_of_coins
 testnet    = args.is_testnet
+
+if testnet == 0:
+    testnet = False
+else:
+    testnet = True
 coin_symbol = args.symbol
 fee = to_satoshi(args.fee)
 
