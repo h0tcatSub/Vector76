@@ -4,15 +4,6 @@ import requests
 import subprocess
 import cryptos
 import subprocess
-import json
-import litecoin.rpc
-import hashlib
-import uuid
-
-from bitcoinaddress import Wallet
-from litecoinutils.keys import PrivateKey
-from bitcoincli import Bitcoin
-from bs4 import BeautifulSoup
 
 parser = argparse.ArgumentParser(description="How To use vector76")
 
@@ -191,7 +182,7 @@ else:
     broadcast_mempool_space(tx_victim, testnet)
 # >>>> FRK BC EXE DSPND 0w0
 print()
-transaction_util.pushtx(block)
+send_rawtransaction(block)
 input("--- READY... --- ")
 print("generating block")
 generate_block(block)

