@@ -1,8 +1,9 @@
 import requests
+import sys
 
-def get_block_header_by_txid(txid):
+def get_block_header_by_txid(txid, chain):
     # URL to get transaction information
-    tx_url = f'https://api.blockcypher.com/v1/btc/main/txs/{txid}'
+    tx_url = f'https://api.blockcypher.com/v1/btc/{chain}/txs/{txid}'
     
     # Request transaction information
     tx_response = requests.get(tx_url)
@@ -19,7 +20,7 @@ def get_block_header_by_txid(txid):
         return
     
     # URL to get block information
-    block_url = f'https://api.blockcypher.com/v1/btc/main/blocks/{block_hash}'
+    block_url = f'https://api.blockcypher.com/v1/btc/{chain}/blocks/{block_hash}'
     
     # Request information about a block
     block_response = requests.get(block_url)
@@ -44,4 +45,5 @@ def get_block_header_by_txid(txid):
     return block_header
 
 # Usage example
-#block_header = get_block_header_by_txid(txid)
+block_header = get_block_header_by_txid(sys.argv[1], sys.argv[2])
+print(block_header)

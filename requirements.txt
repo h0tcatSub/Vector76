@@ -7,5 +7,6 @@ bitcoin-cli
 bitcoin
 python-litecoinlib
 litecoin-utils
+requests
 
 git+https://github.com/h0tcatSub/python-bitcoinlib/
